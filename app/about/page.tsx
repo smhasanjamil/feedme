@@ -16,54 +16,56 @@ export default function About() {
 
       <main className="text-feed-jungle">
         {/* Hero Section */}
-        <section  className="bg-[#f7fbe9] px-4 pt-16 text-center">
+        <section className="bg-[#f7fbe9] px-4 pt-16 text-center">
           <h1 className="mb-4 text-5xl font-bold text-[#2b4717]">About Us</h1>
           <p className="mx-auto max-w-2xl text-lg">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit
             tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.
           </p>
-          <div className=" mt-2 hidden md:block">
+          <div className="mt-2 hidden md:block">
             <div className="flex justify-center">
-            <Image src="/breads_1.png" width={700}
-              height={200} alt="" />
-              <Image src="/breads_1.png" width={700}
-              height={200} alt="" />
+              <Image src="/breads_1.png" width={700} height={200} alt="" />
+              <Image src="/breads_1.png" width={700} height={200} alt="" />
             </div>
-                
           </div>
         </section>
 
         {/* Home Sweet Bakery Section */}
-        <section className="mx-auto  grid grid-cols-2  flex-col  gap-5 max-w-6xl py-12 md:flex-row">
-            <Image
-              src="/bekary-man.jpg"
-              
-              alt="Bakery Man"
-              width={600}
-              height={400}
-              className="rounded-xl aspect-square object-cover"
-            />
-          <div className="rounded-xl bg-feed-lime shadow-md p-20">
-            <h2 className="mb-4 text-3xl font-semibold text-feed-jungle ">
+        <section className="mx-auto grid max-w-[1050px] grid-cols-2 flex-col gap-5 py-12 md:flex-row">
+          <Image
+            src="/chef.jpg"
+            alt="Bakery Man"
+            width={600}
+            height={400}
+            className="aspect-square rounded-xl object-cover"
+          />
+          <div className="bg-feed-lime/30 flex flex-col justify-between rounded-xl p-13">
+            <h2 className="text-feed-jungle mb-4 text-5xl font-semibold">
               Home Sweet Bakery
             </h2>
-            <p className="mb-4">
-              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quasi pariatur amet voluptatibus maiores doloremque omnis harum totam ipsa natus dolores ab unde est quae nemo, vero, illum, repellat dicta aliquid itaque id? Laudantium exercitationem voluptas libero sit molestiae similique beatae!
+            <p className="text-lg leading-6">
+              Lorem ipsum dolor sit amet consectetur adipisicing elit.
+              Repudiandae obcaecati explicabo, quia id nam blanditiis eligendi
+              consequatur sed fugiat dolorum in laudantium ducimus, odio rem,
+              dignissimos itaque illum sint rerum!
             </p>
-            <h3 className="mb-1 font-bold">Opening Hours :</h3>
-            <p>
-              Monday - Friday{" "}
-              <span className="ml-2 text-orange-500">09.00 - 16.00</span>
-            </p>
-            <p>
-              Saturday - Sunday{" "}
-              <span className="ml-2 text-orange-500">10.00 - 19.00</span>
-            </p>
-            <div className="flex space-x-4 mt-4 text-2xl text-[--color-feed-jungle]">
+            <h3 className="text-xl font-bold">Opening Hours :</h3>
+            <div className="text-lg font-medium">
+              <p>
+                Monday - Friday{" "}
+                <span className="ml-2 text-orange-400">09.00 - 16.00</span>
+              </p>
+              <p>
+                Saturday - Sunday{" "}
+                <span className="ml-2 text-orange-400">10.00 - 19.00</span>
+              </p>
+            </div>
+            <div className="text-feed-jungle mt-4 flex space-x-4 text-2xl">
               <a
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
+                className="text-feed-lime bg bg-feed-jungle rounded-full p-1"
               >
                 <FaFacebookF />
               </a>
@@ -71,6 +73,7 @@ export default function About() {
                 href="https://twitter.com"
                 target="_blank"
                 rel="noopener noreferrer"
+                className="text-feed-lime bg bg-feed-jungle rounded-full p-1"
               >
                 <FaTwitter />
               </a>
@@ -78,6 +81,7 @@ export default function About() {
                 href="https://youtube.com"
                 target="_blank"
                 rel="noopener noreferrer"
+                className="text-feed-lime bg bg-feed-jungle rounded-full p-1"
               >
                 <FaYoutube />
               </a>
@@ -142,29 +146,29 @@ export default function About() {
               </div>
             ))}
           </div> */}
-          <div className="grid md:grid-cols-3 mx-auto max-w-6xl gap-6 grid-cols-1">
+          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-3">
             <div>
-            <div
-                className="rounded-xl bg-[#fffbea] p-4 shadow-sm mb-4"
-              >
-                <h3 className="mb-2 text-lg font-semibold">There’s so much choice</h3>
+              <div className="mb-4 rounded-xl bg-[#fffbea] p-4 shadow-sm">
+                <h3 className="mb-2 text-lg font-semibold">
+                  There’s so much choice
+                </h3>
                 <p className="text-sm">
                   Lorem ipsum dolor sit amet, consectetur.
                 </p>
               </div>
 
-              <div
-                className="rounded-xl bg-[#fffbea] p-4 shadow-sm mb-4"
-              >
-                <h3 className="mb-2 text-lg font-semibold">There’s so much choice</h3>
+              <div className="mb-4 rounded-xl bg-[#fffbea] p-4 shadow-sm">
+                <h3 className="mb-2 text-lg font-semibold">
+                  There’s so much choice
+                </h3>
                 <p className="text-sm">
                   Lorem ipsum dolor sit amet, consectetur.
                 </p>
               </div>
-              <div
-                className="rounded-xl bg-[#fffbea] p-4 shadow-sm mb-4"
-              >
-                <h3 className="mb-2 text-lg font-semibold">There’s so much choice</h3>
+              <div className="mb-4 rounded-xl bg-[#fffbea] p-4 shadow-sm">
+                <h3 className="mb-2 text-lg font-semibold">
+                  There’s so much choice
+                </h3>
                 <p className="text-sm">
                   Lorem ipsum dolor sit amet, consectetur.
                 </p>
@@ -172,7 +176,7 @@ export default function About() {
             </div>
 
             <div>
-            <Image
+              <Image
                 src="/single_bread.png"
                 alt="Fresh Bread"
                 width={600}
@@ -182,27 +186,27 @@ export default function About() {
             </div>
 
             <div>
-            <div
-                className="rounded-xl bg-[#fffbea] p-4 shadow-sm mb-4"
-              >
-                <h3 className="mb-2 text-lg font-semibold">There’s so much choice</h3>
+              <div className="mb-4 rounded-xl bg-[#fffbea] p-4 shadow-sm">
+                <h3 className="mb-2 text-lg font-semibold">
+                  There’s so much choice
+                </h3>
                 <p className="text-sm">
                   Lorem ipsum dolor sit amet, consectetur.
                 </p>
               </div>
 
-              <div
-                className="rounded-xl bg-[#fffbea] p-4 shadow-sm mb-4"
-              >
-                <h3 className="mb-2 text-lg font-semibold">There’s so much choice</h3>
+              <div className="mb-4 rounded-xl bg-[#fffbea] p-4 shadow-sm">
+                <h3 className="mb-2 text-lg font-semibold">
+                  There’s so much choice
+                </h3>
                 <p className="text-sm">
                   Lorem ipsum dolor sit amet, consectetur.
                 </p>
               </div>
-              <div
-                className="rounded-xl bg-[#fffbea] p-4 shadow-sm mb-4"
-              >
-                <h3 className="mb-2 text-lg font-semibold">There’s so much choice</h3>
+              <div className="mb-4 rounded-xl bg-[#fffbea] p-4 shadow-sm">
+                <h3 className="mb-2 text-lg font-semibold">
+                  There’s so much choice
+                </h3>
                 <p className="text-sm">
                   Lorem ipsum dolor sit amet, consectetur.
                 </p>

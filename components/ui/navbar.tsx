@@ -12,7 +12,7 @@ const Navbar = () => {
       {/* Menu Links */}
       <ul className="flex items-center space-x-8 text-[17px] font-medium text-gray-800">
         <li>
-          <Link href="about" className="hover:text-feed-">
+          <Link href="/about" className="hover:text-feed-">
             About
           </Link>
         </li>
