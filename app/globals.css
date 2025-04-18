@@ -1,6 +1,13 @@
+/* Tailwind */
 @import "tailwindcss";
 @import "tw-animate-css";
+@theme {
+  --color-feed-lime: #c4f196;
+  --color-feed-jungle: #2b4717;
+  --color-feed-black: #282b28;
+}
 
+/* ShadCN */
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
