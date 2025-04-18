@@ -120,3 +120,8 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Container Settings */
+.container {
+  @apply !mx-auto !max-w-[1400px] px-3 md:!px-5;
+}
