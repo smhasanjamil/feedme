@@ -1,11 +1,7 @@
-import { Button } from "@/components/ui/button";
-
-const Page = () => {
+const page = () => {
   return (
-    <div className="container">
-      <Button>Hello</Button>
-    </div>
-  );
-};
+    <div>page</div>
+  )
+}
 
-export default Page;
+export default page
