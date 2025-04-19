@@ -1,7 +1,12 @@
+'use client';
 import Link from "next/link";
 import { buttonVariants } from "./button";
+import { useAppSelector } from "@/redux/hooks";
+import { currentUser } from "@/redux/features/auth/authSlice";
 
 const Navbar = () => {
+  const user = useAppSelector(currentUser);
+  console.log(user);
   return (
     <nav className="container flex items-center justify-between py-4">
       {/* Logo */}
