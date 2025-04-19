@@ -2,9 +2,9 @@ import { FaEnvelope, FaMapMarkerAlt, FaPhoneAlt } from "react-icons/fa";
 
 const page = () => {
     return (
-        <div className="bg-gray-100 min-h-screen">
+        <div className="bg-gray-100 min-h-screen ">
       {/* Hero Section */}
-      <section className="bg-feed-lime py-24 text-feed-jungle relative overflow-hidden">
+      <section className="bg-[#f7fbe9] py-24 text-feed-jungle relative overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Contact Us</h1>
           <p className="text-lg opacity-75 max-w-xl mx-auto">
@@ -17,10 +17,10 @@ const page = () => {
       </section>
 
       {/* Contact Information and Form Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16  max-w-7xl mx-auto">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* Map Section (Left) */}
-          <div className="mt-8  overflow-hidden p-40 pt-[-10] rounded-4xl">
+          <div className="mt-8  overflow-hidden md:p-30 p-20 rounded-4xl">
           <iframe className="rounded-2xl" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d187566.50169733484!2d34.3886928!3d31.410245850000003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14fd844104b258a9%3A0xfddcb14b194be8e7!2sGaza%20Strip!5e1!3m2!1sen!2sbd!4v1745052832191!5m2!1sen!2sbd" width="300" height="450" style={{border:0}} allowFullScreen={true} loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>
             </div>
             
@@ -46,9 +46,9 @@ const page = () => {
                 </p>
                 <p className="flex items-center text-gray-700">
                   <FaEnvelope className="mr-3 text-feed-jungle" />
-                  hello@modulus.io
+                  hello@feedme.io
                 </p>
-                <p className="text-feed-jungle font-semibold">@Modular Official</p>
+                <p className="text-feed-jungle font-semibold">@feedme Official</p>
               </div>
             </div>
 
@@ -84,9 +84,9 @@ const page = () => {
                   <label htmlFor="message" className="block text-gray-700 text-sm font-bold mb-2">Message</label>
                   <textarea id="message" rows={5} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
                 </div>
-                <button type="submit" className="bg-feed-jungle hover:bg-feed-black text-feed-lime font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline">
-                  Send Message
-                </button>
+                <button type="submit" className="mt-4 rounded-full bg-[#2b4717] px-6 py-3 text-white transition hover:bg-[#1f3512]">
+                Send Message
+              </button>
               </form>
             </div>
           </div>
