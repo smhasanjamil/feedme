@@ -31,7 +31,7 @@ export default function About() {
         </section>
 
         {/* Home Sweet Bakery Section */}
-        <section className="mx-auto grid max-w-[1050px] grid-cols-2 flex-col gap-5 py-12 md:flex-row">
+        <section className="mx-auto grid max-w-[1050px] lg:grid-cols-2 flex-col gap-5 py-12 md:flex-row">
           <Image
             src="/chef.jpg"
             alt="Bakery Man"
