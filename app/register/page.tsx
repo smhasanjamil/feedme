@@ -71,101 +71,121 @@ export default function SignUp() {
   };
 
   return (
-    <div className="flex items-center justify-center px-4">
-      <div className="my-8 grid w-full max-w-[900px] grid-cols-1 overflow-hidden rounded-xl border-none shadow-md md:grid-cols-2">
-        {/* Left welcome section */}
-        <div className="bg-[url('/images/signup-bg.jpg')] bg-cover bg-center">
-          <div className="bg-velo-black/50">
-            <div className="relative flex h-[150px] w-full items-center px-1 sm:h-[200px] md:h-[650px]">
-              <h3 className="text-velo-white px-3 text-2xl font-bold md:px-6 md:pb-20 md:text-5xl md:leading-[70px] lg:text-6xl">
-                Welcome
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="w-full max-w-[900px] overflow-hidden rounded-2xl bg-white shadow-2xl">
+        <div className="grid grid-cols-1 md:grid-cols-2">
+          <div className="relative hidden bg-gradient-to-br from-[#FF0000] to-[#CC0000] md:block">
+            <div className="absolute inset-0 bg-black/10" />
+            <div className="relative flex h-full flex-col justify-center p-12">
+              <h3 className="text-4xl font-bold text-white md:text-5xl lg:text-6xl">
+                Join Us
                 <br />
-                User!
+                Today!
               </h3>
+              <p className="mt-4 text-lg text-white/90">
+                Create an account to start your journey towards better nutrition and healthier living.
+              </p>
             </div>
           </div>
-        </div>
 
-        {/* Right form section */}
-        <div className="flex w-full flex-col justify-center gap-4 p-5 md:gap-8 md:p-10">
-          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-            Sign Up
-          </h1>
-          <p className="text-gray-400 md:text-[17px]">
-            Welcome User! Please Sign Up to create Account
-          </p>
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="space-y-5 md:space-y-7"
-          >
-            <div className="space-y-2">
-              <Input
-                id="name"
-                placeholder="Enter your name"
-                className="border-velo-black/30 h-10 rounded-none border-0 border-b shadow-none focus:outline-none focus-visible:ring-0 md:text-lg"
-                {...register("name", { required: "Name is required" })}
-              />
-              {errors.name && (
-                <p className="text-sm text-red-500">{errors.name.message}</p>
-              )}
+          <div className="flex flex-col justify-center px-8 py-12 sm:px-12">
+            <div className="sm:mx-auto sm:w-full sm:max-w-md">
+              <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
+                Create your account
+              </h2>
+              <p className="mt-2 text-center text-sm text-gray-600">
+                Already have an account?{" "}
+                <Link
+                  href="/login"
+                  className="font-semibold text-[#FF0000] hover:text-[#CC0000] transition-colors"
+                >
+                  Sign in
+                </Link>
+              </p>
             </div>
-            <div className="space-y-2">
-              <Input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                className="border-velo-black/30 h-10 rounded-none border-0 border-b shadow-none focus:outline-none focus-visible:ring-0 md:text-lg"
-                {...register("email", {
-                  required: "Email is required",
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: "Invalid email address",
-                  },
-                })}
-              />
-              {errors.email && (
-                <p className="text-sm text-red-500">{errors.email.message}</p>
-              )}
+
+            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                    Full name
+                  </label>
+                  <div className="mt-1">
+                    <Input
+                      id="name"
+                      type="text"
+                      placeholder="Enter your full name"
+                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:outline-none focus:ring-2 focus:ring-[#FF0000]/20"
+                      {...register("name", { required: "Name is required" })}
+                    />
+                    {errors.name && (
+                      <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                    Email address
+                  </label>
+                  <div className="mt-1">
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="Enter your email"
+                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:outline-none focus:ring-2 focus:ring-[#FF0000]/20"
+                      {...register("email", {
+                        required: "Email is required",
+                        pattern: {
+                          value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                          message: "Invalid email address",
+                        },
+                      })}
+                    />
+                    {errors.email && (
+                      <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                    Password
+                  </label>
+                  <div className="mt-1">
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Create a password"
+                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:outline-none focus:ring-2 focus:ring-[#FF0000]/20"
+                      {...register("password", {
+                        required: "Password is required",
+                        minLength: {
+                          value: 6,
+                          message: "Password must be at least 6 characters",
+                        },
+                      })}
+                    />
+                    {errors.password && (
+                      <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <Button
+                    type="submit"
+                    className="w-full rounded-md bg-[#FF0000] px-8 py-3.5 text-base font-semibold text-white shadow-sm hover:bg-[#CC0000] focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-200"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Creating account..." : "Create account"}
+                  </Button>
+                </div>
+              </form>
             </div>
-            <div className="space-y-2">
-              <Input
-                id="password"
-                type="password"
-                placeholder="Password"
-                className="border-velo-black/30 h-10 rounded-none border-0 border-b shadow-none focus:outline-none focus-visible:ring-0 md:text-lg"
-                {...register("password", {
-                  required: "Password is required",
-                  minLength: {
-                    value: 6,
-                    message: "Password must be at least 6 characters",
-                  },
-                })}
-              />
-              {errors.password && (
-                <p className="text-sm text-red-500">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
-            <Button
-              type="submit"
-              className="bg-velo-red hover:bg-velo-maroon h-11 w-full md:text-lg"
-              disabled={isLoading}
-            >
-              {isLoading ? "Signing Up..." : "Sign Up"}
-            </Button>
-          </form>
-          <p className="text-muted-foreground text-center text-sm md:text-base">
-            Already have an account?{" "}
-            <Link
-              href="/login"
-              className="text-velo-red hover:text-velo-maroon font-semibold underline"
-            >
-              Sign In
-            </Link>
-          </p>
+          </div>
         </div>
       </div>
     </div>
   );
-}
+} 
