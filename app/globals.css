@@ -7,7 +7,6 @@
   --color-feed-black: #282b28;
 }
 
-
 /* ShadCN */
 @custom-variant dark (&:is(.dark *));
 

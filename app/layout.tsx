@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Fredoka } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/ui/navbar";
-import Footer from "@/components/ui/footer";
 import ReduxProvider from "@/provider/ReduxProvider";
 
 const fredoka = Fredoka({
@@ -24,11 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${fredoka.variable} antialiased`}>
-      <ReduxProvider>
-          <Navbar />
-          {children}
-          <Footer />
-        </ReduxProvider>
+        <ReduxProvider>{children}</ReduxProvider>
       </body>
     </html>
   );
