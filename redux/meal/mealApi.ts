@@ -9,7 +9,14 @@ const mealApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Meal"],
     }),
+    getMealById: builder.query({
+      query: (id) => ({
+        url: `/providers/menu/${id}`,
+        method: "GET",
+      }),
+      providesTags: (result, error, id) => [{ type: "Meal", id }],
+    }),
   }),
 });
 
-export const {useGetAllMealsQuery} = mealApi;
+export const { useGetAllMealsQuery, useGetMealByIdQuery } = mealApi;

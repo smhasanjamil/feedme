@@ -8,122 +8,196 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Textarea } from '@/components/ui/textarea';
+import { useGetMealByIdQuery } from '@/redux/meal/mealApi';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Clock, Utensils, DollarSign, Star, ChefHat, CheckCircle2 } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-interface Meal {
-  id: string;
+// Meal interface used for API response typing
+type Meal = {
+  _id: string;
   name: string;
   description: string;
   price: number;
-  rating: number;
-  provider: string;
+  providerId: string | {
+    _id: string;
+    name: string;
+    email: string;
+  };
+  providerName?: string;
+  ingredients: string[];
+  portionSize: string;
   image: string;
+  category: string;
+  preparationTime: number;
+  isAvailable: boolean;
+  rating?: number;
+  reviewCount?: number;
+  nutritionalInfo: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
+  customizationOptions: {
+    removeIngredients: string[];
+    addOns: {
+      name: string;
+      price: number;
+      _id: string;
+    }[];
+    spiceLevel: string[];
+    noteToChef: boolean;
+  };
 }
+
+const LoadingSkeleton = () => {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div>
+        <Skeleton className="aspect-video w-full" />
+        <Skeleton className="h-10 w-3/4 mt-4" />
+        <Skeleton className="h-4 w-full mt-2" />
+        <Skeleton className="h-4 w-full mt-2" />
+        <Skeleton className="h-4 w-3/4 mt-2" />
+      </div>
+      <div className="space-y-6">
+        <Skeleton className="h-10 w-1/4" />
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+      </div>
+    </div>
+  );
+};
 
 export default function OrderPage({ params }: { params: Promise<{ mealId: string }> }) {
   const router = useRouter();
   const { mealId } = use(params);
-  const [meal, setMeal] = useState<Meal | null>(null);
-  const [quantity, setQuantity] = useState(1);
-  const [specialInstructions, setSpecialInstructions] = useState('');
-  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+  
+  const { data: mealData, isLoading, isError } = useGetMealByIdQuery(mealId);
+  const meal = mealData?.data;
 
-  // Mock meal data - in a real app, this would come from an API
-  const mockMeals: Meal[] = [
-    {
-      id: '1',
-      name: 'Healthy Buddha Bowl',
-      description: 'Fresh vegetables with quinoa and tahini dressing',
-      price: 12.99,
-      rating: 4.5,
-      provider: 'Healthy Eats',
-      image: '/meals/buddha-bowl.jpg',
-    },
-    {
-      id: '2',
-      name: 'Grilled Salmon with Asparagus',
-      description: 'Fresh Atlantic salmon with roasted asparagus and lemon butter sauce',
-      price: 18.99,
-      rating: 4.8,
-      provider: 'Fresh Kitchen',
-      image: '/meals/salmon.jpg',
-    },
-    {
-      id: '3',
-      name: 'Vegetarian Pasta Primavera',
-      description: 'Al dente pasta with seasonal vegetables in a light cream sauce',
-      price: 14.99,
-      rating: 4.2,
-      provider: 'Home Cooks',
-      image: '/meals/pasta.jpg',
-    },
-    {
-      id: '4',
-      name: 'Beef Stir Fry',
-      description: 'Tender beef strips with mixed vegetables in a savory soy sauce',
-      price: 16.99,
-      rating: 4.6,
-      provider: 'Healthy Eats',
-      image: '/meals/stir-fry.jpg',
-    },
-    {
-      id: '5',
-      name: 'Mediterranean Platter',
-      description: 'Hummus, falafel, tabbouleh, and pita bread with tzatziki sauce',
-      price: 15.99,
-      rating: 4.7,
-      provider: 'Fresh Kitchen',
-      image: '/meals/mediterranean.jpg',
-    },
-    {
-      id: '6',
-      name: 'Chicken Caesar Salad',
-      description: 'Crisp romaine lettuce with grilled chicken, parmesan, and Caesar dressing',
-      price: 13.99,
-      rating: 4.3,
-      provider: 'Home Cooks',
-      image: '/meals/caesar-salad.jpg',
+  const [quantity, setQuantity] = useState(1);
+  const [noteToChef, setNoteToChef] = useState('');
+  const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
+  const [removedIngredients, setRemovedIngredients] = useState<string[]>([]);
+  const [spiceLevel, setSpiceLevel] = useState<string>('');
+  const [selectedDate, setSelectedDate] = useState<string>('');
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('');
+  const [deliveryAddress, setDeliveryAddress] = useState<string>('');
+  const [availableDates, setAvailableDates] = useState<Array<{date: string, day: number, available: number}>>([]);
+  const [currentMonth, setCurrentMonth] = useState<string>('');
+
+  // Initialize calendar data
+  useEffect(() => {
+    // Generate the next 7 days for delivery dates
+    const dates = [];
+    const today = new Date();
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                        'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    setCurrentMonth(`${monthNames[today.getMonth()]} ${today.getFullYear()}`);
+    
+    // Start from tomorrow
+    for (let i = 1; i <= 7; i++) {
+      const date = new Date();
+      date.setDate(today.getDate() + i);
+      
+      dates.push({
+        date: date.toISOString().split('T')[0],
+        day: date.getDate(),
+        available: 10 // Mock availability
+      });
     }
+    
+    setAvailableDates(dates);
+    setSelectedDate(dates[0].date); // Select first date by default
+  }, []);
+
+  const timeSlots = [
+    '9 AM - 10 AM', '10 AM - 11 AM', '11 AM - 12 PM', 
+    '12 PM - 1 PM', '1 PM - 2 PM', '2 PM - 3 PM',
+    '3 PM - 4 PM', '4 PM - 5 PM', '5 PM - 6 PM'
   ];
 
-  useEffect(() => {
-    const foundMeal = mockMeals.find(m => m.id === mealId);
-    if (foundMeal) {
-      setMeal(foundMeal);
-    } else {
-      router.push('/find-meals');
-    }
-  }, [mealId, router]);
+  const handleAddOnToggle = (addOnId: string) => {
+    setSelectedAddOns(prev => 
+      prev.includes(addOnId)
+        ? prev.filter(id => id !== addOnId)
+        : [...prev, addOnId]
+    );
+  };
 
-  const handleOptionToggle = (option: string) => {
-    setSelectedOptions(prev => 
-      prev.includes(option)
-        ? prev.filter(o => o !== option)
-        : [...prev, option]
+  const handleIngredientToggle = (ingredient: string) => {
+    setRemovedIngredients(prev => 
+      prev.includes(ingredient)
+        ? prev.filter(ing => ing !== ingredient)
+        : [...prev, ingredient]
     );
   };
 
   const calculateTotal = () => {
     if (!meal) return 0;
+    
     let total = meal.price * quantity;
     
-    if (selectedOptions.includes('extra-sauce')) total += 1.00 * quantity;
-    if (selectedOptions.includes('extra-protein')) total += 3.00 * quantity;
-    if (selectedOptions.includes('gluten-free')) total += 2.00 * quantity;
+    // Add price for selected add-ons
+    if (selectedAddOns.length > 0 && meal.customizationOptions.addOns) {
+      meal.customizationOptions.addOns.forEach((addOn: { _id: string; price: number }) => {
+        if (selectedAddOns.includes(addOn._id)) {
+          total += addOn.price * quantity;
+        }
+      });
+    }
     
     return total.toFixed(2);
   };
 
   const handleOrder = () => {
-    // TODO: Implement order submission
-    console.log('Order submitted:', {
-      mealId: meal?.id,
+    if (!selectedTimeSlot) {
+      alert("Please select a delivery time slot");
+      return;
+    }
+    
+    // Construct order object
+    const order = {
+      mealId: meal?._id,
+      mealName: meal?.name,
       quantity,
-      specialInstructions,
-      selectedOptions,
-      total: calculateTotal(),
-    });
-    // Redirect to order confirmation page
-    router.push('/order-confirmation');
+      customizations: {
+        removedIngredients,
+        addOns: selectedAddOns,
+        spiceLevel,
+        noteToChef: noteToChef.trim() || null
+      },
+      deliveryDate: formatDeliveryDate(selectedDate),
+      deliveryTime: selectedTimeSlot,
+      deliveryAddress: deliveryAddress.trim() || 'Default Address',
+      total: calculateTotal()
+    };
+    
+    console.log('Order submitted:', order);
+    
+    // Build URL with query parameters for the success page
+    const params = new URLSearchParams();
+    params.append('mealName', meal?.name || '');
+    params.append('deliveryDate', formatDeliveryDate(selectedDate));
+    params.append('deliveryTime', selectedTimeSlot);
+    params.append('deliveryAddress', deliveryAddress.trim() || 'Default Address');
+    params.append('total', `$${calculateTotal()}`);
+    if (noteToChef.trim()) {
+      params.append('specialInstructions', noteToChef.trim());
+    }
+    
+    // In a real app, would call an API to create the order
+    // For now, just redirect to a success page with the order info
+    router.push(`/order-success?${params.toString()}`);
   };
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -133,9 +207,70 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
     }
   };
 
-  if (!meal) {
-    return <div>Loading...</div>;
+  const formatDeliveryDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long', 
+      day: 'numeric'
+    });
+  };
+
+  const renderRating = (rating: number = 0, reviewCount: number = 0) => {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    
+    return (
+      <div className="flex items-center">
+        <div className="flex">
+          {[...Array(fullStars)].map((_, i) => (
+            <Star key={`full-${i}`} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+          ))}
+          {hasHalfStar && (
+            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" style={{ clipPath: 'inset(0 50% 0 0)' }} />
+          )}
+          {[...Array(emptyStars)].map((_, i) => (
+            <Star key={`empty-${i}`} className="h-4 w-4 text-gray-300" />
+          ))}
+        </div>
+        <span className="ml-1 text-sm text-gray-500">({reviewCount})</span>
+      </div>
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-8">
+        <h1 className="text-3xl font-bold mb-8">Customize Your Order</h1>
+        <LoadingSkeleton />
+      </div>
+    );
   }
+
+  if (isError || !meal) {
+    return (
+      <div className="container mx-auto py-8 text-center">
+        <h1 className="text-3xl font-bold mb-4">Meal Not Found</h1>
+        <p className="text-gray-600 mb-6">Sorry, we could not find the meal you are looking for.</p>
+        <Button onClick={() => router.push('/find-meals')}>
+          Browse All Meals
+        </Button>
+      </div>
+    );
+  }
+
+  // Ensure meal is properly typed as Meal
+  const typedMeal: Meal = meal;
+
+  // Get provider name
+  const providerName = typeof typedMeal.providerName === 'string' 
+    ? typedMeal.providerName 
+    : (typeof typedMeal.providerId === 'object' && typedMeal.providerId?.name)
+      ? typedMeal.providerId.name
+      : (typeof typedMeal.providerId === 'string')
+        ? typedMeal.providerId
+        : 'Unknown Provider';
 
   return (
     <div className="container mx-auto py-8">
@@ -145,89 +280,259 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
         <Card>
           <div className="aspect-video relative">
             <img
-              src={meal.image}
-              alt={meal.name}
+              src={typedMeal.image}
+              alt={typedMeal.name}
               className="object-cover w-full h-full"
             />
+            <Badge 
+              className="absolute top-2 right-2 bg-white text-black hover:bg-white"
+              variant="secondary"
+            >
+              {typedMeal.category}
+            </Badge>
           </div>
           <CardHeader>
             <CardTitle className="flex justify-between items-center">
-              <span>{meal.name}</span>
-              <span className="text-lg font-semibold">${meal.price}</span>
+              <span className="text-xl">{typedMeal.name}</span>
+              <span className="text-lg font-semibold text-red-500">${typedMeal.price.toFixed(2)}</span>
             </CardTitle>
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <ChefHat className="h-4 w-4" />
+              <span>{providerName}</span>
+            </div>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600">{meal.description}</p>
-            <div className="flex items-center mt-2">
-              <span className="text-yellow-400">★</span>
-              <span className="ml-1">{meal.rating}</span>
-              <span className="ml-2 text-sm text-gray-500">{meal.provider}</span>
+            <p className="text-gray-600 mb-4">{typedMeal.description}</p>
+            
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                {typedMeal.ingredients.map((ingredient: string, index: number) => (
+                  <Badge 
+                    key={index} 
+                    variant="outline"
+                    className="bg-gray-50"
+                  >
+                    {ingredient}
+                  </Badge>
+                ))}
+              </div>
+              
+              <div className="flex items-center gap-4 text-sm text-gray-500">
+                <div className="flex items-center gap-1">
+                  <Utensils className="h-4 w-4" />
+                  <span>{typedMeal.portionSize}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Clock className="h-4 w-4" />
+                  <span>{typedMeal.preparationTime} mins</span>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2 text-sm">
+                <DollarSign className="h-4 w-4 text-green-500" />
+                <span className="font-medium">{typedMeal.nutritionalInfo.calories} cal</span>
+                <span>•</span>
+                <span className="font-medium">{typedMeal.nutritionalInfo.protein}g protein</span>
+                <span>•</span>
+                <span className="font-medium">{typedMeal.nutritionalInfo.carbs}g carbs</span>
+                <span>•</span>
+                <span className="font-medium">{typedMeal.nutritionalInfo.fat}g fat</span>
+              </div>
+              
+              {typedMeal.rating !== undefined && (
+                <div>
+                  {renderRating(typedMeal.rating, typedMeal.reviewCount || 0)}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
 
         <div className="space-y-6">
-          <div>
-            <Label htmlFor="quantity">Quantity</Label>
-            <Input
-              id="quantity"
-              type="number"
-              min="1"
-              value={quantity}
-              onChange={handleQuantityChange}
-              className="mt-2"
-            />
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Order Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <Tabs defaultValue="schedule" className="w-full mb-6">
+                  <TabsList className="w-full grid grid-cols-2">
+                    <TabsTrigger value="schedule">Schedule & Quantity</TabsTrigger>
+                    <TabsTrigger value="customize">Customize Meal</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="schedule" className="mt-4">
+                    <h3 className="text-lg font-medium mb-4">Choose a date</h3>
+                    <div className="mb-2 flex items-center">
+                      <span className="text-lg font-medium">{currentMonth}</span>
+                      <CheckCircle2 className="ml-2 h-5 w-5 text-green-500" />
+                    </div>
+                    
+                    <div className="grid grid-cols-7 gap-2 text-center mb-6">
+                      <div className="text-sm font-medium text-green-600">Sun</div>
+                      <div className="text-sm font-medium text-green-600">Mon</div>
+                      <div className="text-sm font-medium text-green-600">Tue</div>
+                      <div className="text-sm font-medium text-green-600">Wed</div>
+                      <div className="text-sm font-medium text-green-600">Thu</div>
+                      <div className="text-sm font-medium text-green-600">Fri</div>
+                      <div className="text-sm font-medium text-green-600">Sat</div>
+                      
+                      {availableDates.map((dateObj) => (
+                        <div 
+                          key={dateObj.date}
+                          onClick={() => setSelectedDate(dateObj.date)}
+                          className={`cursor-pointer rounded-full p-2 flex flex-col items-center justify-center ${
+                            selectedDate === dateObj.date 
+                              ? 'bg-green-500 text-white' 
+                              : 'hover:bg-green-100'
+                          }`}
+                        >
+                          <div className="text-sm">{dateObj.day}</div>
+                          <div className="text-xs">{dateObj.available} left</div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <h3 className="text-lg font-medium mb-4">Delivery Slot</h3>
+                    <div className="grid grid-cols-3 gap-2 mb-6">
+                      {timeSlots.map((slot) => (
+                        <button
+                          key={slot}
+                          type="button"
+                          onClick={() => setSelectedTimeSlot(slot)}
+                          className={`py-2 px-4 rounded-full text-sm ${
+                            selectedTimeSlot === slot
+                              ? 'bg-green-500 text-white'
+                              : 'bg-green-100 text-green-800 hover:bg-green-200'
+                          }`}
+                        >
+                          {slot}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    <h3 className="text-lg font-medium mb-2">Quantity</h3>
+                    <div className="flex items-center justify-between mb-6">
+                      <span>{availableDates.find(d => d.date === selectedDate)?.available || 10} available</span>
+                      <div className="flex items-center">
+                        <button
+                          type="button"
+                          onClick={() => quantity > 1 && setQuantity(quantity - 1)}
+                          className="h-10 w-10 rounded-l border border-gray-300 flex items-center justify-center"
+                        >
+                          -
+                        </button>
+                        <Input
+                          type="number"
+                          min="1"
+                          value={quantity}
+                          onChange={handleQuantityChange}
+                          className="h-10 w-16 text-center border-t border-b border-gray-300"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setQuantity(quantity + 1)}
+                          className="h-10 w-10 rounded-r border border-gray-300 flex items-center justify-center"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4">
+                      <Label htmlFor="delivery-address" className="text-lg font-medium mb-2 block">Delivery Address</Label>
+                      <Textarea
+                        id="delivery-address"
+                        placeholder="Enter your delivery address"
+                        value={deliveryAddress}
+                        onChange={(e) => setDeliveryAddress(e.target.value)}
+                        className="mt-2"
+                      />
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="customize" className="mt-4 space-y-6">
+                    {typedMeal.customizationOptions.spiceLevel && typedMeal.customizationOptions.spiceLevel.length > 0 && (
+                      <div>
+                        <Label className="text-lg font-medium mb-2 block">Spice Level</Label>
+                        <RadioGroup value={spiceLevel} onValueChange={setSpiceLevel} className="mt-2">
+                          {typedMeal.customizationOptions.spiceLevel.map((level: string, index: number) => (
+                            <div key={index} className="flex items-center space-x-2 mb-2">
+                              <RadioGroupItem value={level} id={`spice-${level}`} />
+                              <Label htmlFor={`spice-${level}`}>{level}</Label>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                      </div>
+                    )}
 
-          <div>
-            <Label>Customization Options</Label>
-            <div className="space-y-2 mt-2">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="extra-sauce"
-                  checked={selectedOptions.includes('extra-sauce')}
-                  onCheckedChange={() => handleOptionToggle('extra-sauce')}
-                />
-                <Label htmlFor="extra-sauce">Extra Sauce (+$1.00)</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="extra-protein"
-                  checked={selectedOptions.includes('extra-protein')}
-                  onCheckedChange={() => handleOptionToggle('extra-protein')}
-                />
-                <Label htmlFor="extra-protein">Extra Protein (+$3.00)</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="gluten-free"
-                  checked={selectedOptions.includes('gluten-free')}
-                  onCheckedChange={() => handleOptionToggle('gluten-free')}
-                />
-                <Label htmlFor="gluten-free">Gluten Free Option (+$2.00)</Label>
-              </div>
-            </div>
-          </div>
+                    {typedMeal.customizationOptions.removeIngredients && typedMeal.customizationOptions.removeIngredients.length > 0 && (
+                      <div>
+                        <Label className="text-lg font-medium mb-2 block">Remove Ingredients</Label>
+                        <div className="grid grid-cols-2 gap-2 mt-2">
+                          {typedMeal.ingredients.map((ingredient: string, index: number) => (
+                            <div key={index} className="flex items-center space-x-2">
+                              <Checkbox
+                                id={`remove-${ingredient}`}
+                                checked={removedIngredients.includes(ingredient)}
+                                onCheckedChange={() => handleIngredientToggle(ingredient)}
+                              />
+                              <Label htmlFor={`remove-${ingredient}`}>No {ingredient}</Label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
-          <div>
-            <Label htmlFor="instructions">Special Instructions</Label>
-            <Input
-              id="instructions"
-              placeholder="Any special requests?"
-              value={specialInstructions}
-              onChange={(e) => setSpecialInstructions(e.target.value)}
-              className="mt-2"
-            />
-          </div>
+                    {typedMeal.customizationOptions.addOns && typedMeal.customizationOptions.addOns.length > 0 && (
+                      <div>
+                        <Label className="text-lg font-medium mb-2 block">Add-ons</Label>
+                        <div className="space-y-2 mt-2">
+                          {typedMeal.customizationOptions.addOns.map((addOn: { _id: string; name: string; price: number }) => (
+                            <div key={addOn._id} className="flex items-center justify-between border-b pb-2">
+                              <div className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`addon-${addOn._id}`}
+                                  checked={selectedAddOns.includes(addOn._id)}
+                                  onCheckedChange={() => handleAddOnToggle(addOn._id)}
+                                />
+                                <Label htmlFor={`addon-${addOn._id}`}>{addOn.name}</Label>
+                              </div>
+                              <span className="text-green-600 font-medium">+${addOn.price.toFixed(2)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
-          <div className="pt-4 space-y-4">
-            <div className="text-xl font-semibold text-right">
-              Total: ${calculateTotal()}
-            </div>
-            <Button onClick={handleOrder} className="w-full">
-              Place Order
-            </Button>
-          </div>
+                    {typedMeal.customizationOptions.noteToChef && (
+                      <div>
+                        <Label htmlFor="notes" className="text-lg font-medium mb-2 block">Special Instructions</Label>
+                        <Textarea
+                          id="notes"
+                          placeholder="e.g. Make the gravy extra spicy"
+                          value={noteToChef}
+                          onChange={(e) => setNoteToChef(e.target.value)}
+                          className="mt-2"
+                        />
+                      </div>
+                    )}
+                  </TabsContent>
+                </Tabs>
+              </div>
+
+              <Separator />
+
+              <div className="pt-4 space-y-4">
+                <div className="text-xl font-semibold text-right">
+                  Total: ${calculateTotal()}
+                </div>
+                <Button onClick={handleOrder} className="w-full bg-red-500 hover:bg-red-600">
+                  Place Order
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
