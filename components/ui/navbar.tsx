@@ -14,8 +14,12 @@ import {
   DropdownMenuTrigger,
 } from "./dropdown-menu";
 import { FaArrowRightLong } from "react-icons/fa6";
-import { CgLogIn } from "react-icons/cg";
-import { MdOutlineAppRegistration } from "react-icons/md";
+import { CgLogIn, CgLogOut } from "react-icons/cg";
+import {
+  MdOutlineAccountCircle,
+  MdOutlineAppRegistration,
+} from "react-icons/md";
+import { TbLayoutDashboard } from "react-icons/tb";
 
 const Navbar = () => {
   const user = useAppSelector(currentUser);
@@ -36,9 +40,6 @@ const Navbar = () => {
     router.refresh();
     setIsMenuOpen(false);
   };
-
-  const primaryButtonClasses = `${buttonVariants({ variant: "default" })} bg-[#FF0000] hover:bg-[#CC0000] text-white h-10 rounded-full px-6 text-sm font-semibold transition-colors`;
-  const secondaryButtonClasses = `${buttonVariants({ variant: "outline" })} border-2 border-[#FF0000] text-[#FF0000] hover:bg-[#FF0000] hover:text-white h-10 rounded-full px-6 text-sm font-semibold transition-colors`;
 
   // Only render auth-dependent content after mounting to prevent hydration mismatch
   if (!mounted) {
@@ -101,53 +102,62 @@ const Navbar = () => {
             })}
 
             <DropdownMenu>
-              <DropdownMenuTrigger className="text-feed-black border-feed-black hover:bg-feed-lime flex h-10 cursor-pointer items-center gap-2 rounded-full border-[1.9px] bg-transparent px-2 text-lg font-medium caret-neutral-50 outline-0 duration-300">
-                Get Started <FaArrowRightLong />
+              <DropdownMenuTrigger className="text-feed-black border-feed-black hover:bg-feed-lime flex h-10 cursor-pointer items-center gap-1 rounded-full border-[1.9px] bg-transparent px-2 text-lg font-medium caret-neutral-50 outline-0 duration-300">
+                {user ? (
+                  <>
+                    <MdOutlineAccountCircle className="size-5" />
+                    <span>Account</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Get Started</span>{" "}
+                    <FaArrowRightLong className="ml-1" />
+                  </>
+                )}
               </DropdownMenuTrigger>
               <DropdownMenuContent className="border-feed-black w-fit space-y-1 rounded-2xl border">
                 <DropdownMenuItem className="bg-feed-lime/50 hover:!bg-feed-jungle group w-ful h-9 rounded-[11px] text-lg font-medium duration-300">
-                  <CgLogIn className="text-feed-jungle group-hover:text-feed-lime size-5.5" />
-                  <Link
-                    href="/login"
-                    className="text-feed-jungle group-hover:text-feed-lime"
-                  >
-                    Sign In
-                  </Link>
+                  {user ? (
+                    <>
+                      <TbLayoutDashboard className="text-feed-jungle group-hover:text-feed-lime size-5.5" />
+                      <Link
+                        href="/dashboard"
+                        className="text-feed-jungle group-hover:text-feed-lime"
+                      >
+                        Dashboard
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <CgLogIn className="text-feed-jungle group-hover:text-feed-lime size-5.5" />
+                      <Link
+                        href="/login"
+                        className="text-feed-jungle group-hover:text-feed-lime"
+                      >
+                        Sign In
+                      </Link>
+                    </>
+                  )}
                 </DropdownMenuItem>
                 <DropdownMenuItem className="bg-feed-jungle hover:!bg-feed-black w-ful h-9 rounded-[11px] text-lg font-medium duration-300">
-                  <MdOutlineAppRegistration className="text-feed-lime size-5.5" />
-                  <Link href="/register" className="text-feed-lime">
-                    Sign Up
-                  </Link>
+                  {user ? (
+                    <>
+                      <CgLogOut className="text-feed-lime size-5.5" />
+                      <span onClick={handleLogout} className="text-feed-lime">
+                        Sign Out
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <MdOutlineAppRegistration className="text-feed-lime size-5.5" />
+                      <Link href="/register" className="text-feed-lime">
+                        Sign Up
+                      </Link>
+                    </>
+                  )}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
-            {user ? (
-              <>
-                <Link
-                  href="/dashboard"
-                  className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-[#FF0000]"
-                >
-                  Dashboard
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className={secondaryButtonClasses}
-                >
-                  Sign Out
-                </button>
-              </>
-            ) : (
-              <>
-                <Link href="/login" className={secondaryButtonClasses}>
-                  Sign In
-                </Link>
-                <Link href="/register" className={primaryButtonClasses}>
-                  Sign Up
-                </Link>
-              </>
-            )}
           </div>
 
           {/* Mobile menu button */}
