@@ -4,7 +4,7 @@ import Link from "next/link";
 import { buttonVariants } from "./button";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { currentUser, logout } from "@/redux/features/auth/authSlice";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 
@@ -14,6 +14,8 @@ const Navbar = () => {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  const pathname = usePathname();
 
   useEffect(() => {
     setMounted(true);
@@ -34,10 +36,29 @@ const Navbar = () => {
     return null;
   }
 
+  const navItems = [
+    {
+      name: "About",
+      link: "/about",
+    },
+    {
+      name: "Menu",
+      link: "/menu",
+    },
+    {
+      name: "Pricing",
+      link: "/pricing",
+    },
+    {
+      name: "Services",
+      link: "/services",
+    },
+  ];
+
   return (
-    <nav className="bg-white shadow-sm">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
+    <nav className="bg-white">
+      <div className="container">
+        <div className="flex items-center justify-between py-3.5">
           <div className="flex-shrink-0">
             <Link href="/" className="text-3xl font-bold">
               feedme.
@@ -45,31 +66,31 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex md:items-center md:space-x-4">
-            <Link
-              href="/about"
-              className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-[#FF0000]"
-            >
-              About
-            </Link>
-            <Link
-              href="#menu"
-              className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-[#FF0000]"
-            >
-              Menu
-            </Link>
-            <Link
-              href="#pricing"
-              className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-[#FF0000]"
-            >
-              Pricing
-            </Link>
-            <Link
-              href="#services"
-              className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-[#FF0000]"
-            >
-              Services
-            </Link>
+          <div className="hidden md:flex md:items-center md:gap-6">
+            {navItems.map((navItem, index) => {
+              const isActive = pathname === navItem.link;
+              return (
+                <div key={index} className="group flex flex-col items-center">
+                  <div className="size-1.5" />
+                  <Link
+                    href={navItem.link}
+                    className={`text-[17px] font-medium duration-300 ease-in-out ${
+                      isActive && "text-feed-jungle/60"
+                    } group-hover:text-feed-jungle/50`}
+                  >
+                    {navItem.name}
+                  </Link>
+                  <div
+                    className={`size-1.5 rounded-full duration-300 ease-in-out ${
+                      isActive
+                        ? "bg-feed-jungle/40"
+                        : "group-hover:bg-feed-jungle/40"
+                    }`}
+                  />
+                </div>
+              );
+            })}
+
             {user ? (
               <>
                 <Link
