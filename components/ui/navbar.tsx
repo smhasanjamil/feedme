@@ -38,7 +38,7 @@ const Navbar = () => {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex-shrink-0">
-            <Link href="/" className="text-2xl font-bold text-[#FF0000]">
+            <Link href="/" className="text-3xl font-bold">
               feedme.
             </Link>
           </div>
