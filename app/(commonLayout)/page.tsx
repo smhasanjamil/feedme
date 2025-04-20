@@ -1,5 +1,11 @@
-const page = () => {
-  return <div>Meheraz</div>;
+import Header from "@/components/home/header";
+
+const Home = () => {
+  return (
+    <>
+      <Header />
+    </>
+  );
 };
 
-export default page;
+export default Home;
