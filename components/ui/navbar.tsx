@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import Link from "next/link";
 import { buttonVariants } from "./button";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
@@ -35,31 +35,46 @@ const Navbar = () => {
 
   return (
     <nav className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
           <div className="flex-shrink-0">
             <Link href="/" className="text-2xl font-bold text-[#FF0000]">
-              FeedMe
+              feedme.
             </Link>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex md:items-center md:space-x-4">
-            <Link href="/about" className="text-gray-700 hover:text-[#FF0000] px-3 py-2 rounded-md text-sm font-medium">
+            <Link
+              href="/about"
+              className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-[#FF0000]"
+            >
               About
             </Link>
-            <Link href="#menu" className="text-gray-700 hover:text-[#FF0000] px-3 py-2 rounded-md text-sm font-medium">
+            <Link
+              href="#menu"
+              className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-[#FF0000]"
+            >
               Menu
             </Link>
-            <Link href="#pricing" className="text-gray-700 hover:text-[#FF0000] px-3 py-2 rounded-md text-sm font-medium">
+            <Link
+              href="#pricing"
+              className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-[#FF0000]"
+            >
               Pricing
             </Link>
-            <Link href="#services" className="text-gray-700 hover:text-[#FF0000] px-3 py-2 rounded-md text-sm font-medium">
+            <Link
+              href="#services"
+              className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-[#FF0000]"
+            >
               Services
             </Link>
             {user ? (
               <>
-                <Link href="/dashboard" className="text-gray-700 hover:text-[#FF0000] px-3 py-2 rounded-md text-sm font-medium">
+                <Link
+                  href="/dashboard"
+                  className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-[#FF0000]"
+                >
                   Dashboard
                 </Link>
                 <button
@@ -85,7 +100,7 @@ const Navbar = () => {
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#FF0000]"
+              className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:ring-2 focus:ring-[#FF0000] focus:outline-none focus:ring-inset"
             >
               <span className="sr-only">Open main menu</span>
               {isMenuOpen ? (
@@ -101,31 +116,31 @@ const Navbar = () => {
       {/* Mobile menu */}
       {isMenuOpen && (
         <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          <div className="space-y-1 px-2 pt-2 pb-3 sm:px-3">
             <Link
               href="/about"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#FF0000] hover:bg-gray-50"
+              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
               onClick={() => setIsMenuOpen(false)}
             >
               About
             </Link>
             <Link
               href="#menu"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#FF0000] hover:bg-gray-50"
+              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
               onClick={() => setIsMenuOpen(false)}
             >
               Menu
             </Link>
             <Link
               href="#pricing"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#FF0000] hover:bg-gray-50"
+              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
               onClick={() => setIsMenuOpen(false)}
             >
               Pricing
             </Link>
             <Link
               href="#services"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#FF0000] hover:bg-gray-50"
+              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
               onClick={() => setIsMenuOpen(false)}
             >
               Services
@@ -134,14 +149,14 @@ const Navbar = () => {
               <>
                 <Link
                   href="/dashboard"
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#FF0000] hover:bg-gray-50"
+                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Dashboard
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#FF0000] hover:bg-gray-50"
+                  className="w-full rounded-md px-3 py-2 text-left text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
                 >
                   Sign Out
                 </button>
@@ -150,14 +165,14 @@ const Navbar = () => {
               <>
                 <Link
                   href="/login"
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#FF0000] hover:bg-gray-50"
+                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/register"
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#FF0000] hover:bg-gray-50"
+                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Sign Up

@@ -48,7 +48,9 @@ export default function SignUp() {
         const errorResponse = response.error;
         if (errorResponse && "data" in errorResponse && errorResponse.data) {
           const errorData = errorResponse.data as ErrorData;
-          toast.error(errorData.message || "Registration failed. Please try again.");
+          toast.error(
+            errorData.message || "Registration failed. Please try again.",
+          );
         } else {
           toast.error("Registration failed. Please try again.");
         }
@@ -60,7 +62,9 @@ export default function SignUp() {
         router.push("/login");
         reset();
       } else {
-        toast.error(response.data?.message || "Registration failed. Please try again.");
+        toast.error(
+          response.data?.message || "Registration failed. Please try again.",
+        );
       }
     } catch (error) {
       console.error("Registration error:", error);
@@ -83,7 +87,8 @@ export default function SignUp() {
                 Today!
               </h3>
               <p className="mt-4 text-lg text-white/90">
-                Create an account to start your journey towards better nutrition and healthier living.
+                Create an account to start your journey towards better nutrition
+                and healthier living.
               </p>
             </div>
           </div>
@@ -97,7 +102,7 @@ export default function SignUp() {
                 Already have an account?{" "}
                 <Link
                   href="/login"
-                  className="font-semibold text-[#FF0000] hover:text-[#CC0000] transition-colors"
+                  className="font-semibold text-[#FF0000] transition-colors hover:text-[#CC0000]"
                 >
                   Sign in
                 </Link>
@@ -107,7 +112,10 @@ export default function SignUp() {
             <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Full name
                   </label>
                   <div className="mt-1">
@@ -115,17 +123,22 @@ export default function SignUp() {
                       id="name"
                       type="text"
                       placeholder="Enter your full name"
-                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:outline-none focus:ring-2 focus:ring-[#FF0000]/20"
+                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
                       {...register("name", { required: "Name is required" })}
                     />
                     {errors.name && (
-                      <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.name.message}
+                      </p>
                     )}
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Email address
                   </label>
                   <div className="mt-1">
@@ -133,7 +146,7 @@ export default function SignUp() {
                       id="email"
                       type="email"
                       placeholder="Enter your email"
-                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:outline-none focus:ring-2 focus:ring-[#FF0000]/20"
+                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
                       {...register("email", {
                         required: "Email is required",
                         pattern: {
@@ -143,13 +156,18 @@ export default function SignUp() {
                       })}
                     />
                     {errors.email && (
-                      <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.email.message}
+                      </p>
                     )}
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Password
                   </label>
                   <div className="mt-1">
@@ -157,7 +175,7 @@ export default function SignUp() {
                       id="password"
                       type="password"
                       placeholder="Create a password"
-                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:outline-none focus:ring-2 focus:ring-[#FF0000]/20"
+                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
                       {...register("password", {
                         required: "Password is required",
                         minLength: {
@@ -167,7 +185,9 @@ export default function SignUp() {
                       })}
                     />
                     {errors.password && (
-                      <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.password.message}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -175,7 +195,7 @@ export default function SignUp() {
                 <div>
                   <Button
                     type="submit"
-                    className="w-full rounded-md bg-[#FF0000] px-8 py-3.5 text-base font-semibold text-white shadow-sm hover:bg-[#CC0000] focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-200"
+                    className="w-full rounded-md bg-[#FF0000] px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#CC0000] focus:ring-2 focus:ring-[#FF0000] focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70"
                     disabled={isLoading}
                   >
                     {isLoading ? "Creating account..." : "Create account"}
@@ -188,4 +208,4 @@ export default function SignUp() {
       </div>
     </div>
   );
-} 
+}

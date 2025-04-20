@@ -12,4 +12,4 @@ const mealApi = baseApi.injectEndpoints({
   }),
 });
 
-export const {useGetAllMealsQuery} = mealApi;
+export const { useGetAllMealsQuery } = mealApi;

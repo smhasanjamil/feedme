@@ -64,7 +64,7 @@ export default function SignIn() {
           toast.success(responseData.message || "Login successful", {
             duration: 1000,
           });
-          
+
           router.push("/");
           router.refresh();
           setIsLoading(false);
@@ -93,7 +93,8 @@ export default function SignIn() {
                 Back!
               </h3>
               <p className="mt-4 text-lg text-white/90">
-                Sign in to access your personalized meal plans and track your nutrition journey.
+                Sign in to access your personalized meal plans and track your
+                nutrition journey.
               </p>
             </div>
           </div>
@@ -107,7 +108,7 @@ export default function SignIn() {
                 Don&apos;t have an account?{" "}
                 <Link
                   href="/register"
-                  className="font-semibold text-[#FF0000] hover:text-[#CC0000] transition-colors"
+                  className="font-semibold text-[#FF0000] transition-colors hover:text-[#CC0000]"
                 >
                   Sign up
                 </Link>
@@ -117,7 +118,10 @@ export default function SignIn() {
             <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Email address
                   </label>
                   <div className="mt-1">
@@ -125,17 +129,22 @@ export default function SignIn() {
                       id="email"
                       type="email"
                       placeholder="Enter your email"
-                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:outline-none focus:ring-2 focus:ring-[#FF0000]/20"
+                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
                       {...register("email", { required: "Email is required" })}
                     />
                     {errors.email && (
-                      <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.email.message}
+                      </p>
                     )}
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Password
                   </label>
                   <div className="mt-1">
@@ -143,11 +152,15 @@ export default function SignIn() {
                       id="password"
                       type="password"
                       placeholder="Enter your password"
-                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:outline-none focus:ring-2 focus:ring-[#FF0000]/20"
-                      {...register("password", { required: "Password is required" })}
+                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
+                      {...register("password", {
+                        required: "Password is required",
+                      })}
                     />
                     {errors.password && (
-                      <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.password.message}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -155,7 +168,7 @@ export default function SignIn() {
                 <div>
                   <Button
                     type="submit"
-                    className="w-full rounded-md bg-[#FF0000] px-8 py-3.5 text-base font-semibold text-white shadow-sm hover:bg-[#CC0000] focus:outline-none focus:ring-2 focus:ring-[#FF0000] focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-200"
+                    className="w-full rounded-md bg-[#FF0000] px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#CC0000] focus:ring-2 focus:ring-[#FF0000] focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70"
                     disabled={isLoading}
                   >
                     {isLoading ? "Signing in..." : "Sign in"}
