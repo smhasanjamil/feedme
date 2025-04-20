@@ -65,10 +65,9 @@ export default function SignIn() {
             duration: 1000,
           });
           
-          setTimeout(() => {
-            router.push("/");
-            router.refresh();
-          }, 1000);
+          router.push("/");
+          router.refresh();
+          setIsLoading(false);
         } else {
           toast.error(responseData.message || "Login failed.");
           setIsLoading(false);
