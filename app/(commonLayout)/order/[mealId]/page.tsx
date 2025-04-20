@@ -12,10 +12,12 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { useGetMealByIdQuery } from '@/redux/meal/mealApi';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Clock, Utensils, DollarSign, Star, ChefHat, CheckCircle2 } from 'lucide-react';
+import { Clock, Utensils, DollarSign, Star, ChefHat, CheckCircle2, ShoppingCart } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAppDispatch } from '@/redux/hooks';
+import { addToCart } from '@/redux/features/cart/cartSlice';
 
 // Meal interface used for API response typing
 type Meal = {
@@ -37,6 +39,16 @@ type Meal = {
   isAvailable: boolean;
   rating?: number;
   reviewCount?: number;
+  ratings?: {
+    average: number;
+    count: number;
+    reviews: Array<{
+      userId: string;
+      rating: number;
+      comment: string;
+      createdAt: string;
+    }>;
+  };
   nutritionalInfo: {
     calories: number;
     protein: number;
@@ -78,6 +90,7 @@ const LoadingSkeleton = () => {
 
 export default function OrderPage({ params }: { params: Promise<{ mealId: string }> }) {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const { mealId } = use(params);
   
   const { data: mealData, isLoading, isError } = useGetMealByIdQuery(mealId);
@@ -200,6 +213,28 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
     router.push(`/order-success?${params.toString()}`);
   };
 
+  const handleAddToCart = () => {
+    if (!meal) return;
+    
+    dispatch(addToCart({
+      id: meal._id,
+      name: meal.name,
+      price: Number(calculateTotal()),
+      quantity: quantity,
+      image: meal.image,
+      providerId: meal.providerId,
+      customizations: {
+        removedIngredients: removedIngredients.length > 0 ? removedIngredients : undefined,
+        addOns: selectedAddOns.length > 0 ? selectedAddOns : undefined,
+        spiceLevel: spiceLevel || undefined,
+        noteToChef: noteToChef.trim() || undefined
+      }
+    }));
+    
+    // Navigate to cart
+    router.push('/cart');
+  };
+
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
     if (!isNaN(value) && value > 0) {
@@ -216,7 +251,10 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
     });
   };
 
-  const renderRating = (rating: number = 0, reviewCount: number = 0) => {
+  const renderRating = (meal: Meal) => {
+    const rating = meal.ratings?.average ?? meal.rating ?? 0;
+    const reviewCount = meal.ratings?.count ?? meal.reviewCount ?? 0;
+    
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
@@ -228,7 +266,10 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
             <Star key={`full-${i}`} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
           ))}
           {hasHalfStar && (
-            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" style={{ clipPath: 'inset(0 50% 0 0)' }} />
+            <div className="relative h-4 w-4">
+              <Star className="absolute h-4 w-4 text-gray-300" />
+              <Star className="absolute h-4 w-4 fill-yellow-400 text-yellow-400" style={{ clipPath: 'inset(0 50% 0 0)' }} />
+            </div>
           )}
           {[...Array(emptyStars)].map((_, i) => (
             <Star key={`empty-${i}`} className="h-4 w-4 text-gray-300" />
@@ -300,6 +341,9 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
               <ChefHat className="h-4 w-4" />
               <span>{providerName}</span>
             </div>
+            <div className="mt-1">
+              {renderRating(typedMeal)}
+            </div>
           </CardHeader>
           <CardContent>
             <p className="text-gray-600 mb-4">{typedMeal.description}</p>
@@ -338,12 +382,6 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
                 <span>•</span>
                 <span className="font-medium">{typedMeal.nutritionalInfo.fat}g fat</span>
               </div>
-              
-              {typedMeal.rating !== undefined && (
-                <div>
-                  {renderRating(typedMeal.rating, typedMeal.reviewCount || 0)}
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>
@@ -527,9 +565,21 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
                 <div className="text-xl font-semibold text-right">
                   Total: ${calculateTotal()}
                 </div>
-                <Button onClick={handleOrder} className="w-full bg-red-500 hover:bg-red-600">
-                  Place Order
-                </Button>
+                <div className="grid grid-cols-2 gap-4">
+                  <Button 
+                    onClick={handleAddToCart} 
+                    className="bg-orange-500 hover:bg-orange-600"
+                  >
+                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    Add to Cart
+                  </Button>
+                  <Button 
+                    onClick={handleOrder} 
+                    className="bg-red-500 hover:bg-red-600"
+                  >
+                    Place Order
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

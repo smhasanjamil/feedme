@@ -5,10 +5,12 @@ import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { currentUser, logout } from "@/redux/features/auth/authSlice";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ShoppingCart } from "lucide-react";
 
 const Navbar = () => {
   const user = useAppSelector(currentUser);
+  const cartItems = useAppSelector((state) => state.cart.items);
+  const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -48,7 +50,7 @@ const Navbar = () => {
             <Link href="/about" className="text-gray-700 hover:text-[#FF0000] px-3 py-2 rounded-md text-sm font-medium">
               About
             </Link>
-            <Link href="#menu" className="text-gray-700 hover:text-[#FF0000] px-3 py-2 rounded-md text-sm font-medium">
+            <Link href="/find-meals" className="text-gray-700 hover:text-[#FF0000] px-3 py-2 rounded-md text-sm font-medium">
               Menu
             </Link>
             <Link href="#pricing" className="text-gray-700 hover:text-[#FF0000] px-3 py-2 rounded-md text-sm font-medium">
@@ -57,6 +59,17 @@ const Navbar = () => {
             <Link href="#services" className="text-gray-700 hover:text-[#FF0000] px-3 py-2 rounded-md text-sm font-medium">
               Services
             </Link>
+
+            {/* Cart Icon */}
+            <Link href="/cart" className="relative px-3 py-2">
+              <ShoppingCart className="h-6 w-6 text-gray-700 hover:text-[#FF0000]" />
+              {cartItemCount > 0 && (
+                <span className="absolute top-0 right-0 bg-[#FF0000] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartItemCount}
+                </span>
+              )}
+            </Link>
+
             {user ? (
               <>
                 <Link href="/dashboard" className="text-gray-700 hover:text-[#FF0000] px-3 py-2 rounded-md text-sm font-medium">
@@ -82,7 +95,17 @@ const Navbar = () => {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center">
+            {/* Mobile Cart Icon */}
+            <Link href="/cart" className="relative mr-4">
+              <ShoppingCart className="h-6 w-6 text-gray-700" />
+              {cartItemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-[#FF0000] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartItemCount}
+                </span>
+              )}
+            </Link>
+
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#FF0000]"
@@ -110,7 +133,7 @@ const Navbar = () => {
               About
             </Link>
             <Link
-              href="#menu"
+              href="/find-meals"
               className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#FF0000] hover:bg-gray-50"
               onClick={() => setIsMenuOpen(false)}
             >

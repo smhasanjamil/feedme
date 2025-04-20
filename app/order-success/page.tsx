@@ -2,36 +2,82 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Calendar, Clock, MapPin, Utensils, DollarSign } from 'lucide-react';
+import { CheckCircle2, Calendar, Clock, MapPin, Utensils, DollarSign, Store, User, Mail, Phone } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { useEffect, useState } from 'react';
+import { useAppDispatch } from '@/redux/hooks';
+import { clearCart } from '@/redux/features/cart/cartSlice';
 
 export default function OrderSuccessPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const dispatch = useAppDispatch();
+  
+  // Get actual values from URL or use placeholders (not hardcoded values)
   const [orderDetails, setOrderDetails] = useState({
-    orderId: Math.floor(100000 + Math.random() * 900000).toString(),
+    orderId: searchParams.get('orderId') || 'Order ID will be generated',
     mealName: searchParams.get('mealName') || 'Your meal',
     deliveryDate: searchParams.get('deliveryDate') || formatDate(new Date()),
-    deliveryTime: searchParams.get('deliveryTime') || '12:00 PM',
-    deliveryAddress: searchParams.get('deliveryAddress') || 'Your delivery address',
-    total: searchParams.get('total') || '$0.00',
+    deliveryTime: searchParams.get('deliveryTime') || 'Delivery time',
+    deliveryAddress: searchParams.get('deliveryAddress') || 'Your address',
+    subtotal: searchParams.get('subtotal') || '$0.00',
+    tax: searchParams.get('tax') || '$0.00',
+    shipping: searchParams.get('shipping') || '$0.00',
+    total: searchParams.get('total') || 'Total',
     specialInstructions: searchParams.get('specialInstructions') || '',
-    status: 'Processing'
+    status: searchParams.get('status') || 'Processing',
+    // Provider info
+    providerName: searchParams.get('providerName') || '',
+    providerEmail: searchParams.get('providerEmail') || '',
+    // Customer info
+    customerName: searchParams.get('customerName') || '',
+    customerEmail: searchParams.get('customerEmail') || '',
+    customerPhone: searchParams.get('customerPhone') || ''
   });
 
-  useEffect(() => {
-    // In a real app, you would fetch order details from API
-    // using an order ID passed in the URL
-    const orderIdFromUrl = searchParams.get('orderId');
-    if (orderIdFromUrl) {
-      setOrderDetails(prev => ({
-        ...prev,
-        orderId: orderIdFromUrl
-      }));
+  // Mask sensitive information
+  const maskAddress = (address: string | null): string => {
+    if (!address || address === 'Your address') return address || 'Your address';
+    
+    // Split by commas or lines and mask parts
+    const parts = address.split(/,|\n/);
+    if (parts.length > 1) {
+      // If multiple parts, show only the city and state
+      return parts.slice(1).join(',').trim();
     }
-  }, [searchParams]);
+    return address;
+  };
+
+  const maskEmail = (email: string | null): string => {
+    if (!email) return '';
+    const [localPart, domain] = email.split('@');
+    if (!domain) return email;
+    
+    // Show only first character of local part and the domain
+    return `${localPart.charAt(0)}${'*'.repeat(localPart.length - 1)}@${domain}`;
+  };
+
+  const maskPhone = (phone: string | null): string => {
+    if (!phone) return '';
+    
+    // Show only last 4 digits
+    return `***-***-${phone.slice(-4)}`;
+  };
+
+  useEffect(() => {
+    // Clear the cart after successful order
+    dispatch(clearCart());
+    
+    // In a real app, we would fetch the order details from the API
+    // For now, just format and mask data from URL params
+    setOrderDetails(prev => ({
+      ...prev,
+      deliveryAddress: maskAddress(prev.deliveryAddress),
+      customerEmail: maskEmail(prev.customerEmail),
+      customerPhone: maskPhone(prev.customerPhone)
+    }));
+  }, [searchParams, dispatch]);
 
   function formatDate(date: Date): string {
     return date.toLocaleDateString('en-US', {
@@ -71,6 +117,46 @@ export default function OrderSuccessPage() {
                 <span>{orderDetails.orderId}</span>
               </div>
               
+              {orderDetails.providerName && (
+                <div className="flex justify-between items-center pb-3 border-b border-gray-100">
+                  <div className="flex items-center gap-2">
+                    <Store className="h-5 w-5 text-gray-500" />
+                    <span className="font-medium">Restaurant</span>
+                  </div>
+                  <span>{orderDetails.providerName}</span>
+                </div>
+              )}
+              
+              {orderDetails.customerName && (
+                <div className="flex justify-between items-center pb-3 border-b border-gray-100">
+                  <div className="flex items-center gap-2">
+                    <User className="h-5 w-5 text-gray-500" />
+                    <span className="font-medium">Customer</span>
+                  </div>
+                  <span>{orderDetails.customerName}</span>
+                </div>
+              )}
+              
+              {orderDetails.customerEmail && (
+                <div className="flex justify-between items-center pb-3 border-b border-gray-100">
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-5 w-5 text-gray-500" />
+                    <span className="font-medium">Email</span>
+                  </div>
+                  <span>{orderDetails.customerEmail}</span>
+                </div>
+              )}
+              
+              {orderDetails.customerPhone && (
+                <div className="flex justify-between items-center pb-3 border-b border-gray-100">
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-5 w-5 text-gray-500" />
+                    <span className="font-medium">Phone</span>
+                  </div>
+                  <span>{orderDetails.customerPhone}</span>
+                </div>
+              )}
+              
               <div className="flex justify-between items-center pb-3 border-b border-gray-100">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-5 w-5 text-gray-500" />
@@ -93,6 +179,30 @@ export default function OrderSuccessPage() {
                   <span className="font-medium">Delivery Address</span>
                 </div>
                 <span className="text-right">{orderDetails.deliveryAddress}</span>
+              </div>
+              
+              <div className="flex justify-between items-center pb-3 border-b border-gray-100">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="h-5 w-5 text-gray-500" />
+                  <span className="font-medium">Subtotal</span>
+                </div>
+                <span>{orderDetails.subtotal}</span>
+              </div>
+              
+              <div className="flex justify-between items-center pb-3 border-b border-gray-100">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="h-5 w-5 text-gray-500" />
+                  <span className="font-medium">Tax (5%)</span>
+                </div>
+                <span>{orderDetails.tax}</span>
+              </div>
+              
+              <div className="flex justify-between items-center pb-3 border-b border-gray-100">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="h-5 w-5 text-gray-500" />
+                  <span className="font-medium">Shipping</span>
+                </div>
+                <span>{orderDetails.shipping}</span>
               </div>
               
               <div className="flex justify-between items-center pb-3">
