@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 import { buttonVariants } from "./button";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
@@ -35,7 +36,7 @@ const Navbar = () => {
 
   return (
     <nav className="bg-white shadow-sm">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex-shrink-0">
             <Link href="/" className="text-3xl font-bold">

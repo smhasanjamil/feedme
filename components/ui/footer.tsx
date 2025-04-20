@@ -1,21 +1,16 @@
-import Image from "next/image";
+import Link from "next/link";
 import React from "react";
-import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope } from "react-icons/fa"; // Using Font Awesome icons
+import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <footer className="bg-feed-black text-feed-lime py-10">
-      <div className="mx-auto grid max-w-6xl grid-cols-1 items-start gap-8 px-4 sm:grid-cols-2 sm:px-6 md:grid-cols-4 lg:px-8">
-        <div className="flex flex-col items-start">
-          <Image
-            src="/bekary.jpg"
-            alt="Bakery Logo"
-            height={100}
-            width={100}
-            className="mb-4 max-w-20 rounded-t-full"
-          />{" "}
-          {/* Replace with your actual logo path */}
-          <p className="text-sm">
+    <footer className="bg-feed-black text-feed-lime py-5 pt-10">
+      <div className="container mx-auto grid grid-cols-1 items-start gap-8 px-4 sm:grid-cols-2 sm:px-6 md:grid-cols-4 lg:px-8">
+        <div className="flex flex-col items-start gap-4">
+          <Link href="/" className="text-3xl font-bold">
+            feedme.
+          </Link>
+          <p className="text-sm md:text-base">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
             eiusmod tempor incididunt ut labore et dolore magna aliqua.
           </p>
