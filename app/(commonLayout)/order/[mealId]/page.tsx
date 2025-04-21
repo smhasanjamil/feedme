@@ -16,8 +16,11 @@ import { Clock, Utensils, DollarSign, Star, ChefHat, CheckCircle2, ShoppingCart 
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAppDispatch } from '@/redux/hooks';
-import { addToCart } from '@/redux/features/cart/cartSlice';
+import { toast } from 'react-hot-toast';
+import { useAppSelector } from '@/redux/hooks';
+import { currentUser } from '@/redux/features/auth/authSlice';
+import { MealDetails as MealDetailsType, CustomizationOptions } from '../../../order/[mealId]/addToCartUtils';
+import AddToCartButton from '../../../order/[mealId]/AddToCartButton';
 
 // Meal interface used for API response typing
 type Meal = {
@@ -90,8 +93,8 @@ const LoadingSkeleton = () => {
 
 export default function OrderPage({ params }: { params: Promise<{ mealId: string }> }) {
   const router = useRouter();
-  const dispatch = useAppDispatch();
   const { mealId } = use(params);
+  const user = useAppSelector(currentUser);
   
   const { data: mealData, isLoading, isError } = useGetMealByIdQuery(mealId);
   const meal = mealData?.data;
@@ -211,28 +214,6 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
     // In a real app, would call an API to create the order
     // For now, just redirect to a success page with the order info
     router.push(`/order-success?${params.toString()}`);
-  };
-
-  const handleAddToCart = () => {
-    if (!meal) return;
-    
-    dispatch(addToCart({
-      id: meal._id,
-      name: meal.name,
-      price: Number(calculateTotal()),
-      quantity: quantity,
-      image: meal.image,
-      providerId: meal.providerId,
-      customizations: {
-        removedIngredients: removedIngredients.length > 0 ? removedIngredients : undefined,
-        addOns: selectedAddOns.length > 0 ? selectedAddOns : undefined,
-        spiceLevel: spiceLevel || undefined,
-        noteToChef: noteToChef.trim() || undefined
-      }
-    }));
-    
-    // Navigate to cart
-    router.push('/cart');
   };
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -566,13 +547,41 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
                   Total: ${calculateTotal()}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <Button 
-                    onClick={handleAddToCart} 
-                    className="bg-orange-500 hover:bg-orange-600"
-                  >
-                    <ShoppingCart className="mr-2 h-4 w-4" />
-                    Add to Cart
-                  </Button>
+                  {meal && (
+                    <AddToCartButton
+                      meal={{
+                        _id: meal._id,
+                        name: meal.name,
+                        price: meal.price,
+                        provider: {
+                          _id: typeof meal.providerId === 'string' 
+                            ? meal.providerId 
+                            : (meal.providerId as any)._id,
+                          name: typeof meal.providerId === 'string'
+                            ? meal.providerName || 'Provider'
+                            : (meal.providerId as any).name
+                        }
+                      }}
+                      quantity={quantity}
+                      deliveryDate={selectedDate}
+                      deliverySlot={selectedTimeSlot}
+                      deliveryAddress={deliveryAddress || "Default Address"}
+                      customization={{
+                        spiceLevel: spiceLevel || undefined,
+                        removedIngredients: removedIngredients.length > 0 ? removedIngredients : undefined,
+                        addOns: selectedAddOns.length > 0 && meal.customizationOptions.addOns
+                          ? meal.customizationOptions.addOns
+                              .filter((addOn: { _id: string }) => selectedAddOns.includes(addOn._id))
+                              .map((addOn: { _id: string; name: string; price: number }) => ({
+                                name: addOn.name,
+                                price: addOn.price,
+                              }))
+                          : undefined,
+                        specialInstructions: noteToChef.trim() || undefined
+                      }}
+                      onSuccess={() => router.push('/cart')}
+                    />
+                  )}
                   <Button 
                     onClick={handleOrder} 
                     className="bg-red-500 hover:bg-red-600"
