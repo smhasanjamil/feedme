@@ -6,6 +6,7 @@ import { currentUser, logout } from "@/redux/features/auth/authSlice";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Menu, X, ShoppingCart } from "lucide-react";
+import { toast } from "sonner";
 
 const Navbar = () => {
   const user = useAppSelector(currentUser);
@@ -25,6 +26,7 @@ const Navbar = () => {
     localStorage.removeItem("token");
     router.refresh();
     setIsMenuOpen(false);
+    toast.success("Logged out successfully");
   };
 
   const primaryButtonClasses = `${buttonVariants({ variant: "default" })} bg-[#FF0000] hover:bg-[#CC0000] text-white h-10 rounded-full px-6 text-sm font-semibold transition-colors`;
