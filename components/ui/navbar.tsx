@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { buttonVariants } from "./button";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { currentUser, logout } from "@/redux/features/auth/authSlice";
 import { usePathname, useRouter } from "next/navigation";
@@ -101,8 +100,9 @@ const Navbar = () => {
               );
             })}
 
+            {/* Large Device Menu */}
             <DropdownMenu>
-              <DropdownMenuTrigger className="text-feed-black border-feed-black hover:bg-feed-lime flex h-10 cursor-pointer items-center gap-1 rounded-full border-[1.9px] bg-transparent px-2 text-lg font-medium caret-neutral-50 outline-0 duration-300">
+              <DropdownMenuTrigger className="text-feed-black border-feed-black hover:bg-feed-lime flex h-10 cursor-pointer items-center gap-1 rounded-full border-[1.9px] bg-transparent px-2.5 text-lg font-medium caret-neutral-50 outline-0 duration-300">
                 {user ? (
                   <>
                     <MdOutlineAccountCircle className="size-5" />
