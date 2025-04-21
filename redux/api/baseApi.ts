@@ -4,7 +4,7 @@ export const baseApi = createApi({
   reducerPath: "baseApi",
   tagTypes: ["User", "Meal"],
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api",
+    baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api",
     credentials: "include",
     prepareHeaders: (Headers, { getState }) => {
       const token = (getState() as RootState).auth.token;
