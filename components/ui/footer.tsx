@@ -7,7 +7,7 @@ const Footer = () => {
     <footer className="bg-feed-black text-feed-lime py-5 pt-10">
       <div className="container mx-auto grid grid-cols-1 items-start gap-8 px-4 sm:grid-cols-2 sm:px-6 md:grid-cols-4 lg:px-8">
         <div className="flex flex-col items-start gap-4">
-          <Link href="/" className="text-3xl font-bold">
+          <Link href="/" className="text-3xl font-semibold">
             feedme.
           </Link>
           <p className="text-sm md:text-base">
