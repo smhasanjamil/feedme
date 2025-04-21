@@ -11,6 +11,7 @@ export interface CartItem {
   price: number;
   deliveryDate: string;
   deliverySlot: string;
+  imageUrl?: string;
   customization?: {
     spiceLevel?: string;
     removedIngredients?: string[];

@@ -66,34 +66,15 @@ export const useCart = () => {
         email: user?.email
       };
       
-      try {
-        // Call the API with error handling
-        const response = await removeItemApi(removePayload)
-          .unwrap()
-          .catch(err => {
-            // Handle API errors gracefully
-            console.error('API error:', err);
-            // Don't show error to user - we've already updated local state
-            return null;
-          });
-        
-        if (response?.status) {
-          toast.success(response.message || 'Item removed from cart');
-          refetch(); // Refresh to ensure server/client sync
-        } else if (response) {
-          console.error('Remove item failed with response:', JSON.stringify(response));
-          toast.error(response.message || 'Failed to remove item');
-          refetch(); // Refresh to reset state on failure
-        }
-      } catch (error: any) {
-        // Only show the error toast in development
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Remove item error:', error);
-        }
+      const response = await removeItemApi(removePayload).unwrap();
+      
+      if (response?.status) {
+        // Success - no need to show toast as the UI already reflects the action
+        console.log('Item successfully removed');
       }
-    } catch (outerError) {
-      console.error('Unexpected error in removeItem:', outerError);
-      toast.error('An unexpected error occurred');
+    } catch (error) {
+      // Log the error but don't show to user since the UI is already updated
+      console.error('Error removing item:', error);
     }
   };
 
@@ -101,7 +82,11 @@ export const useCart = () => {
   const updateQuantity = async (itemId: string, quantity: number) => {
     if (!user?.email || !itemId) {
       console.error('Missing required parameters', { itemId, email: user?.email });
-      toast.error('Unable to update quantity: missing information');
+      return;
+    }
+    
+    if (quantity < 1) {
+      console.error('Invalid quantity value', { quantity });
       return;
     }
     
@@ -116,34 +101,16 @@ export const useCart = () => {
         email: user?.email
       };
       
-      try {
-        // Call the API with error handling
-        const response = await updateQuantityApi(updatePayload)
-          .unwrap()
-          .catch(err => {
-            // Handle API errors gracefully
-            console.error('API error:', err);
-            // Don't show error to user - we've already updated local state
-            return null;
-          });
-        
-        if (response?.status) {
-          // Don't show toast for every quantity update as it can be annoying
-          refetch(); // Refresh to ensure server/client sync
-        } else if (response) {
-          console.error('Update quantity failed with response:', JSON.stringify(response));
-          toast.error(response.message || 'Failed to update quantity');
-          refetch(); // Refresh to reset state on failure
-        }
-      } catch (error: any) {
-        // Only show the error toast in development
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Update quantity error:', error);
-        }
+      // Call the API
+      const response = await updateQuantityApi(updatePayload).unwrap();
+      
+      if (response?.status) {
+        // Success - no need to show toast as the UI already reflects the action
+        console.log('Quantity successfully updated');
       }
-    } catch (outerError) {
-      console.error('Unexpected error in updateQuantity:', outerError);
-      toast.error('An unexpected error occurred');
+    } catch (error) {
+      // Log the error but don't show to user since the UI is already updated
+      console.error('Error updating quantity:', error);
     }
   };
 

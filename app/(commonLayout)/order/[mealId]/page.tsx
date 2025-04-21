@@ -19,7 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'react-hot-toast';
 import { useAppSelector } from '@/redux/hooks';
 import { currentUser } from '@/redux/features/auth/authSlice';
-import { MealDetails as MealDetailsType, CustomizationOptions } from '../../../order/[mealId]/addToCartUtils';
+import { MealDetails as MealDetailsType, CustomizationOptions, getMealImageUrl } from '../../../order/[mealId]/addToCartUtils';
 import AddToCartButton from '../../../order/[mealId]/AddToCartButton';
 
 // Meal interface used for API response typing
@@ -553,6 +553,7 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
                         _id: meal._id,
                         name: meal.name,
                         price: meal.price,
+                        imageUrl: getMealImageUrl(meal),
                         provider: {
                           _id: typeof meal.providerId === 'string' 
                             ? meal.providerId 

@@ -7,6 +7,7 @@ export interface MealDetails {
   _id: string;
   name: string;
   price: number;
+  imageUrl?: string;
   provider: {
     _id: string;
     name: string;
@@ -22,6 +23,13 @@ export interface CustomizationOptions {
   }>;
   specialInstructions?: string;
 }
+
+// Utility function to get image URL from a meal object
+// This handles the different property names between meals and cart items
+export const getMealImageUrl = (meal: any): string | undefined => {
+  // Try various possible image properties
+  return meal?.imageUrl || meal?.image || undefined;
+};
 
 export const useAddToCart = () => {
   const [addToCartApi, { isLoading }] = useAddToCartMutation();
@@ -48,6 +56,7 @@ export const useAddToCart = () => {
         providerName: meal.provider.name,
         quantity,
         price: meal.price,
+        imageUrl: meal.imageUrl,
         deliveryDate,
         deliverySlot,
         customization,
