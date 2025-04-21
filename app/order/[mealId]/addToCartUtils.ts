@@ -26,7 +26,7 @@ export interface CustomizationOptions {
 
 // Utility function to get image URL from a meal object
 // This handles the different property names between meals and cart items
-export const getMealImageUrl = (meal: any): string | undefined => {
+export const getMealImageUrl = (meal: { imageUrl?: string; image?: string }): string | undefined => {
   // Try various possible image properties
   return meal?.imageUrl || meal?.image || undefined;
 };
@@ -77,9 +77,27 @@ export const useAddToCart = () => {
         toast.error(response.message || "Failed to add item to cart");
         return false;
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error adding to cart:', error);
-      toast.error(error?.data?.message || "Failed to add item to cart");
+      
+      // Improved error handling with detailed messages
+      let errorMessage = "Failed to add item to cart";
+      
+      // Type guard for error with data property
+      if (error && typeof error === 'object' && 'data' in error && 
+          error.data && typeof error.data === 'object' && 'message' in error.data) {
+        errorMessage = String(error.data.message);
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        errorMessage = String(error.message);
+      } else if (error && typeof error === 'object' && 'status' in error && error.status === 500) {
+        errorMessage = "Server error. Please try again later.";
+      } else if (error && typeof error === 'object' && 'status' in error && error.status === 404) {
+        errorMessage = "Service unavailable. Please try again later.";
+      } else if (!navigator.onLine) {
+        errorMessage = "You appear to be offline. Please check your connection.";
+      }
+      
+      toast.error(errorMessage);
       return false;
     }
   };

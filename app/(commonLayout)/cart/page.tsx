@@ -11,6 +11,7 @@ import { useAppSelector } from '@/redux/hooks';
 import { currentUser } from '@/redux/features/auth/authSlice';
 import { useGetMealByIdQuery } from '@/redux/meal/mealApi';
 import { getMealImageUrl } from '../../order/[mealId]/addToCartUtils';
+import { useRemoveFromCart } from "@/app/hooks/useRemoveFromCart";
 
 // Server-safe date formatter helper
 const formatDate = (dateString: string) => {
@@ -65,6 +66,9 @@ const CartItem = ({ item, removeItem, updateQuantity }: CartItemProps) => {
     skip: !!item.imageUrl // Skip if we already have an image URL
   });
   
+  // Display the item ID for debugging purposes
+  console.log(`Item ID for ${item.mealName}:`, item.mealId);
+  
   // Use the utility function to get the image URL
   const imageUrl = getMealImageUrl(item) || (mealData?.data ? getMealImageUrl(mealData.data) : null);
   
@@ -74,9 +78,30 @@ const CartItem = ({ item, removeItem, updateQuantity }: CartItemProps) => {
     }
   };
   
+  const handleRemoveItem = async () => {
+    if (!item.mealId) {
+      console.error('Cannot remove item: Missing meal ID');
+      return;
+    }
+    
+    // Log the item ID we're removing
+    console.log('Removing item with ID:', item.mealId);
+    
+    // Use the hook's removeItem function
+    try {
+      await removeItem(item.mealId);
+      console.log('Item removal process completed');
+    } catch (error) {
+      console.error('Error during item removal:', error);
+    }
+  };
+  
   return (
     <Card key={item._id} className="w-full mb-4 border-none shadow-sm hover:shadow-md transition-shadow duration-200">
       <CardContent className="p-4">
+        {/* Display the item ID for debugging */}
+        <div className="text-xs text-gray-400 mb-2">ID: {item._id}</div>
+        
         <div className="flex flex-col md:flex-row gap-6">
           <div className="w-full md:w-32 h-32 relative bg-gray-100 rounded-lg overflow-hidden">
             {imageUrl ? (
@@ -165,7 +190,7 @@ const CartItem = ({ item, removeItem, updateQuantity }: CartItemProps) => {
               variant="ghost" 
               size="sm" 
               className="text-red-500 hover:bg-red-50 hover:text-red-600 mt-3 h-8 px-2"
-              onClick={() => removeItem(item._id)}
+              onClick={handleRemoveItem}
             >
               <Trash2 className="h-4 w-4 mr-1" />
               Remove
@@ -180,7 +205,8 @@ const CartItem = ({ item, removeItem, updateQuantity }: CartItemProps) => {
 const CartPage = () => {
   const router = useRouter();
   const user = useAppSelector(currentUser);
-  const { cart, totalAmount, isLoading, error, removeItem, updateQuantity } = useCart();
+  const { cart, totalAmount, isLoading, error, updateQuantity } = useCart();
+  const { removeItem, isLoading: isRemoving } = useRemoveFromCart();
   // Add client-side only state
   const [mounted, setMounted] = React.useState(false);
 
@@ -357,8 +383,9 @@ const CartPage = () => {
                 <Button 
                   className="w-full h-12 bg-red-500 hover:bg-red-600 rounded-full" 
                   onClick={handleCheckout}
+                  disabled={isLoading || isRemoving}
                 >
-                  Proceed to Checkout
+                  {isLoading || isRemoving ? 'Processing...' : 'Proceed to Checkout'}
                 </Button>
                 <Button 
                   variant="outline" 

@@ -7,7 +7,12 @@ import {
   setLoading, 
   setError 
 } from '@/redux/features/cart/cartSlice';
-import { useGetCartQuery, useRemoveFromCartMutation, useUpdateCartItemMutation } from '@/redux/features/cart/cartApi';
+import { 
+  useGetCartQuery, 
+  useRemoveFromCartMutation, 
+  useUpdateCartItemMutation,
+  useRemoveFromCartByEmailMutation 
+} from '@/redux/features/cart/cartApi';
 import { toast } from 'react-hot-toast';
 import { currentUser } from '@/redux/features/auth/authSlice';
 import { useRouter } from 'next/navigation';
@@ -23,6 +28,7 @@ export const useCart = () => {
   });
   
   const [removeItemApi, { isLoading: isRemoving }] = useRemoveFromCartMutation();
+  const [removeItemByEmailApi, { isLoading: isRemovingByEmail }] = useRemoveFromCartByEmailMutation();
   const [updateQuantityApi, { isLoading: isUpdating }] = useUpdateCartItemMutation();
 
   // Sync cart data from API
@@ -60,18 +66,25 @@ export const useCart = () => {
     dispatch(removeFromCartLocal(itemId));
     
     try {
-      // Create the request payload
-      const removePayload = {
-        itemId,
-        email: user?.email
-      };
-      
-      const response = await removeItemApi(removePayload).unwrap();
-      
-      if (response?.status) {
-        // Success - no need to show toast as the UI already reflects the action
-        console.log('Item successfully removed');
+      // Use the specific API endpoint for the format http://localhost:5000/api/cart/by-email/item/[itemId]?email=[email]
+      if (process.env.NEXT_PUBLIC_API_URL?.includes('localhost:5000')) {
+        const removePayload = {
+          itemId,
+          email: user?.email
+        };
+        
+        await removeItemByEmailApi(removePayload).unwrap();
+      } else {
+        // Use original removeItemApi as fallback
+        const removePayload = {
+          itemId,
+          email: user?.email
+        };
+        
+        await removeItemApi(removePayload).unwrap();
       }
+      
+      console.log('Item successfully removed');
     } catch (error) {
       // Log the error but don't show to user since the UI is already updated
       console.error('Error removing item:', error);
@@ -117,7 +130,7 @@ export const useCart = () => {
   return {
     cart: cartState.items,
     totalAmount: cartState.totalAmount,
-    isLoading: cartState.isLoading || isLoading || isRemoving || isUpdating,
+    isLoading: cartState.isLoading || isLoading || isRemoving || isRemovingByEmail || isUpdating,
     error: cartState.error,
     removeItem,
     updateQuantity,
