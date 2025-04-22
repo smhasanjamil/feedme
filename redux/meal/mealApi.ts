@@ -20,7 +20,7 @@ const mealApi = baseApi.injectEndpoints({
 
     // 
 
-    getSingleMeal: builder.query({
+    getMealById: builder.query({
       query: ({ id }) => ({
         url: `/providers/menu/${id}`,
         method: "GET",
@@ -59,8 +59,8 @@ const mealApi = baseApi.injectEndpoints({
 export const {
   useGetAllMealsQuery,
   useGetMealByEmailQuery,
-  useGetSingleMealQuery,
   useCreateMealMutation,
   useUpdateMealMutation,
   useDeleteProductMutation,
+  useGetMealByIdQuery
 } = mealApi;

@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  useGetSingleMealQuery,
+  useGetMealByIdQuery,
   useUpdateMealMutation,
 } from "@/redux/meal/mealApi";
 import toast from "react-hot-toast";
@@ -52,7 +52,7 @@ export default function EditMealPage() {
   const router = useRouter();
   const [mealData, setMealData] = useState<MealType | null>(null);
 
-  const { data, error, isLoading } = useGetSingleMealQuery({ id });
+  const { data, error, isLoading } = useGetMealByIdQuery({ id });
 
   const [updateMeal, { isLoading: isUpdating }] = useUpdateMealMutation();
 
