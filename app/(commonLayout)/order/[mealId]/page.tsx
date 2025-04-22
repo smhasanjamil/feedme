@@ -458,16 +458,7 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
                       </div>
                     </div>
                     
-                    <div className="mt-4">
-                      <Label htmlFor="delivery-address" className="text-lg font-medium mb-2 block">Delivery Address</Label>
-                      <Textarea
-                        id="delivery-address"
-                        placeholder="Enter your delivery address"
-                        value={deliveryAddress}
-                        onChange={(e) => setDeliveryAddress(e.target.value)}
-                        className="mt-2"
-                      />
-                    </div>
+                    
                   </TabsContent>
                   
                   <TabsContent value="customize" className="mt-4 space-y-6">
