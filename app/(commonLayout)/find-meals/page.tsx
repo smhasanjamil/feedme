@@ -1,203 +1,147 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/input";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useGetAllMealsQuery } from '@/redux/meal/mealApi';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Star, Search, Filter, ChefHat, CheckCircle, X, ChevronDown } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGetAllMealsQuery } from "@/redux/meal/mealApi";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
-import {
-  Clock,
-  Utensils,
-  DollarSign,
-  Search,
-  Star,
-  ChefHat,
-} from "lucide-react";
-import { Slider } from "@/components/ui/slider";
-import { Button } from "@/components/ui/button";
-
-interface Meal {
-  _id: string;
-  name: string;
-  description: string;
-  price: number;
-  providerId:
-    | string
-    | {
-        _id: string;
-        name: string;
-        email: string;
-      };
-  providerName?: string;
-  ingredients: string[];
-  portionSize: string;
-  image: string;
-  category: string;
-  preparationTime: number;
-  isAvailable: boolean;
-  rating?: number;
-  reviewCount?: number;
-  nutritionalInfo: {
-    calories: number;
-    protein: number;
-    carbs: number;
-    fat: number;
-  };
-  customizationOptions: {
-    removeIngredients: string[];
-    addOns: {
-      name: string;
-      price: number;
-      _id: string;
-    }[];
-    spiceLevel: string[];
-    noteToChef: boolean;
-  };
-}
-
-const LoadingSkeleton = () => {
-  return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {[1, 2, 3, 4, 5, 6].map((index) => (
-        <Card key={index} className="overflow-hidden">
-          <Skeleton className="aspect-video w-full" />
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <Skeleton className="h-6 w-32" />
-              <Skeleton className="h-6 w-16" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Skeleton className="mb-2 h-4 w-full" />
-            <div className="flex items-center justify-between">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-4 w-24" />
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
-};
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export default function FindMealsPage() {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedPriceRange, setSelectedPriceRange] = useState("all");
-  const [selectedSpiceLevel, setSelectedSpiceLevel] = useState("all");
-  const [selectedProvider, setSelectedProvider] = useState("all");
+  const { data: mealData, isLoading, isError } = useGetAllMealsQuery({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [minRating, setMinRating] = useState(0);
-
-  const { data: mealsData, isLoading, isError } = useGetAllMealsQuery({});
-  const meals = mealsData?.data || [];
-
-  const providers = Array.from(
-    new Set(
-      meals.map((meal: Meal) => {
-        if (typeof meal.providerName === "string") return meal.providerName;
-        if (typeof meal.providerId === "object" && meal.providerId?.name)
-          return meal.providerId.name;
-        if (typeof meal.providerId === "string") return meal.providerId;
-        return "Unknown Provider";
-      }),
-    ),
-  ) as string[];
-
-  const handleSearch = () => {
-    let filteredMeals = [...meals];
-
-    if (searchQuery) {
-      filteredMeals = filteredMeals.filter(
-        (meal: Meal) =>
-          meal.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          meal.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          meal.ingredients.some((ingredient) =>
-            ingredient.toLowerCase().includes(searchQuery.toLowerCase()),
-          ),
+  const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
+  const [selectedPreferences, setSelectedPreferences] = useState<string[]>([]);
+  const [preferenceSearchTerm, setPreferenceSearchTerm] = useState('');
+  const [providerSearchTerm, setProviderSearchTerm] = useState('');
+  
+  // Get all unique categories and providers from the data
+  const categories = mealData?.data ? 
+    Array.from(new Set(mealData.data.map(meal => meal.category))) : 
+    [];
+  
+  const providers = mealData?.data ? 
+    Array.from(new Set(mealData.data.map(meal => 
+      typeof meal.providerId === 'object' && meal.providerId?.name
+        ? meal.providerId.name
+        : (typeof meal.providerId === 'string'
+            ? meal.providerId
+            : 'Unknown Provider')
+    ))) : 
+    [];
+    
+  // Common meal preferences
+  const preferences = [
+    'Vegetarian', 
+    'Vegan', 
+    'Gluten-Free', 
+    'Dairy-Free', 
+    'Nut-Free', 
+    'Low-Carb', 
+    'Keto'
+  ];
+  
+  // Filter preferences and providers based on search terms
+  const filteredPreferences = preferences.filter(pref => 
+    pref.toLowerCase().includes(preferenceSearchTerm.toLowerCase())
+  );
+  
+  const filteredProviders = providers.filter(provider => 
+    provider.toLowerCase().includes(providerSearchTerm.toLowerCase())
+  );
+  
+  // Filter meals based on all criteria
+  const filteredMeals = mealData?.data?.filter((meal) => {
+    const matchesSearch = searchTerm === '' || 
+      meal.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      meal.description.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesCategory = !selectedCategory || meal.category === selectedCategory;
+    
+    const rating = meal.ratings?.average ?? meal.rating ?? 0;
+    const matchesRating = rating >= minRating;
+    
+    const providerName = typeof meal.providerId === 'object' && meal.providerId?.name
+      ? meal.providerId.name
+      : (typeof meal.providerId === 'string'
+          ? meal.providerId
+          : 'Unknown Provider');
+    const matchesProvider = selectedProviders.length === 0 || selectedProviders.includes(providerName);
+    
+    // This is mocked since we don't have preferences in the data model yet
+    // In a real implementation, you would check meal.preferences or similar field
+    const mealPreferences = meal.preferences || [];
+    const matchesPreferences = selectedPreferences.length === 0 || 
+      selectedPreferences.some(pref => 
+        meal.description.toLowerCase().includes(pref.toLowerCase()) || 
+        mealPreferences.includes(pref)
       );
-    }
-
-    if (selectedCategory && selectedCategory !== "all") {
-      filteredMeals = filteredMeals.filter(
-        (meal: Meal) => meal.category === selectedCategory,
-      );
-    }
-
-    if (selectedPriceRange && selectedPriceRange !== "all") {
-      const [min, max] = selectedPriceRange.split("-").map(Number);
-      filteredMeals = filteredMeals.filter(
-        (meal: Meal) => meal.price >= min && meal.price <= max,
-      );
-    }
-
-    if (selectedSpiceLevel && selectedSpiceLevel !== "all") {
-      filteredMeals = filteredMeals.filter((meal: Meal) =>
-        meal.customizationOptions.spiceLevel.includes(selectedSpiceLevel),
-      );
-    }
-
-    if (selectedProvider && selectedProvider !== "all") {
-      filteredMeals = filteredMeals.filter((meal: Meal) => {
-        const providerValue =
-          typeof meal.providerName === "string"
-            ? meal.providerName
-            : typeof meal.providerId === "object" && meal.providerId.name
-              ? meal.providerId.name
-              : typeof meal.providerId === "string"
-                ? meal.providerId
-                : "Unknown Provider";
-        return providerValue === selectedProvider;
-      });
-    }
-
-    if (minRating > 0) {
-      filteredMeals = filteredMeals.filter(
-        (meal: Meal) => (meal.rating || 0) >= minRating,
-      );
-    }
-
-    return filteredMeals;
-  };
-
-  const handleMealClick = (mealId: string) => {
+    
+    return matchesSearch && matchesCategory && matchesRating && matchesProvider && matchesPreferences;
+  }) || [];
+  
+  const handleMealSelect = (mealId) => {
     router.push(`/order/${mealId}`);
   };
-
-  const filteredMeals = handleSearch();
-  const categories: string[] = Array.from(
-    new Set(meals.map((meal: Meal) => meal.category)),
-  ) as string[];
-  const spiceLevels = ["None", "Mild", "Spicy"];
-
-  const renderRating = (rating: number = 0, reviewCount: number = 0) => {
+  
+  const handleProviderToggle = (provider) => {
+    setSelectedProviders(prev => 
+      prev.includes(provider)
+        ? prev.filter(p => p !== provider)
+        : [...prev, provider]
+    );
+  };
+  
+  const handlePreferenceToggle = (preference) => {
+    setSelectedPreferences(prev => 
+      prev.includes(preference)
+        ? prev.filter(p => p !== preference)
+        : [...prev, preference]
+    );
+  };
+  
+  const resetFilters = () => {
+    setSearchTerm('');
+    setSelectedCategory(null);
+    setMinRating(0);
+    setSelectedProviders([]);
+    setSelectedPreferences([]);
+  };
+  
+  const renderRating = (meal: any) => {
+    const rating = meal.ratings?.average ?? meal.rating ?? 0;
+    const reviewCount = meal.ratings?.count ?? meal.reviewCount ?? 0;
+    
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-
+    
     return (
       <div className="flex items-center">
         <div className="flex">
           {[...Array(fullStars)].map((_, i) => (
-            <Star
-              key={`full-${i}`}
-              className="h-4 w-4 fill-yellow-400 text-yellow-400"
-            />
+            <Star key={`full-${i}`} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
           ))}
           {hasHalfStar && (
-            <Star
-              className="h-4 w-4 fill-yellow-400 text-yellow-400"
-              style={{ clipPath: "inset(0 50% 0 0)" }}
-            />
+            <div className="relative h-4 w-4">
+              <Star className="absolute h-4 w-4 text-gray-300" />
+              <Star className="absolute h-4 w-4 fill-yellow-400 text-yellow-400" style={{ clipPath: 'inset(0 50% 0 0)' }} />
+            </div>
           )}
           {[...Array(emptyStars)].map((_, i) => (
             <Star key={`empty-${i}`} className="h-4 w-4 text-gray-300" />
@@ -207,211 +151,473 @@ export default function FindMealsPage() {
       </div>
     );
   };
-
-  return (
-    <div className="container mx-auto py-8">
-      <h1 className="mb-8 text-3xl font-bold">Find Meals</h1>
-
-      <div className="mb-8 rounded-lg bg-white p-6 shadow-sm">
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="relative min-w-[200px] flex-1">
-            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
-            <Input
-              placeholder="Search meals or ingredients..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <div className="min-w-[150px]">
-            <Select
-              value={selectedCategory}
-              onValueChange={setSelectedCategory}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((category: string) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="min-w-[150px]">
-            <Select
-              value={selectedPriceRange}
-              onValueChange={setSelectedPriceRange}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Price Range" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Prices</SelectItem>
-                <SelectItem value="0-10">Under $10</SelectItem>
-                <SelectItem value="10-20">$10 - $20</SelectItem>
-                <SelectItem value="20-30">$20 - $30</SelectItem>
-                <SelectItem value="30-999">$30+</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="min-w-[180px]">
-            <Select
-              value={selectedProvider}
-              onValueChange={setSelectedProvider}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Meal Provider" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Providers</SelectItem>
-                {providers.map((provider: string) => (
-                  <SelectItem key={provider} value={provider}>
-                    {provider}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="min-w-[150px]">
-            <Select
-              value={selectedSpiceLevel}
-              onValueChange={setSelectedSpiceLevel}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Spice Level" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Spice Levels</SelectItem>
-                {spiceLevels.map((level) => (
-                  <SelectItem key={level} value={level}>
-                    {level}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="min-w-[150px]">
-            <div className="flex items-center gap-2">
-              <div className="text-sm font-medium whitespace-nowrap">
-                Min Rating: {minRating}
-              </div>
-              <Slider
-                value={[minRating]}
-                onValueChange={(value) => setMinRating(value[0])}
-                max={5}
-                step={0.5}
-                className="w-24"
-              />
-            </div>
-          </div>
-          <Button
-            variant="outline"
-            onClick={() => {
-              setSearchQuery("");
-              setSelectedCategory("all");
-              setSelectedPriceRange("all");
-              setSelectedSpiceLevel("all");
-              setSelectedProvider("all");
-              setMinRating(0);
-            }}
-            className="whitespace-nowrap"
-          >
-            Reset Filters
-          </Button>
+  
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <h1 className="text-3xl font-bold mb-8">Find Meals</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <Card key={i} className="overflow-hidden">
+              <Skeleton className="h-48 w-full" />
+              <CardContent className="p-4">
+                <Skeleton className="h-6 w-3/4 mb-2" />
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-2/3" />
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
-
-      {isLoading ? (
-        <LoadingSkeleton />
-      ) : isError ? (
-        <div className="py-8 text-center">
-          <p className="text-red-500">
-            Error loading meals. Please try again later.
-          </p>
+    );
+  }
+  
+  if (isError) {
+    return (
+      <div className="container mx-auto py-8 px-4 text-center">
+        <h1 className="text-3xl font-bold mb-4">Error Loading Meals</h1>
+        <p className="text-gray-600 mb-6">We're having trouble loading the available meals. Please try again later.</p>
+        <Button onClick={() => window.location.reload()}>Retry</Button>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="container mx-auto py-8 px-4">
+      <h1 className="text-3xl font-bold mb-8">Find Meals</h1>
+      
+      {/* Search input */}
+      <div className="mb-6 relative">
+        <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+        <Input
+          type="text"
+          placeholder="Search meals by name or description..."
+          className="pl-10"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+      
+      {/* Responsive Filtering Section */}
+      <div className="mb-6 border border-gray-200 rounded-md p-4 bg-white">
+        {/* Section Title - Mobile Only */}
+        <h3 className="text-base font-semibold mb-4 md:hidden">Filtering</h3>
+        
+        {/* Desktop View - Horizontal layout */}
+        <div className="hidden md:flex md:flex-wrap md:items-center md:gap-0">
+          {/* Section Title - Desktop */}
+          <h3 className="text-base font-semibold mr-3">Filtering</h3>
+          
+          {/* Category Pills */}
+          <div className="inline-flex items-center border rounded-md overflow-hidden mr-3">
+            <Button
+              variant={selectedCategory === null ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setSelectedCategory(null)}
+              className="rounded-none border-0"
+            >
+              All
+            </Button>
+            <Button
+              variant={selectedCategory === "Breakfast" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setSelectedCategory("Breakfast")}
+              className="rounded-none border-0"
+            >
+              Breakfast
+            </Button>
+            <Button
+              variant={selectedCategory === "Lunch" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setSelectedCategory("Lunch")}
+              className="rounded-none border-0"
+            >
+              Lunch
+            </Button>
+            <Button
+              variant={selectedCategory === "Dinner" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setSelectedCategory("Dinner")}
+              className="rounded-none border-0"
+            >
+              Dinner
+            </Button>
+          </div>
+          
+          {/* Minimum Rating */}
+          <div className="flex items-center mr-3">
+            <span className="text-sm font-medium mr-2">Minimum Rating</span>
+            <div className="relative w-[150px] flex items-center">
+              <Slider
+                value={[minRating]}
+                min={0}
+                max={5}
+                step={1}
+                onValueChange={(values) => setMinRating(values[0])}
+                className="w-full"
+              />
+              <div className="absolute -top-3 left-0 right-0 flex justify-between">
+                {[0, 1, 2, 3, 4, 5].map(value => (
+                  <div 
+                    key={value} 
+                    className={`${minRating >= value ? 'bg-black' : 'bg-gray-200'}`}
+                    style={{ 
+                      height: value === 0 || value === 5 ? '10px' : value % 2 === 0 ? '8px' : '6px',
+                      width: value === 0 || value === 5 ? '2px' : '1px'
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center gap-1 ml-2">
+              <span className="text-sm font-medium">{minRating}</span>
+              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+            </div>
+          </div>
+          
+          {/* Dietary Preferences Dropdown */}
+          <div className="flex items-center mr-3">
+            <span className="text-sm font-medium mr-2">Dietary Preferences</span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="flex items-center gap-1 h-9 px-3 w-[130px]">
+                  {selectedPreferences.length > 0 ? `${selectedPreferences.length} selected` : 'Select'}
+                  <ChevronDown className="h-4 w-4 ml-auto" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-[240px]">
+                <DropdownMenuLabel>Dietary Preferences</DropdownMenuLabel>
+                <div className="px-2 py-1.5">
+                  <div className="relative">
+                    <Search className="absolute left-2 top-2.5 h-3.5 w-3.5 text-gray-500" />
+                    <Input
+                      type="text"
+                      placeholder="Search preferences..."
+                      className="pl-7 h-8 text-sm"
+                      value={preferenceSearchTerm}
+                      onChange={(e) => setPreferenceSearchTerm(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <DropdownMenuSeparator />
+                <div className="max-h-[200px] overflow-auto">
+                  {filteredPreferences.length > 0 ? (
+                    filteredPreferences.map((preference) => (
+                      <DropdownMenuCheckboxItem
+                        key={preference}
+                        checked={selectedPreferences.includes(preference)}
+                        onCheckedChange={() => handlePreferenceToggle(preference)}
+                      >
+                        {preference}
+                      </DropdownMenuCheckboxItem>
+                    ))
+                  ) : (
+                    <div className="px-2 py-1.5 text-sm text-gray-500 text-center">
+                      No preferences found
+                    </div>
+                  )}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          
+          {/* Meal Providers Dropdown */}
+          <div className="flex items-center mr-3">
+            <span className="text-sm font-medium mr-2">Meal Providers</span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="flex items-center gap-1 h-9 px-3 w-[130px]">
+                  {selectedProviders.length > 0 ? `${selectedProviders.length} selected` : 'Select'}
+                  <ChevronDown className="h-4 w-4 ml-auto" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-[240px]">
+                <DropdownMenuLabel>Meal Providers</DropdownMenuLabel>
+                <div className="px-2 py-1.5">
+                  <div className="relative">
+                    <Search className="absolute left-2 top-2.5 h-3.5 w-3.5 text-gray-500" />
+                    <Input
+                      type="text"
+                      placeholder="Search providers..."
+                      className="pl-7 h-8 text-sm"
+                      value={providerSearchTerm}
+                      onChange={(e) => setProviderSearchTerm(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <DropdownMenuSeparator />
+                <div className="max-h-[200px] overflow-auto">
+                  {filteredProviders.length > 0 ? (
+                    filteredProviders.map((provider) => (
+                      <DropdownMenuCheckboxItem
+                        key={provider}
+                        checked={selectedProviders.includes(provider)}
+                        onCheckedChange={() => handleProviderToggle(provider)}
+                      >
+                        {provider}
+                      </DropdownMenuCheckboxItem>
+                    ))
+                  ) : (
+                    <div className="px-2 py-1.5 text-sm text-gray-500 text-center">
+                      No providers found
+                    </div>
+                  )}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          
+          {/* Spacer */}
+          <div className="flex-grow"></div>
+          
+          {/* Reset Button */}
+          <Button 
+            variant="default" 
+            size="sm" 
+            onClick={resetFilters} 
+            className="bg-primary text-white hover:bg-primary/90"
+          >
+            Reset
+          </Button>
         </div>
-      ) : filteredMeals.length === 0 ? (
-        <div className="py-8 text-center">
-          <p className="text-gray-500">
-            No meals found matching your criteria.
-          </p>
+        
+        {/* Mobile View - Vertical layout */}
+        <div className="flex flex-col space-y-4 md:hidden">
+          {/* Category Pills */}
+          <div className="w-full">
+            <div className="inline-flex items-center border rounded-md overflow-hidden">
+              <Button
+                variant={selectedCategory === null ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setSelectedCategory(null)}
+                className="rounded-none border-0"
+              >
+                All
+              </Button>
+              <Button
+                variant={selectedCategory === "Breakfast" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setSelectedCategory("Breakfast")}
+                className="rounded-none border-0"
+              >
+                Breakfast
+              </Button>
+              <Button
+                variant={selectedCategory === "Lunch" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setSelectedCategory("Lunch")}
+                className="rounded-none border-0"
+              >
+                Lunch
+              </Button>
+              <Button
+                variant={selectedCategory === "Dinner" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setSelectedCategory("Dinner")}
+                className="rounded-none border-0"
+              >
+                Dinner
+              </Button>
+            </div>
+          </div>
+          
+          {/* Minimum Rating */}
+          <div className="flex items-center justify-between w-full">
+            <span className="text-sm font-medium mr-8">Minimum Rating</span>
+            <div className="flex items-center gap-5">
+              <div className="relative w-[180px] flex items-center">
+                <Slider
+                  value={[minRating]}
+                  min={0}
+                  max={5}
+                  step={1}
+                  onValueChange={(values) => setMinRating(values[0])}
+                  className="w-full"
+                />
+                <div className="absolute -top-3 left-0 right-0 flex justify-between">
+                  {[0, 1, 2, 3, 4, 5].map(value => (
+                    <div 
+                      key={value} 
+                      className={`${minRating >= value ? 'bg-black' : 'bg-gray-200'}`}
+                      style={{ 
+                        height: value === 0 || value === 5 ? '10px' : value % 2 === 0 ? '8px' : '6px',
+                        width: value === 0 || value === 5 ? '2px' : '1px'
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="text-sm font-medium">{minRating}</span>
+                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+              </div>
+            </div>
+          </div>
+          
+          {/* Dietary Preferences Dropdown */}
+          <div className="flex items-center justify-between w-full">
+            <span className="text-sm font-medium">Dietary Preferences</span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="flex items-center gap-1 h-9 px-3 w-[180px]">
+                  {selectedPreferences.length > 0 ? `${selectedPreferences.length} selected` : 'Select'}
+                  <ChevronDown className="h-4 w-4 ml-auto" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[240px]">
+                <DropdownMenuLabel>Dietary Preferences</DropdownMenuLabel>
+                <div className="px-2 py-1.5">
+                  <div className="relative">
+                    <Search className="absolute left-2 top-2.5 h-3.5 w-3.5 text-gray-500" />
+                    <Input
+                      type="text"
+                      placeholder="Search preferences..."
+                      className="pl-7 h-8 text-sm"
+                      value={preferenceSearchTerm}
+                      onChange={(e) => setPreferenceSearchTerm(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <DropdownMenuSeparator />
+                <div className="max-h-[200px] overflow-auto">
+                  {filteredPreferences.length > 0 ? (
+                    filteredPreferences.map((preference) => (
+                      <DropdownMenuCheckboxItem
+                        key={preference}
+                        checked={selectedPreferences.includes(preference)}
+                        onCheckedChange={() => handlePreferenceToggle(preference)}
+                      >
+                        {preference}
+                      </DropdownMenuCheckboxItem>
+                    ))
+                  ) : (
+                    <div className="px-2 py-1.5 text-sm text-gray-500 text-center">
+                      No preferences found
+                    </div>
+                  )}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          
+          {/* Meal Providers Dropdown */}
+          <div className="flex items-center justify-between w-full">
+            <span className="text-sm font-medium">Meal Providers</span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="flex items-center gap-1 h-9 px-3 w-[180px]">
+                  {selectedProviders.length > 0 ? `${selectedProviders.length} selected` : 'Select'}
+                  <ChevronDown className="h-4 w-4 ml-auto" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[240px]">
+                <DropdownMenuLabel>Meal Providers</DropdownMenuLabel>
+                <div className="px-2 py-1.5">
+                  <div className="relative">
+                    <Search className="absolute left-2 top-2.5 h-3.5 w-3.5 text-gray-500" />
+                    <Input
+                      type="text"
+                      placeholder="Search providers..."
+                      className="pl-7 h-8 text-sm"
+                      value={providerSearchTerm}
+                      onChange={(e) => setProviderSearchTerm(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <DropdownMenuSeparator />
+                <div className="max-h-[200px] overflow-auto">
+                  {filteredProviders.length > 0 ? (
+                    filteredProviders.map((provider) => (
+                      <DropdownMenuCheckboxItem
+                        key={provider}
+                        checked={selectedProviders.includes(provider)}
+                        onCheckedChange={() => handleProviderToggle(provider)}
+                      >
+                        {provider}
+                      </DropdownMenuCheckboxItem>
+                    ))
+                  ) : (
+                    <div className="px-2 py-1.5 text-sm text-gray-500 text-center">
+                      No providers found
+                    </div>
+                  )}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          
+          {/* Reset Button */}
+          <div className="w-full">
+            <Button 
+              variant="default" 
+              size="sm" 
+              onClick={resetFilters} 
+              className="bg-primary text-white hover:bg-primary/90 w-[180px] float-right"
+            >
+              Reset
+            </Button>
+          </div>
+        </div>
+      </div>
+      
+      {/* Results count */}
+      <div className="mb-4">
+        <p className="text-sm text-gray-500">
+          {filteredMeals.length} {filteredMeals.length === 1 ? 'meal' : 'meals'} found
+        </p>
+      </div>
+      
+      {/* Meals grid */}
+      {filteredMeals.length === 0 ? (
+        <div className="text-center py-12">
+          <h2 className="text-xl font-medium mb-4">No meals found</h2>
+          <p className="text-gray-500 mb-6">Try adjusting your search or filters</p>
+          <Button onClick={resetFilters}>
+            Show All Meals
+          </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredMeals.map((meal) => (
-            <Card
-              key={meal._id}
-              className="cursor-pointer overflow-hidden border-2 transition-all duration-200 hover:border-red-500 hover:shadow-lg"
-              onClick={() => handleMealClick(meal._id)}
+            <Card 
+              key={meal._id} 
+              className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => handleMealSelect(meal._id)}
             >
-              <div className="relative aspect-video">
+              <div className="aspect-video relative">
                 <img
                   src={meal.image}
                   alt={meal.name}
-                  className="h-full w-full object-cover"
+                  className="object-cover w-full h-full"
                 />
-                <Badge
+                <Badge 
                   className="absolute top-2 right-2 bg-white text-black hover:bg-white"
                   variant="secondary"
                 >
                   {meal.category}
                 </Badge>
               </div>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span className="text-xl">{meal.name}</span>
-                  <span className="text-lg font-semibold text-red-500">
-                    ${meal.price}
-                  </span>
-                </CardTitle>
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <ChefHat className="h-4 w-4" />
-                  <span>
-                    {typeof meal.providerName === "string"
-                      ? meal.providerName
-                      : typeof meal.providerId === "object" &&
-                          meal.providerId?.name
-                        ? meal.providerId.name
-                        : typeof meal.providerId === "string"
-                          ? meal.providerId
-                          : "Unknown Provider"}
-                  </span>
+              <CardContent className="p-4">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="font-semibold text-lg">{meal.name}</h3>
+                  <span className="text-red-500 font-semibold">${meal.price.toFixed(2)}</span>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <p className="mb-4 line-clamp-2 text-gray-600">
-                  {meal.description}
-                </p>
-                <div className="space-y-3">
+                
+                <p className="text-gray-600 text-sm line-clamp-2 mb-2">{meal.description}</p>
+                
+                <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <Utensils className="h-4 w-4" />
-                    <span>{meal.portionSize}</span>
-                    <span>•</span>
-                    <Clock className="h-4 w-4" />
-                    <span>{meal.preparationTime} mins</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <DollarSign className="h-4 w-4 text-green-500" />
-                    <span className="font-medium">
-                      {meal.nutritionalInfo.calories} cal
-                    </span>
-                    <span>•</span>
-                    <span className="font-medium">
-                      {meal.nutritionalInfo.protein}g protein
-                    </span>
-                    <span>•</span>
-                    <span className="font-medium">
-                      {meal.nutritionalInfo.carbs}g carbs
+                    <ChefHat className="h-4 w-4" />
+                    <span>
+                      {typeof meal.providerId === 'object' && meal.providerId?.name
+                        ? meal.providerId.name
+                        : (typeof meal.providerId === 'string'
+                            ? meal.providerId
+                            : 'Unknown Provider')}
                     </span>
                   </div>
-                  {meal.rating !== undefined && (
-                    <div className="mt-2">
-                      {renderRating(meal.rating, meal.reviewCount || 0)}
-                    </div>
-                  )}
+                  {renderRating(meal)}
                 </div>
               </CardContent>
             </Card>
@@ -420,4 +626,4 @@ export default function FindMealsPage() {
       )}
     </div>
   );
-}
+} 
