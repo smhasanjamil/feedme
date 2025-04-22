@@ -112,6 +112,70 @@ export const cartApi = baseApi.injectEndpoints({
             };
           }
           
+          // Validate customization object if it exists
+          if (data.customization) {
+            // Ensure spiceLevel is a string if provided
+            if (data.customization.spiceLevel && typeof data.customization.spiceLevel !== 'string') {
+              console.error('Invalid spiceLevel format:', data.customization.spiceLevel);
+              return {
+                error: {
+                  status: 400,
+                  data: {
+                    message: 'Invalid spice level format',
+                    status: false
+                  }
+                }
+              };
+            }
+            
+            // Ensure removedIngredients is an array if provided
+            if (data.customization.removedIngredients && 
+                !Array.isArray(data.customization.removedIngredients)) {
+              console.error('Invalid removedIngredients format:', data.customization.removedIngredients);
+              return {
+                error: {
+                  status: 400,
+                  data: {
+                    message: 'Invalid removed ingredients format',
+                    status: false
+                  }
+                }
+              };
+            }
+            
+            // Ensure addOns is an array with valid objects if provided
+            if (data.customization.addOns) {
+              if (!Array.isArray(data.customization.addOns)) {
+                console.error('Invalid addOns format:', data.customization.addOns);
+                return {
+                  error: {
+                    status: 400,
+                    data: {
+                      message: 'Invalid add-ons format',
+                      status: false
+                    }
+                  }
+                };
+              }
+              
+              // Validate each add-on object
+              for (const addon of data.customization.addOns) {
+                if (!addon.name || typeof addon.price !== 'number') {
+                  console.error('Invalid add-on object:', addon);
+                  return {
+                    error: {
+                      status: 400,
+                      data: {
+                        message: 'Invalid add-on object structure',
+                        status: false
+                      }
+                    }
+                  };
+                }
+              }
+            }
+          }
+          
           const result = await baseQuery({
             url: `/cart`,
             method: "POST",

@@ -103,7 +103,7 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
   const [noteToChef, setNoteToChef] = useState('');
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
   const [removedIngredients, setRemovedIngredients] = useState<string[]>([]);
-  const [spiceLevel, setSpiceLevel] = useState<string>('');
+  const [spiceLevel, setSpiceLevel] = useState<string>('medium');
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('');
   const [deliveryAddress, setDeliveryAddress] = useState<string>('');
@@ -474,10 +474,10 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
                     {typedMeal.customizationOptions.spiceLevel && typedMeal.customizationOptions.spiceLevel.length > 0 && (
                       <div>
                         <Label className="text-lg font-medium mb-2 block">Spice Level</Label>
-                        <RadioGroup value={spiceLevel} onValueChange={setSpiceLevel} className="mt-2">
+                        <RadioGroup value={spiceLevel} onValueChange={(value) => setSpiceLevel(value.toLowerCase())} className="mt-2">
                           {typedMeal.customizationOptions.spiceLevel.map((level: string, index: number) => (
                             <div key={index} className="flex items-center space-x-2 mb-2">
-                              <RadioGroupItem value={level} id={`spice-${level}`} />
+                              <RadioGroupItem value={level.toLowerCase()} id={`spice-${level}`} />
                               <Label htmlFor={`spice-${level}`}>{level}</Label>
                             </div>
                           ))}
@@ -568,7 +568,7 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
                       deliverySlot={selectedTimeSlot}
                       deliveryAddress={deliveryAddress || "Default Address"}
                       customization={{
-                        spiceLevel: spiceLevel || undefined,
+                        spiceLevel: spiceLevel || 'medium',
                         removedIngredients: removedIngredients.length > 0 ? removedIngredients : undefined,
                         addOns: selectedAddOns.length > 0 && meal.customizationOptions.addOns
                           ? meal.customizationOptions.addOns

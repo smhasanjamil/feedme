@@ -49,6 +49,46 @@ export const useAddToCart = () => {
     }
 
     try {
+      // Normalize customization structure to ensure it matches backend expectations
+      let normalizedCustomization: CustomizationOptions | undefined = undefined;
+      
+      if (customization) {
+        normalizedCustomization = {
+          // Ensure spiceLevel is lowercase for consistency
+          spiceLevel: customization.spiceLevel ? customization.spiceLevel.toLowerCase() : undefined,
+          
+          // Only include non-empty arrays to avoid backend validation issues
+          removedIngredients: customization.removedIngredients && 
+                            customization.removedIngredients.length > 0 ? 
+                            customization.removedIngredients : undefined,
+          
+          // Only include non-empty arrays to avoid backend validation issues
+          addOns: customization.addOns && 
+                customization.addOns.length > 0 ? 
+                customization.addOns.map(addon => ({
+                  name: addon.name,
+                  price: Number(addon.price) // Ensure price is a number
+                })) : undefined,
+          
+          // Only include non-empty strings
+          specialInstructions: customization.specialInstructions && 
+                            customization.specialInstructions.trim() !== '' ? 
+                            customization.specialInstructions : undefined
+        };
+        
+        // Remove any undefined properties from the object
+        Object.keys(normalizedCustomization).forEach(key => {
+          if (normalizedCustomization[key as keyof CustomizationOptions] === undefined) {
+            delete normalizedCustomization[key as keyof CustomizationOptions];
+          }
+        });
+        
+        // If all customization options are undefined, set the whole object to undefined
+        if (Object.keys(normalizedCustomization).length === 0) {
+          normalizedCustomization = undefined;
+        }
+      }
+
       const payload = {
         mealId: meal._id,
         mealName: meal.name,
@@ -59,7 +99,7 @@ export const useAddToCart = () => {
         imageUrl: meal.imageUrl,
         deliveryDate,
         deliverySlot,
-        customization,
+        customization: normalizedCustomization,
         userId: user.id,
         customerName: user.name,
         customerEmail: user.email,
