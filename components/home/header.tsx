@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "../ui/button";
+import Image from "next/image";
 
 const Header = () => {
   return (
@@ -32,7 +33,7 @@ const Header = () => {
             Order now
           </Button>
           <Link
-            className="hover:text-feed-jungle border-feed-jungle text-lg font-medium text-gray-800 duration-200 hover:border-b-2 ease-in-out"
+            className="hover:text-feed-jungle border-feed-jungle text-lg font-medium text-gray-800 duration-200 ease-in-out hover:border-b-2"
             href="/"
           >
             See the menu
@@ -40,8 +41,42 @@ const Header = () => {
         </div>
       </div>
 
-      <div className="mt-12 flex justify-center gap-4">
-        {/* This would be where your food images would go */}
+      <div className="flex gap-4 overflow-x-auto py-6">
+        <Image
+          src="/home/banner/banner1.jpg"
+          className="h-72 w-56 rounded-t-full object-cover"
+          alt="banner"
+          width={300}
+          height={300}
+        />
+        <Image
+          src="/home/banner/banner2.jpg"
+          className="h-72 w-56 object-cover [clip-path:circle(50%)]"
+          alt="banner"
+          width={300}
+          height={300}
+        />
+        <Image
+          src="/home/banner/banner3.jpg"
+          className="h-72 w-56 rounded-2xl object-cover"
+          alt="banner"
+          width={300}
+          height={300}
+        />
+        <Image
+          src="/home/banner/banner4.jpg"
+          className="h-72 w-56 rounded-[50%_50%_0_0] object-cover"
+          alt="banner"
+          width={300}
+          height={300}
+        />
+        <Image
+          src="/home/banner/banner5.jpg"
+          className="h-72 w-56 rounded-tl-[80%] rounded-br-[80%] object-cover"
+          alt="banner"
+          width={300}
+          height={300}
+        />
       </div>
     </section>
   );
