@@ -1,12 +1,25 @@
-'use client';
+"use client";
+
 import Link from "next/link";
-import { buttonVariants } from "./button";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { toast } from "react-hot-toast";
+import { Menu, X, ShoppingCart } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { currentUser, logout } from "@/redux/features/auth/authSlice";
-import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import { Menu, X, ShoppingCart } from "lucide-react";
-import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./dropdown-menu";
+import { FaArrowRightLong } from "react-icons/fa6";
+import { CgLogIn, CgLogOut } from "react-icons/cg";
+import {
+  MdOutlineAccountCircle,
+  MdOutlineAppRegistration,
+} from "react-icons/md";
+import { TbLayoutDashboard } from "react-icons/tb";
 
 const Navbar = () => {
   const user = useAppSelector(currentUser);
@@ -16,6 +29,8 @@ const Navbar = () => {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  const pathname = usePathname();
 
   useEffect(() => {
     setMounted(true);
@@ -29,71 +44,134 @@ const Navbar = () => {
     toast.success("Logged out successfully");
   };
 
-  const primaryButtonClasses = `${buttonVariants({ variant: "default" })} bg-[#FF0000] hover:bg-[#CC0000] text-white h-10 rounded-full px-6 text-sm font-semibold transition-colors`;
-  const secondaryButtonClasses = `${buttonVariants({ variant: "outline" })} border-2 border-[#FF0000] text-[#FF0000] hover:bg-[#FF0000] hover:text-white h-10 rounded-full px-6 text-sm font-semibold transition-colors`;
-
   // Only render auth-dependent content after mounting to prevent hydration mismatch
   if (!mounted) {
     return null;
   }
 
+  const navItems = [
+    {
+      name: "About",
+      link: "/about",
+    },
+    {
+      name: "Find Meals",
+      link: "/find-meals",
+    },
+    {
+      name: "Pricing",
+      link: "/pricing",
+    },
+    {
+      name: "Services",
+      link: "/services",
+    },
+  ];
+
   return (
-    <nav className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
+    <nav className="bg-white">
+      <div className="container">
+        <div className="flex items-center justify-between py-3.5">
           <div className="flex-shrink-0">
-            <Link href="/" className="text-2xl font-bold text-[#FF0000]">
-              FeedMe
+            <Link href="/" className="text-3xl font-semibold">
+              feedme.
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex md:items-center md:space-x-4">
-            <Link href="/about" className="text-gray-700 hover:text-[#FF0000] px-3 py-2 rounded-md text-sm font-medium">
-              About
-            </Link>
-            <Link href="/find-meals" className="text-gray-700 hover:text-[#FF0000] px-3 py-2 rounded-md text-sm font-medium">
-              Menu
-            </Link>
-            <Link href="#pricing" className="text-gray-700 hover:text-[#FF0000] px-3 py-2 rounded-md text-sm font-medium">
-              Pricing
-            </Link>
-            <Link href="#services" className="text-gray-700 hover:text-[#FF0000] px-3 py-2 rounded-md text-sm font-medium">
-              Services
-            </Link>
+          <div className="hidden md:flex md:items-center md:gap-6">
+            {navItems.map((navItem, index) => {
+              const isActive = pathname === navItem.link;
+              return (
+                <div key={index} className="group flex flex-col items-center">
+                  <div className="size-1.5" />
+                  <Link
+                    href={navItem.link}
+                    className={`text-[17px] font-medium duration-300 ease-in-out ${
+                      isActive && "text-feed-jungle/60"
+                    } group-hover:text-feed-jungle/50`}
+                  >
+                    {navItem.name}
+                  </Link>
+                  <div
+                    className={`size-1.5 rounded-full duration-300 ease-in-out ${
+                      isActive
+                        ? "bg-feed-jungle/40"
+                        : "group-hover:bg-feed-jungle/40"
+                    }`}
+                  />
+                </div>
+              );
+            })}
 
-            {/* Cart Icon */}
-            <Link href="/cart" className="relative px-3 py-2">
-              <ShoppingCart className="h-6 w-6 text-gray-700 hover:text-[#FF0000]" />
+            {/* Desktop Cart Icon */}
+            <Link href="/cart" className="relative flex items-center">
+              <ShoppingCart className="h-6 w-6 text-gray-700" />
               {cartItemCount > 0 && (
-                <span className="absolute top-0 right-0 bg-[#FF0000] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-[#FF0000] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {cartItemCount}
                 </span>
               )}
             </Link>
 
-            {user ? (
-              <>
-                <Link href="/dashboard" className="text-gray-700 hover:text-[#FF0000] px-3 py-2 rounded-md text-sm font-medium">
-                  Dashboard
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className={secondaryButtonClasses}
-                >
-                  Sign Out
-                </button>
-              </>
-            ) : (
-              <>
-                <Link href="/login" className={secondaryButtonClasses}>
-                  Sign In
-                </Link>
-                <Link href="/register" className={primaryButtonClasses}>
-                  Sign Up
-                </Link>
-              </>
-            )}
+            {/* Large Device Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="text-feed-black border-feed-black hover:bg-feed-lime flex h-10 cursor-pointer items-center gap-1 rounded-full border-[1.9px] bg-transparent px-2.5 text-lg font-medium caret-neutral-50 outline-0 duration-300">
+                {user ? (
+                  <>
+                    <MdOutlineAccountCircle className="size-5" />
+                    <span>Account</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Get Started</span>{" "}
+                    <FaArrowRightLong className="ml-1" />
+                  </>
+                )}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="border-feed-black w-fit space-y-1 rounded-2xl border">
+                <DropdownMenuItem className="bg-feed-lime/50 hover:!bg-feed-jungle group w-ful h-9 rounded-[11px] text-lg font-medium duration-300">
+                  {user ? (
+                    <>
+                      <TbLayoutDashboard className="text-feed-jungle group-hover:text-feed-lime size-5.5" />
+                      <Link
+                        href="/dashboard"
+                        className="text-feed-jungle group-hover:text-feed-lime"
+                      >
+                        Dashboard
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <CgLogIn className="text-feed-jungle group-hover:text-feed-lime size-5.5" />
+                      <Link
+                        href="/login"
+                        className="text-feed-jungle group-hover:text-feed-lime"
+                      >
+                        Sign In
+                      </Link>
+                    </>
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuItem className="bg-feed-jungle hover:!bg-feed-black w-ful h-9 rounded-[11px] text-lg font-medium duration-300">
+                  {user ? (
+                    <>
+                      <CgLogOut className="text-feed-lime size-5.5" />
+                      <span onClick={handleLogout} className="text-feed-lime">
+                        Sign Out
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <MdOutlineAppRegistration className="text-feed-lime size-5.5" />
+                      <Link href="/register" className="text-feed-lime">
+                        Sign Up
+                      </Link>
+                    </>
+                  )}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Mobile menu button */}
@@ -110,7 +188,7 @@ const Navbar = () => {
 
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#FF0000]"
+              className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:ring-2 focus:ring-[#FF0000] focus:outline-none focus:ring-inset"
             >
               <span className="sr-only">Open main menu</span>
               {isMenuOpen ? (
@@ -126,31 +204,31 @@ const Navbar = () => {
       {/* Mobile menu */}
       {isMenuOpen && (
         <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          <div className="space-y-1 px-2 pt-2 pb-3 sm:px-3">
             <Link
               href="/about"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#FF0000] hover:bg-gray-50"
+              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
               onClick={() => setIsMenuOpen(false)}
             >
               About
             </Link>
             <Link
-              href="/find-meals"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#FF0000] hover:bg-gray-50"
+              href="#menu"
+              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
               onClick={() => setIsMenuOpen(false)}
             >
               Menu
             </Link>
             <Link
               href="#pricing"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#FF0000] hover:bg-gray-50"
+              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
               onClick={() => setIsMenuOpen(false)}
             >
               Pricing
             </Link>
             <Link
               href="#services"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#FF0000] hover:bg-gray-50"
+              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
               onClick={() => setIsMenuOpen(false)}
             >
               Services
@@ -159,14 +237,14 @@ const Navbar = () => {
               <>
                 <Link
                   href="/dashboard"
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#FF0000] hover:bg-gray-50"
+                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Dashboard
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#FF0000] hover:bg-gray-50"
+                  className="w-full rounded-md px-3 py-2 text-left text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
                 >
                   Sign Out
                 </button>
@@ -175,14 +253,14 @@ const Navbar = () => {
               <>
                 <Link
                   href="/login"
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#FF0000] hover:bg-gray-50"
+                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/register"
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#FF0000] hover:bg-gray-50"
+                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Sign Up

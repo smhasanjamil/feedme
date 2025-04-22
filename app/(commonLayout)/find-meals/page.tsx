@@ -123,7 +123,7 @@ export default function FindMealsPage() {
     setSelectedPreferences([]);
   };
   
-  const renderRating = (meal) => {
+  const renderRating = (meal: any) => {
     const rating = meal.ratings?.average ?? meal.rating ?? 0;
     const reviewCount = meal.ratings?.count ?? meal.reviewCount ?? 0;
     
@@ -219,17 +219,30 @@ export default function FindMealsPage() {
             >
               All
             </Button>
-            {categories.slice(0, 2).map((category) => (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setSelectedCategory(category)}
-                className="rounded-none border-0"
-              >
-                {category}
-              </Button>
-            ))}
+            <Button
+              variant={selectedCategory === "Breakfast" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setSelectedCategory("Breakfast")}
+              className="rounded-none border-0"
+            >
+              Breakfast
+            </Button>
+            <Button
+              variant={selectedCategory === "Lunch" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setSelectedCategory("Lunch")}
+              className="rounded-none border-0"
+            >
+              Lunch
+            </Button>
+            <Button
+              variant={selectedCategory === "Dinner" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setSelectedCategory("Dinner")}
+              className="rounded-none border-0"
+            >
+              Dinner
+            </Button>
           </div>
           
           {/* Minimum Rating */}
@@ -382,17 +395,30 @@ export default function FindMealsPage() {
               >
                 All
               </Button>
-              {categories.slice(0, 2).map((category) => (
-                <Button
-                  key={category}
-                  variant={selectedCategory === category ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setSelectedCategory(category)}
-                  className="rounded-none border-0"
-                >
-                  {category}
-                </Button>
-              ))}
+              <Button
+                variant={selectedCategory === "Breakfast" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setSelectedCategory("Breakfast")}
+                className="rounded-none border-0"
+              >
+                Breakfast
+              </Button>
+              <Button
+                variant={selectedCategory === "Lunch" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setSelectedCategory("Lunch")}
+                className="rounded-none border-0"
+              >
+                Lunch
+              </Button>
+              <Button
+                variant={selectedCategory === "Dinner" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setSelectedCategory("Dinner")}
+                className="rounded-none border-0"
+              >
+                Dinner
+              </Button>
             </div>
           </div>
           

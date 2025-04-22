@@ -10,7 +10,7 @@ import { useCart } from '../../hooks/useCart';
 import { useAppSelector } from '@/redux/hooks';
 import { currentUser } from '@/redux/features/auth/authSlice';
 import { useGetMealByIdQuery } from '@/redux/meal/mealApi';
-import { getMealImageUrl } from '../../order/[mealId]/addToCartUtils';
+import { getMealImageUrl } from '../order/[mealId]/addToCartUtils';
 import { useRemoveFromCart } from "@/app/hooks/useRemoveFromCart";
 
 // Server-safe date formatter helper

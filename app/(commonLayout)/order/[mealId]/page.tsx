@@ -19,8 +19,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'react-hot-toast';
 import { useAppSelector } from '@/redux/hooks';
 import { currentUser } from '@/redux/features/auth/authSlice';
-import { MealDetails as MealDetailsType, CustomizationOptions, getMealImageUrl } from '../../../order/[mealId]/addToCartUtils';
-import AddToCartButton from '../../../order/[mealId]/AddToCartButton';
+import { MealDetails as MealDetailsType, CustomizationOptions, getMealImageUrl } from './addToCartUtils';
+import AddToCartButton from './AddToCartButton';
 
 // Meal interface used for API response typing
 type Meal = {
