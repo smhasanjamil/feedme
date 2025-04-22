@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useSignUpMutation } from "@/redux/features/auth/authApi";
-import { toast } from "sonner";
+import { toast } from "react-hot-toast";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -25,8 +25,13 @@ type FormData = {
   role: string;
 };
 
-type ErrorData = {
-  message: string;
+type BackendErrorResponse = {
+  message?: string;
+  errorSources?: Array<{
+    path?: string;
+    message?: string;
+  }>;
+  success?: boolean;
 };
 
 export default function SignUp() {
@@ -37,7 +42,6 @@ export default function SignUp() {
     formState: { errors },
     reset,
     setValue,
-    watch,
   } = useForm<FormData>({
     defaultValues: {
       role: "customer"
@@ -46,8 +50,6 @@ export default function SignUp() {
   const [SignUp] = useSignUpMutation();
   const router = useRouter();
   
-  const selectedRole = watch("role");
-
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
 
@@ -66,28 +68,40 @@ export default function SignUp() {
       if ("error" in response) {
         const errorResponse = response.error;
         if (errorResponse && "data" in errorResponse && errorResponse.data) {
-          const errorData = errorResponse.data as ErrorData;
-          toast.error(
-            errorData.message || "Registration failed. Please try again.",
-          );
-        } else {
-          toast.error("Registration failed. Please try again.");
+          const errorData = errorResponse.data as BackendErrorResponse;
+          
+          // Check for error message in errorSources array (for duplicate email etc.)
+          if (errorData.errorSources && 
+              Array.isArray(errorData.errorSources) && 
+              errorData.errorSources.length > 0 && 
+              errorData.errorSources[0].message) {
+            toast.error(errorData.errorSources[0].message);
+          } 
+          // Fallback to general message if available
+          else if (errorData.message) {
+            toast.error(errorData.message);
+          }
         }
+        setIsLoading(false);
         return;
       }
 
-      if (response.data?.status) {
-        toast.success(response.data.message || "Registration successful!");
-        router.push("/login");
-        reset();
-      } else {
-        toast.error(
-          response.data?.message || "Registration failed. Please try again.",
-        );
+      if (response.data) {
+        if (response.data.status && response.data.message) {
+          toast.success(response.data.message);
+          router.push("/login");
+          reset();
+        } else if (response.data.message) {
+          toast.error(response.data.message);
+        }
       }
     } catch (error) {
       console.error("Registration error:", error);
-      toast.error("An unexpected error occurred. Please try again.");
+      // No toast for unexpected errors unless there's a message from the backend
+      if (error && typeof error === 'object' && 'message' in error) {
+        const errorMessage = (error as { message: string }).message;
+        toast.error(errorMessage);
+      }
     } finally {
       setIsLoading(false);
     }
