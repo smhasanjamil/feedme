@@ -4,9 +4,9 @@ import Image from "next/image";
 
 const Header = () => {
   return (
-    <section className="container py-10">
+    <section className="container py-7">
       <div className="flex flex-col items-center text-center">
-        <h2 className="text-6xl leading-tight font-medium">
+        <h2 className="text-7xl leading-tight font-medium">
           Fresh and healthy
           <br />
           food for your{" "}
@@ -22,18 +22,18 @@ const Header = () => {
           </span>
         </h2>
 
-        <p className="mt-3 mb-4.5 text-lg text-gray-700">
+        <p className="mt-3 mb-4.5 text-xl text-gray-700">
           Order healthy and delicious dishes at any time,
           <br />
           and we&apos;ll make sure it is safely delivered to your home
         </p>
 
         <div className="flex items-center gap-4">
-          <Button className="border-feed-jungle text-feed hover:bg-feed-jungle bg-feed-lime h-11 rounded-full border-2 px-6 text-lg font-medium transition-colors hover:text-lime-400">
+          <Button className="border-feed-jungle text-feed hover:bg-feed-jungle bg-feed-lime h-11 rounded-full border-2 text-[17px] font-medium transition-colors hover:text-lime-400">
             Order now
           </Button>
           <Link
-            className="hover:text-feed-jungle border-feed-jungle text-lg font-medium text-gray-800 duration-200 ease-in-out hover:border-b-2"
+            className="hover:text-feed-jungle border-feed-jungle text-[17px] font-medium text-gray-800 duration-200 ease-in-out hover:border-b-2"
             href="/"
           >
             See the menu
