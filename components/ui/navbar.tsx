@@ -67,7 +67,7 @@ const Navbar = () => {
   return (
     <nav className="bg-white">
       <div className="container">
-        <div className="flex items-center justify-between py-3.5">
+        <div className="flex items-center justify-between py-3">
           <div className="flex-shrink-0">
             <Link href="/" className="text-3xl font-semibold">
               feedme.

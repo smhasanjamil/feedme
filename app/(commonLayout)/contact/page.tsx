@@ -2,7 +2,7 @@ import { FaEnvelope, FaMapMarkerAlt, FaPhoneAlt } from "react-icons/fa";
 
 const page = () => {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen">
       {/* Hero Section */}
       <section className="text-feed-jungle relative overflow-hidden bg-[#f7fbe9] py-24">
         <div className="container mx-auto px-4 text-center sm:px-6 lg:px-8">
