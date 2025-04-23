@@ -61,6 +61,19 @@ export const columns: ColumnDef<DashboardUserData>[] = [
     },
   },
   {
+    accessorKey: "createdAt",
+    header: "Created On",
+    cell: ({ row }) => {
+      const rawDate = row.getValue("createdAt") as string;
+      const date = new Date(rawDate);
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    },
+  },
+  {
     id: "actions",
     cell: ({ row }) => {
       const user = row.original;
@@ -89,17 +102,5 @@ export const columns: ColumnDef<DashboardUserData>[] = [
     },
     header: "Action",
   },
-  {
-    accessorKey: "createdAt",
-    header: "Created On",
-    cell: ({ row }) => {
-      const rawDate = row.getValue("createdAt") as string;
-      const date = new Date(rawDate);
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-    },
-  },
+ 
 ];
