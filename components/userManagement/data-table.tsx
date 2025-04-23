@@ -2,7 +2,7 @@
 
 import {
   ColumnDef,
-  ColumnFiltersState,
+  // ColumnFiltersState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -32,19 +32,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps<TData extends { name: string; email: string }, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends { name: string; email: string }, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  );
+  // const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+  //   [],
+  // );
+
+  const [globalFilter, setGlobalFilter] = React.useState("")
+
 
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -56,27 +59,43 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: setColumnFilters,
+    // onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
+
+    onGlobalFilterChange: setGlobalFilter,
+
     state: {
       sorting,
-      columnFilters,
+      // columnFilters,
       columnVisibility,
+      globalFilter,
     },
+
+    globalFilterFn: (row, _columnId, filterValue) => {
+      const name = (row.original.name ?? "").toString().toLowerCase();
+      const email = (row.original.email ?? "").toString().toLowerCase();
+
+     
+      const value = filterValue.toLowerCase()
+    
+      return name.includes(value) || email.includes(value)
+    },
+    
+
+
   });
 
   return (
     <div>
       <div className="flex items-center py-4">
-        <Input
-          placeholder="Search emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
+      <Input
+  placeholder="Search by name or email..."
+  value={globalFilter}
+  onChange={(e) => setGlobalFilter(e.target.value)}
+  className="max-w-sm"
+/>
+
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

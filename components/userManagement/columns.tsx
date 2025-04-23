@@ -17,23 +17,22 @@ import {
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 export type DashboardUserData = {
-  name: string;
   _id: string;
+  name: string;
   email: string;
   role: "user" | "admin" | "provider" | "customer";
   isBlocked: boolean;
-
-  //   status: "pending" | "processing" | "success" | "failed"
+  createdAt: string
 };
 
 export const columns: ColumnDef<DashboardUserData>[] = [
   {
-    accessorKey: "name",
-    header: "Name",
-  },
-  {
     accessorKey: "_id",
     header: "User ID",
+  },
+  {
+    accessorKey: "name",
+    header: "Name",
   },
   {
     accessorKey: "email",
@@ -56,11 +55,15 @@ export const columns: ColumnDef<DashboardUserData>[] = [
   {
     accessorKey: "isBlocked",
     header: "Status",
+    cell: ({ row }) => {
+      const isBlocked = row.getValue("isBlocked") as boolean;
+      return isBlocked ? "Inactive" : "Active";
+    },
   },
   {
     id: "actions",
     cell: ({ row }) => {
-      const user  = row.original;
+      const user = row.original;
 
       return (
         <DropdownMenu>
@@ -85,5 +88,18 @@ export const columns: ColumnDef<DashboardUserData>[] = [
       );
     },
     header: "Action",
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Created On",
+    cell: ({ row }) => {
+      const rawDate = row.getValue("createdAt") as string;
+      const date = new Date(rawDate);
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    },
   },
 ];

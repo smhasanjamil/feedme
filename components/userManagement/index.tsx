@@ -18,14 +18,13 @@ export default function UserManagementTable() {
 
   const filteredData =
     data?.map((user) => ({
-      name: user.name,
-
-      _id: user._id,
-      email: user.email,
-      role: user.role,
-      isBlocked: user.isBlocked,
+      _id: user?._id,
+      name: user?.name,
+      email: user?.email,
+      role: user?.role,
+      isBlocked: user?.isBlocked,
+      createdAt: user?.createdAt,
     })) || [];
-
 
   return (
     <div>
