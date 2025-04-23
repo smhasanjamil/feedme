@@ -2,7 +2,7 @@ import { FaEnvelope, FaMapMarkerAlt, FaPhoneAlt } from "react-icons/fa";
 
 const page = () => {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 lg:max-w-8xl mx-auto">
       {/* Hero Section */}
       <section className="text-feed-jungle relative overflow-hidden bg-[#f7fbe9] py-24">
         <div className="container mx-auto px-4 text-center sm:px-6 lg:px-8">
@@ -20,15 +20,15 @@ const page = () => {
       </section>
 
       {/* Contact Information and Form Section */}
-      <section className="mx-auto max-w-7xl py-16">
-        <div className="container mx-auto grid grid-cols-1 gap-12 px-4 sm:px-6 md:grid-cols-2 lg:px-8">
+      <section className="container py-16">
+        <div className="  grid grid-cols-1 gap-12 px-4 sm:px-6 md:grid-cols-5 w-full">
           {/* Map Section (Left) */}
-          <div className="mt-8 overflow-hidden rounded-4xl p-20 md:p-10">
+          <div className=" overflow-hidden rounded-2xl col-span-2">
             <iframe
-              className="rounded-2xl"
+            
+              className="rounded-2xl w-full h-[200px] lg:h-[500px] "
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d187566.50169733484!2d34.3886928!3d31.410245850000003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14fd844104b258a9%3A0xfddcb14b194be8e7!2sGaza%20Strip!5e1!3m2!1sen!2sbd!4v1745052832191!5m2!1sen!2sbd"
-              width="500"
-              height="600"
+              
               style={{ border: 0 }}
               allowFullScreen={true}
               loading="lazy"
@@ -37,8 +37,8 @@ const page = () => {
           </div>
 
           {/* Get in Touch and Form (Right) */}
-          <div>
-            <div className="mb-10">
+          <div className="col-span-3">
+            <div className="mb-10 ">
               <h2 className="text-feed-jungle mb-6 text-2xl font-bold">
                 Get in Touch
               </h2>
@@ -84,7 +84,7 @@ const page = () => {
                   <input
                     type="text"
                     id="name"
-                    className="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
+                    className=" w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
                   />
                 </div>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
