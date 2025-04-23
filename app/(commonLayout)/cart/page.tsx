@@ -221,9 +221,11 @@ const CartPage = () => {
   const handleCheckout = () => {
     if (cart?.length > 0) {
       const firstItem = cart[0];
-      router.push(`/checkout/${firstItem.mealId}`);
+      // Use window.location.href for immediate navigation without showing empty cart
+      window.location.href = `/checkout/${firstItem.mealId}`;
     } else {
-      router.push('/checkout');
+      // Use window.location.href for direct navigation without router transition
+      window.location.href = '/checkout';
     }
   };
 

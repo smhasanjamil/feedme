@@ -7,25 +7,29 @@ import { Separator } from '@/components/ui/separator';
 import { useState, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/redux/hooks';
 import { clearCart } from '@/redux/features/cart/cartSlice';
+import { useCreateOrderFromCartMutation } from '@/redux/features/cart/cartApi';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ShoppingCart, CreditCard, Clock, MapPin, Calendar, Store } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 export default function CheckoutPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
   const cartItems = useAppSelector((state) => state.cart.items);
+  const [createOrderFromCart] = useCreateOrderFromCartMutation();
   
   const [checkoutDetails, setCheckoutDetails] = useState({
     fullName: '',
     email: '',
     phone: '',
     deliveryAddress: searchParams.get('deliveryAddress') || '',
+    city: '',
+    zipcode: '',
     deliveryDate: '',
     deliveryTime: '',
-    paymentMethod: 'credit-card',
-    specialInstructions: ''
+    paymentMethod: 'credit-card'
   });
 
   // Get provider information from cart items
@@ -53,7 +57,21 @@ export default function CheckoutPage() {
     return null;
   };
 
+  // Get delivery information from cart items
+  const getDeliveryInfo = () => {
+    if (!cartItems.length) return null;
+    
+    // Get first item's delivery info
+    const firstItem = cartItems[0];
+    
+    return {
+      deliverySlot: firstItem.deliverySlot || '',
+      deliveryDate: firstItem.deliveryDate || ''
+    };
+  };
+
   const providerInfo = getProviderInfo();
+  const deliveryInfo = getDeliveryInfo();
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isClient, setIsClient] = useState(false);
@@ -61,14 +79,22 @@ export default function CheckoutPage() {
   useEffect(() => {
     setIsClient(true);
     
-    // Set default delivery date to tomorrow
+    // Set default delivery date to tomorrow if not available in cart
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    // Format cart's delivery date if it's in ISO format
+    let formattedDeliveryDate = deliveryInfo?.deliveryDate || '';
+    if (formattedDeliveryDate && formattedDeliveryDate.includes('T')) {
+      formattedDeliveryDate = formattedDeliveryDate.split('T')[0];
+    }
+    
     setCheckoutDetails(prev => ({
       ...prev,
-      deliveryDate: tomorrow.toISOString().split('T')[0]
+      deliveryDate: formattedDeliveryDate || tomorrow.toISOString().split('T')[0],
+      deliveryTime: deliveryInfo?.deliverySlot || "Afternoon (12:00 PM - 2:00 PM)"
     }));
-  }, []);
+  }, [deliveryInfo]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -129,6 +155,14 @@ export default function CheckoutPage() {
       newErrors.deliveryAddress = 'Delivery address is required';
     }
     
+    if (!checkoutDetails.city.trim()) {
+      newErrors.city = 'City is required';
+    }
+    
+    if (!checkoutDetails.zipcode.trim()) {
+      newErrors.zipcode = 'Zipcode is required';
+    }
+    
     if (!checkoutDetails.deliveryDate.trim()) {
       newErrors.deliveryDate = 'Delivery date is required';
     }
@@ -141,69 +175,84 @@ export default function CheckoutPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const generateOrderId = () => {
-    // Generate a unique order ID based on timestamp and random numbers
-    const timestamp = new Date().getTime().toString().slice(-6);
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    return `ORD-${timestamp}-${random}`;
-  };
-
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (!validateForm()) {
       return;
     }
 
     if (cartItems.length === 0) {
-      alert('Your cart is empty!');
+      toast.error('Your cart is empty!');
       return;
     }
 
-    // Build URL with query parameters for the order success page
-    const params = new URLSearchParams();
-    
-    // Generate unique order ID instead of using random numbers
-    params.append('orderId', generateOrderId());
-    params.append('deliveryAddress', checkoutDetails.deliveryAddress);
-    params.append('deliveryDate', formatDate(new Date(checkoutDetails.deliveryDate)));
-    params.append('deliveryTime', checkoutDetails.deliveryTime);
-    
-    // Include tax and shipping details
-    params.append('subtotal', `$${calculateSubtotal().toFixed(2)}`);
-    params.append('tax', `$${calculateTax().toFixed(2)}`);
-    params.append('shipping', `$${calculateShipping().toFixed(2)}`);
-    params.append('total', `$${calculateTotal().toFixed(2)}`);
-    
-    params.append('status', 'Processing');
-    
-    // Add provider information
-    if (providerInfo) {
-      params.append('providerName', providerInfo.name);
-      if (providerInfo.email) {
-        params.append('providerEmail', providerInfo.email);
+    try {
+      // Format date for API
+      const deliveryDate = new Date(checkoutDetails.deliveryDate).toISOString().split('T')[0];
+      
+      // Create order payload
+      const orderData = {
+        name: checkoutDetails.fullName,
+        email: checkoutDetails.email,
+        phone: checkoutDetails.phone,
+        address: checkoutDetails.deliveryAddress,
+        city: checkoutDetails.city,
+        zipCode: checkoutDetails.zipcode,
+        deliveryDate: deliveryDate,
+        deliverySlot: checkoutDetails.deliveryTime
+      };
+      
+      console.log('Sending order data to API:', orderData);
+      
+      // Call API to create order
+      const response = await createOrderFromCart(orderData).unwrap();
+      
+      // Log the full response for debugging
+      console.log('API Response (Full):', JSON.stringify(response, null, 2));
+      
+      // Get the checkout URL from the response
+      let checkoutUrl = null;
+      
+      // Try different paths in the response object to find the checkout URL
+      if (response.data?.checkoutUrl) {
+        checkoutUrl = response.data.checkoutUrl;
+      } else if (response.data?.data?.checkoutUrl) {
+        checkoutUrl = response.data.data.checkoutUrl;
+      } else if (response.checkoutUrl) {
+        checkoutUrl = response.checkoutUrl;
       }
+      
+      if (checkoutUrl) {
+        // Show success message before redirecting
+        toast.success('Order created successfully! Redirecting to payment...');
+        console.log('Redirecting to checkout URL:', checkoutUrl);
+        
+        // IMPORTANT: Add a small delay to ensure toast is visible before redirecting
+        setTimeout(() => {
+          // Redirect directly to the checkout URL without clearing the cart first
+          // This prevents seeing an empty cart page
+          window.location.href = checkoutUrl;
+          
+          // The cart will be cleared when the user returns from payment
+          // We don't need to call dispatch(clearCart()) here
+        }, 1500);
+      } else {
+        console.error('Could not find checkout URL in response');
+        toast.error('Checkout URL not found in response');
+        
+        // Only clear cart if we're not redirecting
+        dispatch(clearCart());
+      }
+    } catch (error) {
+      console.error('Error creating order:', error);
+      
+      // Try to extract detailed error information
+      if (error && typeof error === 'object') {
+        console.log('Error details:', JSON.stringify(error, null, 2));
+      }
+      
+      toast.error('Error creating order - check console for details');
     }
-    
-    if (checkoutDetails.specialInstructions) {
-      params.append('specialInstructions', checkoutDetails.specialInstructions);
-    }
-    
-    // Add customer information
-    params.append('customerName', checkoutDetails.fullName);
-    params.append('customerEmail', checkoutDetails.email);
-    params.append('customerPhone', checkoutDetails.phone);
-    
-    // In a real app, would call an API to create the order
-    dispatch(clearCart());
-    router.push(`/order-success?${params.toString()}`);
   };
-
-  function formatDate(date: Date): string {
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric'
-    });
-  }
 
   // Show a loading state until client-side rendering is ready
   if (!isClient) {
@@ -317,10 +366,42 @@ export default function CheckoutPage() {
                         name="deliveryAddress"
                         value={checkoutDetails.deliveryAddress}
                         onChange={handleInputChange}
-                        placeholder="Your complete delivery address"
+                        placeholder="Your street address"
                         className={errors.deliveryAddress ? "border-red-500" : ""}
                       />
                       {errors.deliveryAddress && <p className="text-red-500 text-sm mt-1">{errors.deliveryAddress}</p>}
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="city" className="block text-sm font-medium mb-1">
+                          City *
+                        </label>
+                        <Input
+                          id="city"
+                          name="city"
+                          value={checkoutDetails.city}
+                          onChange={handleInputChange}
+                          placeholder="Your city"
+                          className={errors.city ? "border-red-500" : ""}
+                        />
+                        {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="zipcode" className="block text-sm font-medium mb-1">
+                          Zipcode *
+                        </label>
+                        <Input
+                          id="zipcode"
+                          name="zipcode"
+                          value={checkoutDetails.zipcode}
+                          onChange={handleInputChange}
+                          placeholder="Your zipcode"
+                          className={errors.zipcode ? "border-red-500" : ""}
+                        />
+                        {errors.zipcode && <p className="text-red-500 text-sm mt-1">{errors.zipcode}</p>}
+                      </div>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -334,42 +415,32 @@ export default function CheckoutPage() {
                           type="date"
                           value={checkoutDetails.deliveryDate}
                           onChange={handleInputChange}
+                          disabled={deliveryInfo?.deliveryDate !== undefined && deliveryInfo?.deliveryDate !== ''}
                           className={errors.deliveryDate ? "border-red-500" : ""}
                         />
                         {errors.deliveryDate && <p className="text-red-500 text-sm mt-1">{errors.deliveryDate}</p>}
+                        {deliveryInfo?.deliveryDate && (
+                          <p className="text-xs text-gray-500 mt-1">Delivery date set from your cart</p>
+                        )}
                       </div>
                       
                       <div>
                         <label htmlFor="deliveryTime" className="block text-sm font-medium mb-1">
-                          Preferred Delivery Time *
+                          Delivery Time *
                         </label>
-                        <select
+                        <Input
                           id="deliveryTime"
                           name="deliveryTime"
                           value={checkoutDetails.deliveryTime}
                           onChange={handleInputChange}
-                          className={`w-full px-3 py-2 border rounded-md ${errors.deliveryTime ? "border-red-500" : "border-gray-300"}`}
-                        >
-                          <option value="">Select a time</option>
-                          <option value="Morning (8:00 AM - 11:00 AM)">Morning (8:00 AM - 11:00 AM)</option>
-                          <option value="Afternoon (12:00 PM - 2:00 PM)">Afternoon (12:00 PM - 2:00 PM)</option>
-                          <option value="Evening (5:00 PM - 8:00 PM)">Evening (5:00 PM - 8:00 PM)</option>
-                        </select>
+                          disabled={deliveryInfo?.deliverySlot !== undefined && deliveryInfo?.deliverySlot !== ''}
+                          className={errors.deliveryTime ? "border-red-500" : ""}
+                        />
                         {errors.deliveryTime && <p className="text-red-500 text-sm mt-1">{errors.deliveryTime}</p>}
+                        {deliveryInfo?.deliverySlot && (
+                          <p className="text-xs text-gray-500 mt-1">Delivery time set from your cart</p>
+                        )}
                       </div>
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="specialInstructions" className="block text-sm font-medium mb-1">
-                        Special Instructions (Optional)
-                      </label>
-                      <Textarea
-                        id="specialInstructions"
-                        name="specialInstructions"
-                        value={checkoutDetails.specialInstructions}
-                        onChange={handleInputChange}
-                        placeholder="Any special delivery instructions"
-                      />
                     </div>
                   </div>
                 </CardContent>
@@ -433,10 +504,10 @@ export default function CheckoutPage() {
                     <div className="space-y-4">
                       <div className="max-h-60 overflow-y-auto">
                         {cartItems.map((item, index) => (
-                          <div key={item.id || `cart-item-${index}`} className="flex justify-between items-center py-2 border-b">
+                          <div key={item._id || `cart-item-${index}`} className="flex justify-between items-center py-2 border-b">
                             <div className="flex items-center">
                               <span className="font-medium mr-2">{item.quantity}x</span>
-                              <span>{item.name}</span>
+                              <span>{item.mealName}</span>
                             </div>
                             <span>${(item.price * item.quantity).toFixed(2)}</span>
                           </div>

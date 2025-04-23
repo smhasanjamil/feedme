@@ -11,6 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { useGetMealByIdQuery } from '@/redux/meal/mealApi';
+import { useCreateOrderFromCartMutation } from '@/redux/features/cart/cartApi';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Clock, Utensils, DollarSign, Star, ChefHat, CheckCircle2, ShoppingCart } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
@@ -110,6 +111,8 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
   const [availableDates, setAvailableDates] = useState<Array<{date: string, day: number, available: number}>>([]);
   const [currentMonth, setCurrentMonth] = useState<string>('');
 
+  const [createOrderFromCart] = useCreateOrderFromCartMutation();
+
   // Initialize calendar data
   useEffect(() => {
     // Generate the next 7 days for delivery dates
@@ -175,13 +178,13 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
     return total.toFixed(2);
   };
 
-  const handleOrder = () => {
+  const handleOrder = async () => {
     if (!selectedTimeSlot) {
       alert("Please select a delivery time slot");
       return;
     }
     
-    // Construct order object
+    // Construct order object for display in console
     const order = {
       mealId: meal?._id,
       mealName: meal?.name,
@@ -198,22 +201,50 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
       total: calculateTotal()
     };
     
-    console.log('Order submitted:', order);
+    console.log('Order details:', order);
     
-    // Build URL with query parameters for the success page
-    const params = new URLSearchParams();
-    params.append('mealName', meal?.name || '');
-    params.append('deliveryDate', formatDeliveryDate(selectedDate));
-    params.append('deliveryTime', selectedTimeSlot);
-    params.append('deliveryAddress', deliveryAddress.trim() || 'Default Address');
-    params.append('total', `$${calculateTotal()}`);
-    if (noteToChef.trim()) {
-      params.append('specialInstructions', noteToChef.trim());
+    try {
+      // Create API payload
+      const orderData = {
+        name: user?.name || 'Guest',
+        email: user?.email || 'guest@example.com',
+        phone: user?.phone || '',
+        address: deliveryAddress.trim() || 'Default Address',
+        city: user?.city || '',
+        zipCode: user?.zipCode || '',
+        deliveryDate: selectedDate,
+        deliverySlot: selectedTimeSlot
+      };
+      
+      console.log('Sending order data to API:', orderData);
+      
+      // Call API to create order
+      const response = await createOrderFromCart(orderData).unwrap();
+      
+      // Log the response
+      console.log('API Response:', JSON.stringify(response, null, 2));
+      
+      // Check for checkout URL and redirect
+      if (response && response.data && response.data.checkoutUrl) {
+        console.log('Redirecting to checkout URL:', response.data.checkoutUrl);
+        
+        // Short delay before redirecting
+        setTimeout(() => {
+          window.location.href = response.data.checkoutUrl;
+        }, 1000);
+      } else if (response.data?.data?.checkoutUrl) {
+        console.log('Redirecting to checkout URL:', response.data.data.checkoutUrl);
+        
+        setTimeout(() => {
+          window.location.href = response.data.data.checkoutUrl;
+        }, 1000);
+      } else {
+        alert('Order created but no payment URL was returned');
+      }
+    } catch (error) {
+      console.error('Error creating order:', error);
+      alert('Error creating order. Check console for details.');
     }
-    
-    // In a real app, would call an API to create the order
-    // For now, just redirect to a success page with the order info
-    router.push(`/order-success?${params.toString()}`);
   };
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {

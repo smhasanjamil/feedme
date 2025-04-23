@@ -14,6 +14,8 @@ import { ShoppingCart, CreditCard, Store } from 'lucide-react';
 import { useGetMealByIdQuery } from '@/redux/meal/mealApi';
 import { use } from 'react';
 import { currentUser } from '@/redux/features/auth/authSlice';
+import { useCreateOrderFromCartMutation } from '@/redux/features/cart/cartApi';
+import { toast } from 'react-hot-toast';
 
 interface PageProps {
   params: {
@@ -67,15 +69,18 @@ export default function CheckoutPage({ params }: PageProps) {
   const cartItems = useAppSelector((state) => state.cart.items) as CartItemType[];
   const { data: mealData, isLoading: isMealLoading, error: mealError } = useGetMealByIdQuery(mealId);
   
+  const [createOrderFromCart] = useCreateOrderFromCartMutation();
+  
   const [checkoutDetails, setCheckoutDetails] = useState({
     fullName: user?.name || '',
     email: user?.email || '',
     phone: user?.phone || '',
     deliveryAddress: user?.address || '',
+    city: '',
+    zipcode: '',
     deliveryDate: '',
     deliveryTime: '',
-    paymentMethod: 'credit-card',
-    specialInstructions: ''
+    paymentMethod: 'credit-card'
   });
 
   // Get provider information from cart items
@@ -115,21 +120,37 @@ export default function CheckoutPage({ params }: PageProps) {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     
+    // Get delivery time from cart or meal data
+    let deliveryTime = '';
+    
+    if (cartItems.length > 0 && cartItems[0].deliverySlot) {
+      // Use time from cart item if available
+      deliveryTime = cartItems[0].deliverySlot;
+    } else if (mealData && mealData.deliverySlots && mealData.deliverySlots.length > 0) {
+      // Otherwise use first available slot from meal data
+      deliveryTime = mealData.deliverySlots[0];
+    } else {
+      // Fallback
+      deliveryTime = "Afternoon (12:00 PM - 2:00 PM)";
+    }
+    
     // Pre-fill form with user data if available
     if (user) {
       setCheckoutDetails(prev => ({
         ...prev,
         fullName: user.name || prev.fullName,
         email: user.email || prev.email,
-        deliveryDate: tomorrow.toISOString().split('T')[0]
+        deliveryDate: tomorrow.toISOString().split('T')[0],
+        deliveryTime: deliveryTime
       }));
     } else {
       setCheckoutDetails(prev => ({
         ...prev,
-        deliveryDate: tomorrow.toISOString().split('T')[0]
+        deliveryDate: tomorrow.toISOString().split('T')[0],
+        deliveryTime: deliveryTime
       }));
     }
-  }, [user, searchParams]);
+  }, [user, searchParams, cartItems, mealData]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -190,6 +211,14 @@ export default function CheckoutPage({ params }: PageProps) {
       newErrors.deliveryAddress = 'Delivery address is required';
     }
     
+    if (!checkoutDetails.city.trim()) {
+      newErrors.city = 'City is required';
+    }
+    
+    if (!checkoutDetails.zipcode.trim()) {
+      newErrors.zipcode = 'Zipcode is required';
+    }
+    
     if (!checkoutDetails.deliveryDate.trim()) {
       newErrors.deliveryDate = 'Delivery date is required';
     }
@@ -209,53 +238,73 @@ export default function CheckoutPage({ params }: PageProps) {
     return `ORD-${timestamp}-${random}`;
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (!validateForm()) {
       return;
     }
 
     if (cartItems.length === 0) {
-      alert('Your cart is empty!');
+      toast.error('Your cart is empty!');
       return;
     }
 
-    // Build URL with query parameters for the order success page
-    const params = new URLSearchParams();
-    
-    // Generate unique order ID instead of using random numbers
-    params.append('orderId', generateOrderId());
-    params.append('deliveryAddress', checkoutDetails.deliveryAddress);
-    params.append('deliveryDate', formatDate(new Date(checkoutDetails.deliveryDate)));
-    params.append('deliveryTime', checkoutDetails.deliveryTime);
-    
-    // Include tax and shipping details
-    params.append('subtotal', `$${calculateSubtotal().toFixed(2)}`);
-    params.append('tax', `$${calculateTax().toFixed(2)}`);
-    params.append('shipping', `$${calculateShipping().toFixed(2)}`);
-    params.append('total', `$${calculateTotal().toFixed(2)}`);
-    
-    params.append('status', 'Processing');
-    
-    // Add provider information
-    if (providerInfo) {
-      params.append('providerName', providerInfo.name);
-      if (providerInfo.email) {
-        params.append('providerEmail', providerInfo.email);
+    try {
+      // Format date for API
+      const deliveryDate = new Date(checkoutDetails.deliveryDate).toISOString().split('T')[0];
+      
+      // Create order payload
+      const orderData = {
+        name: checkoutDetails.fullName,
+        email: checkoutDetails.email,
+        phone: checkoutDetails.phone,
+        address: checkoutDetails.deliveryAddress,
+        city: checkoutDetails.city,
+        zipCode: checkoutDetails.zipcode,
+        deliveryDate: deliveryDate,
+        deliverySlot: checkoutDetails.deliveryTime
+      };
+      
+      console.log('Sending order data to API:', orderData);
+      
+      // Call API to create order
+      const response = await createOrderFromCart(orderData).unwrap();
+      
+      // Log the response
+      console.log('API Response:', JSON.stringify(response, null, 2));
+      
+      // Check for checkout URL and redirect immediately
+      let checkoutUrl = null;
+      
+      // Try different paths in the response object to find the checkout URL
+      if (response && response.data && response.data.checkoutUrl) {
+        checkoutUrl = response.data.checkoutUrl;
+      } else if (response.data?.data?.checkoutUrl) {
+        checkoutUrl = response.data.data.checkoutUrl;
+      } else if (response.checkoutUrl) {
+        checkoutUrl = response.checkoutUrl;
       }
+      
+      if (checkoutUrl) {
+        // Show success toast notification before redirecting
+        toast.success('Order created successfully! Redirecting to payment...', {
+          duration: 3000
+        });
+        console.log('Redirecting to checkout URL:', checkoutUrl);
+        
+        // Add a small delay to ensure toast is visible before redirecting
+        setTimeout(() => {
+          // Direct redirect without setTimeout to prevent showing empty cart
+          window.location.href = checkoutUrl;
+        }, 1500);
+      } else {
+        // Only clear cart if we're not redirecting
+        dispatch(clearCart());
+        toast.error('Order created but no payment URL was returned');
+      }
+    } catch (error) {
+      console.error('Error creating order:', error);
+      toast.error('Error creating order. Check console for details.');
     }
-    
-    if (checkoutDetails.specialInstructions) {
-      params.append('specialInstructions', checkoutDetails.specialInstructions);
-    }
-    
-    // Add customer information
-    params.append('customerName', checkoutDetails.fullName);
-    params.append('customerEmail', checkoutDetails.email);
-    params.append('customerPhone', checkoutDetails.phone);
-    
-    // In a real app, would call an API to create the order
-    dispatch(clearCart());
-    router.push(`/order-success?${params.toString()}`);
   };
 
   function formatDate(date: Date): string {
@@ -404,7 +453,7 @@ export default function CheckoutPage({ params }: PageProps) {
                     <Textarea
                       id="deliveryAddress"
                       name="deliveryAddress"
-                      placeholder="Your complete delivery address"
+                      placeholder="Your street address"
                       value={checkoutDetails.deliveryAddress}
                       onChange={handleInputChange}
                       className={errors.deliveryAddress ? "border-red-500" : ""}
@@ -414,22 +463,72 @@ export default function CheckoutPage({ params }: PageProps) {
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                   
-                  
+                    <div>
+                      <Label htmlFor="city" className="block mb-2">
+                        City <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="city"
+                        name="city"
+                        placeholder="Your city"
+                        value={checkoutDetails.city}
+                        onChange={handleInputChange}
+                        className={errors.city ? "border-red-500" : ""}
+                      />
+                      {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="zipcode" className="block mb-2">
+                        Zipcode <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="zipcode"
+                        name="zipcode"
+                        placeholder="Your zipcode"
+                        value={checkoutDetails.zipcode}
+                        onChange={handleInputChange}
+                        className={errors.zipcode ? "border-red-500" : ""}
+                      />
+                      {errors.zipcode && <p className="text-red-500 text-sm mt-1">{errors.zipcode}</p>}
+                    </div>
                   </div>
                   
                   <div>
-                    <Label htmlFor="specialInstructions" className="block mb-2">
-                      Special Instructions (Optional)
+                    <Label htmlFor="deliveryDate" className="block mb-2">
+                      Delivery Date <span className="text-red-500">*</span>
                     </Label>
-                    <Textarea
-                      id="specialInstructions"
-                      name="specialInstructions"
-                      placeholder="Any special instructions for delivery or preparation"
-                      value={checkoutDetails.specialInstructions}
+                    <Input
+                      id="deliveryDate"
+                      name="deliveryDate"
+                      type="date"
+                      value={checkoutDetails.deliveryDate}
                       onChange={handleInputChange}
-                      rows={3}
+                      disabled={cartItems.length > 0 && cartItems[0].deliveryDate !== undefined && cartItems[0].deliveryDate !== ''}
+                      className={errors.deliveryDate ? "border-red-500" : ""}
                     />
+                    {errors.deliveryDate && <p className="text-red-500 text-sm mt-1">{errors.deliveryDate}</p>}
+                    {cartItems.length > 0 && cartItems[0].deliveryDate && (
+                      <p className="text-xs text-gray-500 mt-1">Delivery date set from your cart</p>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="deliveryTime" className="block mb-2">
+                      Delivery Time <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="deliveryTime"
+                      name="deliveryTime"
+                      value={checkoutDetails.deliveryTime}
+                      onChange={handleInputChange}
+                      disabled={cartItems.length > 0 && cartItems[0].deliverySlot !== undefined && cartItems[0].deliverySlot !== ''}
+                      className={errors.deliveryTime ? "border-red-500" : ""}
+                    />
+                    {errors.deliveryTime && <p className="text-red-500 text-sm mt-1">{errors.deliveryTime}</p>}
+                    {cartItems.length > 0 && cartItems[0].deliverySlot && (
+                      <p className="text-xs text-gray-500 mt-1">Delivery time set from your cart</p>
+                    )}
                   </div>
                   
                   {/* Place Order button moved here */}
