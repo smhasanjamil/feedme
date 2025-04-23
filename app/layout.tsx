@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fredoka } from "next/font/google";
 import "./globals.css";
 import ReduxProvider from "@/provider/ReduxProvider";
+import { Toaster } from "sonner";
 
 const fredoka = Fredoka({
   variable: "--font-fredoka",
@@ -22,7 +23,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${fredoka.variable} antialiased`}>
-        <ReduxProvider>{children}</ReduxProvider>
+        <ReduxProvider>
+          {children}
+          <Toaster position="bottom-right" richColors />
+        </ReduxProvider>
       </body>
     </html>
   );
