@@ -1,5 +1,6 @@
 import Navbar from "@/components/ui/navbar";
 import Footer from "@/components/ui/footer";
+import { Toaster } from 'react-hot-toast';
 
 export default function layout({
   children,
@@ -11,6 +12,7 @@ export default function layout({
       <Navbar />
       {children}
       <Footer />
+      <Toaster position="top-right" />
     </main>
   );
 }

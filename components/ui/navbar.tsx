@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useAppSelector, useAppDispatch } from "@/redux/hooks";
-import { currentUser, logout } from "@/redux/features/auth/authSlice";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { toast } from "react-hot-toast";
+import { Menu, X, ShoppingCart } from "lucide-react";
+import { useAppSelector, useAppDispatch } from "@/redux/hooks";
+import { currentUser, logout } from "@/redux/features/auth/authSlice";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +23,8 @@ import { TbLayoutDashboard } from "react-icons/tb";
 
 const Navbar = () => {
   const user = useAppSelector(currentUser);
+  const cartItems = useAppSelector((state) => state.cart.items);
+  const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -38,6 +41,7 @@ const Navbar = () => {
     localStorage.removeItem("token");
     router.refresh();
     setIsMenuOpen(false);
+    toast.success("Logged out successfully");
   };
 
   // Only render auth-dependent content after mounting to prevent hydration mismatch
@@ -51,8 +55,8 @@ const Navbar = () => {
       link: "/about",
     },
     {
-      name: "Menu",
-      link: "/menu",
+      name: "Find Meals",
+      link: "/find-meals",
     },
     {
       name: "Pricing",
@@ -99,6 +103,16 @@ const Navbar = () => {
                 </div>
               );
             })}
+
+            {/* Desktop Cart Icon */}
+            <Link href="/cart" className="relative flex items-center">
+              <ShoppingCart className="h-6 w-6 text-gray-700" />
+              {cartItemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-[#FF0000] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartItemCount}
+                </span>
+              )}
+            </Link>
 
             {/* Large Device Menu */}
             <DropdownMenu>
@@ -161,7 +175,17 @@ const Navbar = () => {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center">
+            {/* Mobile Cart Icon */}
+            <Link href="/cart" className="relative mr-4">
+              <ShoppingCart className="h-6 w-6 text-gray-700" />
+              {cartItemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-[#FF0000] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartItemCount}
+                </span>
+              )}
+            </Link>
+
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:ring-2 focus:ring-[#FF0000] focus:outline-none focus:ring-inset"
