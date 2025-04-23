@@ -219,7 +219,12 @@ const CartPage = () => {
   }, [user, router]);
 
   const handleCheckout = () => {
-    router.push('/checkout');
+    if (cart?.length > 0) {
+      const firstItem = cart[0];
+      router.push(`/checkout/${firstItem.mealId}`);
+    } else {
+      router.push('/checkout');
+    }
   };
 
   const handleContinueShopping = () => {

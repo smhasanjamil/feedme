@@ -9,19 +9,69 @@ import { useAppSelector, useAppDispatch } from '@/redux/hooks';
 import { clearCart } from '@/redux/features/cart/cartSlice';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { ShoppingCart, CreditCard, Clock, MapPin, Calendar, Store } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { ShoppingCart, CreditCard, Store } from 'lucide-react';
+import { useGetMealByIdQuery } from '@/redux/meal/mealApi';
+import { use } from 'react';
+import { currentUser } from '@/redux/features/auth/authSlice';
 
-export default function CheckoutPage() {
+interface PageProps {
+  params: {
+    mealId: string;
+  };
+}
+
+interface Provider {
+  _id?: string;
+  name?: string;
+  email?: string;
+}
+
+interface CartItemType {
+  _id: string;
+  mealId: string;
+  mealName: string;
+  providerId: string | Provider;
+  providerName: string;
+  quantity: number;
+  price: number;
+  deliveryDate?: string;
+  deliverySlot?: string;
+  imageUrl?: string;
+  customization?: {
+    spiceLevel?: string;
+    removedIngredients?: string[];
+    specialInstructions?: string;
+    addOns?: Array<{
+      name: string;
+      price: number;
+      _id: string;
+    }>;
+  };
+}
+
+type ParamsWithMealId = {
+  mealId: string;
+};
+
+export default function CheckoutPage({ params }: PageProps) {
+  // Use React.use to unwrap params
+  const unwrappedParams = use(params as ParamsWithMealId);
+  const { mealId } = unwrappedParams;
+  
   const router = useRouter();
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
-  const cartItems = useAppSelector((state) => state.cart.items);
+  const user = useAppSelector(currentUser);
+  //console.log(user)
+  const cartItems = useAppSelector((state) => state.cart.items) as CartItemType[];
+  const { data: mealData, isLoading: isMealLoading, error: mealError } = useGetMealByIdQuery(mealId);
   
   const [checkoutDetails, setCheckoutDetails] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    deliveryAddress: searchParams.get('deliveryAddress') || '',
+    fullName: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    deliveryAddress: user?.address || '',
     deliveryDate: '',
     deliveryTime: '',
     paymentMethod: 'credit-card',
@@ -64,11 +114,22 @@ export default function CheckoutPage() {
     // Set default delivery date to tomorrow
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    setCheckoutDetails(prev => ({
-      ...prev,
-      deliveryDate: tomorrow.toISOString().split('T')[0]
-    }));
-  }, []);
+    
+    // Pre-fill form with user data if available
+    if (user) {
+      setCheckoutDetails(prev => ({
+        ...prev,
+        fullName: user.name || prev.fullName,
+        email: user.email || prev.email,
+        deliveryDate: tomorrow.toISOString().split('T')[0]
+      }));
+    } else {
+      setCheckoutDetails(prev => ({
+        ...prev,
+        deliveryDate: tomorrow.toISOString().split('T')[0]
+      }));
+    }
+  }, [user, searchParams]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -206,13 +267,31 @@ export default function CheckoutPage() {
   }
 
   // Show a loading state until client-side rendering is ready
-  if (!isClient) {
+  if (!isClient || isMealLoading) {
     return (
       <div className="container mx-auto py-12 px-4">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold mb-8">Checkout</h1>
           <div className="flex justify-center items-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if meal data couldn't be loaded
+  if (mealError) {
+    return (
+      <div className="container mx-auto py-12 px-4">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+          <div className="text-center py-12">
+            <h2 className="text-xl font-medium mb-4">Error loading meal details</h2>
+            <p className="text-gray-500 mb-6">Please try again or return to your cart</p>
+            <Button onClick={() => router.push('/cart')}>
+              Back to Cart
+            </Button>
           </div>
         </div>
       </div>
@@ -234,191 +313,133 @@ export default function CheckoutPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              {providerInfo && (
-                <Card className="mb-8">
-                  <CardHeader>
-                    <CardTitle>Restaurant Information</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-3 mb-2">
-                      <Store className="h-5 w-5 text-red-500" />
-                      <span className="font-medium">{providerInfo.name}</span>
-                    </div>
-                    {providerInfo.email && (
-                      <div className="text-sm text-gray-500 ml-8">
-                        {providerInfo.email}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
+            <div className="lg:col-span-2 space-y-6">
+             
+             
               
-              <Card className="mb-8">
+              {/* Display all items from cart */}
+              <Card className="mt-6">
+                <CardHeader>
+                  <CardTitle>Items in Your Order</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {cartItems.map((item, index) => (
+                    <div key={item._id || index} className="flex justify-between items-start py-3 border-b last:border-b-0">
+                      <div>
+                        <div className="flex mb-1">
+                          <span className="font-medium mr-2">{item.quantity}x</span>
+                          <span className="font-medium">{item.mealName}</span>
+                        </div>
+                        <p className="text-sm text-gray-600">
+                          Provider: {item.providerName || "Restaurant"}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Delivery: {item.deliveryDate ? formatDate(new Date(item.deliveryDate)) : formatDate(new Date(checkoutDetails.deliveryDate))} 
+                          ({item.deliverySlot || checkoutDetails.deliveryTime})
+                        </p>
+                      </div>
+                      <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              <Card>
                 <CardHeader>
                   <CardTitle>Delivery Information</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="fullName" className="block mb-2">
+                      Full Name <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="fullName"
+                      name="fullName"
+                      placeholder="Your full name"
+                      value={checkoutDetails.fullName}
+                      onChange={handleInputChange}
+                      className={errors.fullName ? "border-red-500" : ""}
+                    />
+                    {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="fullName" className="block text-sm font-medium mb-1">
-                        Full Name *
-                      </label>
+                      <Label htmlFor="email" className="block mb-2">
+                        Email <span className="text-red-500">*</span>
+                      </Label>
                       <Input
-                        id="fullName"
-                        name="fullName"
-                        value={checkoutDetails.fullName}
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="your.email@example.com"
+                        value={checkoutDetails.email}
                         onChange={handleInputChange}
-                        placeholder="Your full name"
-                        className={errors.fullName ? "border-red-500" : ""}
+                        className={errors.email ? "border-red-500" : ""}
                       />
-                      {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label htmlFor="email" className="block text-sm font-medium mb-1">
-                          Email *
-                        </label>
-                        <Input
-                          id="email"
-                          name="email"
-                          type="email"
-                          value={checkoutDetails.email}
-                          onChange={handleInputChange}
-                          placeholder="your.email@example.com"
-                          className={errors.email ? "border-red-500" : ""}
-                        />
-                        {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-                      </div>
-                      
-                      <div>
-                        <label htmlFor="phone" className="block text-sm font-medium mb-1">
-                          Phone Number *
-                        </label>
-                        <Input
-                          id="phone"
-                          name="phone"
-                          value={checkoutDetails.phone}
-                          onChange={handleInputChange}
-                          placeholder="Your phone number"
-                          className={errors.phone ? "border-red-500" : ""}
-                        />
-                        {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
-                      </div>
+                      {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                     </div>
                     
                     <div>
-                      <label htmlFor="deliveryAddress" className="block text-sm font-medium mb-1">
-                        Delivery Address *
-                      </label>
-                      <Textarea
-                        id="deliveryAddress"
-                        name="deliveryAddress"
-                        value={checkoutDetails.deliveryAddress}
+                      <Label htmlFor="phone" className="block mb-2">
+                        Phone Number <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="phone"
+                        name="phone"
+                        placeholder="Your phone number"
+                        value={checkoutDetails.phone}
                         onChange={handleInputChange}
-                        placeholder="Your complete delivery address"
-                        className={errors.deliveryAddress ? "border-red-500" : ""}
+                        className={errors.phone ? "border-red-500" : ""}
                       />
-                      {errors.deliveryAddress && <p className="text-red-500 text-sm mt-1">{errors.deliveryAddress}</p>}
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label htmlFor="deliveryDate" className="block text-sm font-medium mb-1">
-                          Delivery Date *
-                        </label>
-                        <Input
-                          id="deliveryDate"
-                          name="deliveryDate"
-                          type="date"
-                          value={checkoutDetails.deliveryDate}
-                          onChange={handleInputChange}
-                          className={errors.deliveryDate ? "border-red-500" : ""}
-                        />
-                        {errors.deliveryDate && <p className="text-red-500 text-sm mt-1">{errors.deliveryDate}</p>}
-                      </div>
-                      
-                      <div>
-                        <label htmlFor="deliveryTime" className="block text-sm font-medium mb-1">
-                          Preferred Delivery Time *
-                        </label>
-                        <select
-                          id="deliveryTime"
-                          name="deliveryTime"
-                          value={checkoutDetails.deliveryTime}
-                          onChange={handleInputChange}
-                          className={`w-full px-3 py-2 border rounded-md ${errors.deliveryTime ? "border-red-500" : "border-gray-300"}`}
-                        >
-                          <option value="">Select a time</option>
-                          <option value="Morning (8:00 AM - 11:00 AM)">Morning (8:00 AM - 11:00 AM)</option>
-                          <option value="Afternoon (12:00 PM - 2:00 PM)">Afternoon (12:00 PM - 2:00 PM)</option>
-                          <option value="Evening (5:00 PM - 8:00 PM)">Evening (5:00 PM - 8:00 PM)</option>
-                        </select>
-                        {errors.deliveryTime && <p className="text-red-500 text-sm mt-1">{errors.deliveryTime}</p>}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="specialInstructions" className="block text-sm font-medium mb-1">
-                        Special Instructions (Optional)
-                      </label>
-                      <Textarea
-                        id="specialInstructions"
-                        name="specialInstructions"
-                        value={checkoutDetails.specialInstructions}
-                        onChange={handleInputChange}
-                        placeholder="Any special delivery instructions"
-                      />
+                      {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle>Payment Method</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        id="credit-card"
-                        name="paymentMethod"
-                        value="credit-card"
-                        checked={checkoutDetails.paymentMethod === 'credit-card'}
-                        onChange={handleInputChange}
-                        className="h-4 w-4 text-red-500"
-                      />
-                      <label htmlFor="credit-card" className="text-sm font-medium">
-                        Credit / Debit Card
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        id="cash"
-                        name="paymentMethod"
-                        value="cash"
-                        checked={checkoutDetails.paymentMethod === 'cash'}
-                        onChange={handleInputChange}
-                        className="h-4 w-4 text-red-500"
-                      />
-                      <label htmlFor="cash" className="text-sm font-medium">
-                        Cash on Delivery
-                      </label>
-                    </div>
-                    
-                    {checkoutDetails.paymentMethod === 'credit-card' && (
-                      <div className="mt-4 p-4 bg-gray-50 rounded-md">
-                        <p className="text-center text-sm">
-                          Payment processing will be handled securely at the next step
-                        </p>
-                      </div>
-                    )}
+                  
+                  <div>
+                    <Label htmlFor="deliveryAddress" className="block mb-2">
+                      Delivery Address <span className="text-red-500">*</span>
+                    </Label>
+                    <Textarea
+                      id="deliveryAddress"
+                      name="deliveryAddress"
+                      placeholder="Your complete delivery address"
+                      value={checkoutDetails.deliveryAddress}
+                      onChange={handleInputChange}
+                      className={errors.deliveryAddress ? "border-red-500" : ""}
+                      rows={3}
+                    />
+                    {errors.deliveryAddress && <p className="text-red-500 text-sm mt-1">{errors.deliveryAddress}</p>}
                   </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   
+                  
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="specialInstructions" className="block mb-2">
+                      Special Instructions (Optional)
+                    </Label>
+                    <Textarea
+                      id="specialInstructions"
+                      name="specialInstructions"
+                      placeholder="Any special instructions for delivery or preparation"
+                      value={checkoutDetails.specialInstructions}
+                      onChange={handleInputChange}
+                      rows={3}
+                    />
+                  </div>
+                  
+                  {/* Place Order button moved here */}
+                  <Button 
+                    onClick={handlePlaceOrder}
+                    className="w-full bg-red-500 hover:bg-red-600 text-white mt-6"
+                  >
+                    <CreditCard className="mr-2 h-4 w-4" />
+                    Place Order
+                  </Button>
                 </CardContent>
               </Card>
             </div>
@@ -433,10 +454,10 @@ export default function CheckoutPage() {
                     <div className="space-y-4">
                       <div className="max-h-60 overflow-y-auto">
                         {cartItems.map((item, index) => (
-                          <div key={item.id || `cart-item-${index}`} className="flex justify-between items-center py-2 border-b">
+                          <div key={item._id || `cart-item-${index}`} className="flex justify-between items-center py-2 border-b">
                             <div className="flex items-center">
-                              <span className="font-medium mr-2">{item.quantity}x</span>
-                              <span>{item.name}</span>
+                              <span className="mr-2">{item.quantity}x</span>
+                              <span>{item.mealName}</span>
                             </div>
                             <span>${(item.price * item.quantity).toFixed(2)}</span>
                           </div>
@@ -462,22 +483,14 @@ export default function CheckoutPage() {
                       
                       <Separator />
                       
-                      <div className="flex justify-between font-bold">
+                      <div className="flex justify-between font-bold text-lg">
                         <span>Total</span>
                         <span>${calculateTotal().toFixed(2)}</span>
                       </div>
                       
                       <Button 
-                        onClick={handlePlaceOrder}
-                        className="w-full bg-red-500 hover:bg-red-600 text-white mt-4"
-                      >
-                        <CreditCard className="mr-2 h-4 w-4" />
-                        Place Order
-                      </Button>
-                      
-                      <Button 
                         variant="outline" 
-                        className="w-full mt-2"
+                        className="w-full mt-4"
                         onClick={() => router.push('/cart')}
                       >
                         <ShoppingCart className="mr-2 h-4 w-4" />

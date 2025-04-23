@@ -109,11 +109,11 @@ import React from "react";
 
 const page = () => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { data: meals = [], isLoading, isError } = useGetAllMealsQuery({});
+  const { data: meals = [], isError } = useGetAllMealsQuery({});
   console.log(meals);
 
-  if (isLoading) return <p>Loading meals...</p>;
   if (isError) return <p>Failed to fetch meals</p>;
+  
   return (
     <FoodDetailsCard
       meals={meals.data}
