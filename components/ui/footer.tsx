@@ -8,7 +8,7 @@ const Footer = () => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 items-start">
         <div className="flex flex-col items-start">
           <Image src="/bekary.jpg" alt="Bakery Logo" height={100} width={100} className="rounded-t-full max-w-20 mb-4" /> {/* Replace with your actual logo path */}
-          <p className="text-sm">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+          <p className="text-sm">Start your day with the aroma of oven-fresh bread. Our bakers rise early so you can enjoy a crisp crust and fluffy inside every morning.</p>
         </div>
         <div>
           <h6 className="font-bold mb-4 uppercase">Our Store</h6>

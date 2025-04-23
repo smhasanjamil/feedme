@@ -8,8 +8,7 @@ const page = () => {
         <div className="container mx-auto px-4 text-center sm:px-6 lg:px-8">
           <h1 className="mb-4 text-4xl font-bold md:text-5xl">Contact Us</h1>
           <p className="mx-auto max-w-xl text-lg opacity-75">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit
-            tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.
+          Start your day with the aroma of oven-fresh bread. Our bakers rise early so you can enjoy.
           </p>
         </div>
         {/* Image Overlay (adjust path as needed) */}
@@ -43,11 +42,7 @@ const page = () => {
                 Get in Touch
               </h2>
               <p className="mb-4 text-gray-600">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                Facilisis leo vel fringilla est ullamcorper eget nulla facilisi
-                etiam dignissim diam. Purus faucibus ornare suspendisse sed nisi
-                lacus sed viverra tellus.
+              Start your day with the aroma of oven-fresh bread. Our bakers rise early so you can enjoy a crisp crust and fluffy inside every morning. Start your day with the aroma of oven-fresh bread. Our bakers rise early so you can enjoy a crisp crust and fluffy inside every morning.
               </p>
               <div className="space-y-4">
                 <p className="flex items-center text-gray-700">
