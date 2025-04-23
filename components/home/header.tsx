@@ -7,7 +7,7 @@ const Header = () => {
     <section className="py-10">
       {/* Text */}
       <div className="container flex flex-col items-center text-center">
-        <h2 className="text-7xl leading-[80px] font-medium">
+        <h2 className="text-3xl font-medium sm:text-4xl md:text-6xl md:leading-[70px] lg:text-7xl lg:leading-[80px]">
           Fresh and healthy
           <br />
           food for your{" "}
@@ -23,9 +23,9 @@ const Header = () => {
           </span>
         </h2>
 
-        <p className="my-5 text-xl text-gray-700">
+        <p className="my-3.5 text-sm text-gray-700 md:my-5 md:text-lg lg:text-xl">
           Order healthy and delicious dishes at any time,
-          <br />
+          <br className="" />
           and we&apos;ll make sure it is safely delivered to your home
         </p>
 
@@ -43,21 +43,21 @@ const Header = () => {
       </div>
 
       {/* Marquee */}
-      <div className="relative container mt-12 flex items-center overflow-hidden">
-        <div className="absolute left-0 z-10 h-full w-20 bg-linear-to-r from-white to-transparent" />
+      <div className="relative container mt-8 flex items-center overflow-hidden lg:mt-12">
+        <div className="absolute left-0 z-10 h-full w-10 bg-linear-to-r from-white to-transparent sm:w-20" />
         <div className="marquee flex w-max items-center gap-7 overflow-visible">
           {[1, 2, 3, 4, 5, 1, 2, 3, 4, 5].map((i, idx) => (
             <Image
               key={idx}
               src={`/home/banner/banner${i % 5 || 5}.png`}
               alt={`banner${i}`}
-              className="w-[250px] object-cover"
+              className="w-[200px] object-cover md:w-[250px]"
               width={200}
               height={200}
             />
           ))}
         </div>
-        <div className="absolute right-0 z-10 h-full w-20 bg-linear-to-r from-transparent to-white" />
+        <div className="absolute right-0 z-10 h-full w-10 bg-linear-to-r from-transparent to-white sm:w-20" />
       </div>
     </section>
   );
