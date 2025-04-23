@@ -138,15 +138,15 @@ body {
 
 /* Home Page Banner Marquee */
 
-@keyframes marquee {
+@keyframes marqueeScroll {
   0% {
     transform: translateX(0%);
   }
   100% {
-    transform: translateX(-50%);
+    transform: translateX(-30%);
   }
 }
 
-.marquee-track {
-  animation: marquee 10s linear infinite;
+.marquee {
+  animation: marqueeScroll 20s linear infinite;
 }

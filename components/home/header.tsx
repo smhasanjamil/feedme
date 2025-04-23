@@ -4,8 +4,9 @@ import Image from "next/image";
 
 const Header = () => {
   return (
-    <section className="container py-6">
-      <div className="flex flex-col items-center text-center">
+    <section className="py-10">
+      {/* Text */}
+      <div className="container flex flex-col items-center text-center">
         <h2 className="text-7xl leading-[80px] font-medium">
           Fresh and healthy
           <br />
@@ -22,7 +23,7 @@ const Header = () => {
           </span>
         </h2>
 
-        <p className="mt-3 mb-4.5 text-xl text-gray-700">
+        <p className="my-5 text-xl text-gray-700">
           Order healthy and delicious dishes at any time,
           <br />
           and we&apos;ll make sure it is safely delivered to your home
@@ -42,80 +43,21 @@ const Header = () => {
       </div>
 
       {/* Marquee */}
-      <div className="relative overflow-hidden py-6">
-        <div className="marquee-track flex gap-4">
-          <Image
-            src="/home/banner/banner1.jpg"
-            className="h-72 w-56 rounded-t-full object-cover"
-            alt="banner"
-            width={300}
-            height={300}
-          />
-          <Image
-            src="/home/banner/banner2.jpg"
-            className="h-72 w-56 object-cover [clip-path:circle(50%)]"
-            alt="banner"
-            width={300}
-            height={300}
-          />
-          <Image
-            src="/home/banner/banner3.jpg"
-            className="h-72 w-56 rounded-2xl object-cover"
-            alt="banner"
-            width={300}
-            height={300}
-          />
-          <Image
-            src="/home/banner/banner4.jpg"
-            className="h-72 w-56 rounded-[50%_50%_0_0] object-cover"
-            alt="banner"
-            width={300}
-            height={300}
-          />
-          <Image
-            src="/home/banner/banner5.jpg"
-            className="h-72 w-56 rounded-tl-[80%] rounded-br-[80%] object-cover"
-            alt="banner"
-            width={300}
-            height={300}
-          />
-
-          <Image
-            src="/home/banner/banner1.jpg"
-            className="h-72 w-56 rounded-t-full object-cover"
-            alt="banner"
-            width={300}
-            height={300}
-          />
-          <Image
-            src="/home/banner/banner2.jpg"
-            className="h-72 w-56 object-cover [clip-path:circle(50%)]"
-            alt="banner"
-            width={300}
-            height={300}
-          />
-          <Image
-            src="/home/banner/banner3.jpg"
-            className="h-72 w-56 rounded-2xl object-cover"
-            alt="banner"
-            width={300}
-            height={300}
-          />
-          <Image
-            src="/home/banner/banner4.jpg"
-            className="h-72 w-56 rounded-[50%_50%_0_0] object-cover"
-            alt="banner"
-            width={300}
-            height={300}
-          />
-          <Image
-            src="/home/banner/banner5.jpg"
-            className="h-72 w-56 rounded-tl-[80%] rounded-br-[80%] object-cover"
-            alt="banner"
-            width={300}
-            height={300}
-          />
+      <div className="relative container mt-12 flex items-center overflow-hidden">
+        <div className="absolute left-0 z-10 h-full w-20 bg-linear-to-r from-white to-transparent" />
+        <div className="marquee flex w-max items-center gap-7 overflow-visible">
+          {[1, 2, 3, 4, 5, 1, 2, 3, 4, 5].map((i, idx) => (
+            <Image
+              key={idx}
+              src={`/home/banner/banner${i % 5 || 5}.png`}
+              alt={`banner${i}`}
+              className="w-[250px] object-cover"
+              width={200}
+              height={200}
+            />
+          ))}
         </div>
+        <div className="absolute right-0 z-10 h-full w-20 bg-linear-to-r from-transparent to-white" />
       </div>
     </section>
   );
