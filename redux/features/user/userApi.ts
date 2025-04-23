@@ -12,7 +12,23 @@ const userApi = baseApi.injectEndpoints({
       transformResponse: (response: { data: DashboardUserData[] }) => response.data,
       providesTags: ["User"],
     }),
+
+
+    updateUser: builder.mutation<
+      DashboardUserData, 
+      { id: string; data: Partial<DashboardUserData> } 
+    >({
+      query: ({ id, data }) => ({
+        url: `/user/update/${id}`,
+        method: "PATCH", 
+        body: data,
+      }),
+      invalidatesTags: ["User"],
+    }),
+
+
+
   }),
 });
 
-export const { useGetAllUsersQuery } = userApi;
+export const { useGetAllUsersQuery, useUpdateUserMutation } = userApi;

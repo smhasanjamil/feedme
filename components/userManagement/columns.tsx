@@ -25,7 +25,9 @@ export type DashboardUserData = {
   createdAt: string
 };
 
-export const columns: ColumnDef<DashboardUserData>[] = [
+export const getColumns = (
+  onUpdate: (user: DashboardUserData) => void
+): ColumnDef<DashboardUserData>[] =>  [
   {
     accessorKey: "_id",
     header: "User ID",
@@ -94,7 +96,7 @@ export const columns: ColumnDef<DashboardUserData>[] = [
               Copy User ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Update User</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onUpdate(user)}>Update User</DropdownMenuItem>
             <DropdownMenuItem>Delete User</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
