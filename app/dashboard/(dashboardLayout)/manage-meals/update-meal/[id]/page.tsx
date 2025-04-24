@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CldUploadWidget, CldImage } from "next-cloudinary";
 
 type MealType = {
   name: string;
@@ -61,6 +62,21 @@ export default function EditMealPage() {
       setMealData(data.data);
     }
   }, [data]);
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      if (document.body.style.overflow === "hidden") {
+        document.body.style.overflow = "auto";
+      }
+    });
+
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["style"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   if (isLoading || !mealData) return <p>Loading...</p>;
   if (error) return <p>Error loading meal.</p>;
@@ -105,6 +121,14 @@ export default function EditMealPage() {
     );
   };
 
+  const handleImageUpload = (result: any) => {
+    if (result?.info?.secure_url) {
+      setMealData((prev) =>
+        prev ? { ...prev, image: result.info.secure_url } : null,
+      );
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!mealData) return;
@@ -147,12 +171,106 @@ export default function EditMealPage() {
             </div>
 
             <div className="grid gap-1">
-              <Label htmlFor="image">Image</Label>
-              <Input
-                name="image"
-                value={mealData.image || ""}
-                onChange={handleChange}
-              />
+              <Label>Meal Image</Label>
+              {mealData?.image ? (
+                <div className="flex flex-col items-center gap-4">
+                  <CldImage
+                    width="300"
+                    height="200"
+                    src={mealData.image}
+                    alt="Uploaded meal"
+                    className="rounded-lg object-cover"
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() =>
+                        setMealData((prev) =>
+                          prev ? { ...prev, image: "" } : null,
+                        )
+                      }
+                      type="button"
+                    >
+                      Change Image
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() =>
+                        navigator.clipboard.writeText(mealData.image)
+                      }
+                      type="button"
+                    >
+                      Copy URL
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <CldUploadWidget
+                  uploadPreset={
+                    process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+                  }
+                  onSuccess={handleImageUpload}
+                  options={{
+                    multiple: false,
+                    sources: ["local"],
+                    maxFiles: 1,
+                    cropping: true,
+                    croppingAspectRatio: 16 / 9,
+                    styles: {
+                      palette: {
+                        window: "#FFFFFF",
+                        sourceBg: "#F4F4F5",
+                        windowBorder: "#90A0B3",
+                        tabIcon: "#000000",
+                        inactiveTabIcon: "#555A5F",
+                        menuIcons: "#555A5F",
+                        link: "#000000",
+                        action: "#000000",
+                        inProgress: "#000000",
+                        complete: "#000000",
+                        error: "#FF0000",
+                        textDark: "#000000",
+                        textLight: "#FFFFFF",
+                      },
+                      modal: {
+                        overflow: "visible",
+                      },
+                    },
+                  }}
+                >
+                  {({ open }) => (
+                    <div
+                      className="flex h-48 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100"
+                      onClick={() => open()}
+                    >
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <svg
+                          className="mb-4 h-8 w-8 text-gray-500"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 20 16"
+                        >
+                          <path
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                          />
+                        </svg>
+                        <p className="mb-2 text-sm text-gray-500">
+                          <span className="font-semibold">Click to upload</span>{" "}
+                          or drag and drop
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          PNG, JPG, or WEBP (MAX. 5MB)
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </CldUploadWidget>
+              )}
             </div>
 
             <div className="grid gap-1">

@@ -134,3 +134,8 @@
 body {
   font-family: var(--font-fredoka), sans-serif;
 }
+
+body.cloudinary-modal-open {
+  overflow: auto !important;
+  position: static !important;
+}
