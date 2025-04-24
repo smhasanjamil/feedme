@@ -179,6 +179,16 @@ const orderApi = baseApi.injectEndpoints({
         return response?.data || [];
       },
     }),
+    // Endpoint for provider to get their orders
+    getProviderOrders: builder.query<Order[], string>({
+      query: (providerId) => ({
+        url: `/orders/provider/${providerId}/orders`,
+        method: "GET",
+      }),
+      transformResponse: (response: OrderResponse) => {
+        return response?.data || [];
+      },
+    }),
     verifyOrder: builder.query({
       query: (order_id) => ({
         url: "/orders/verify",
@@ -237,6 +247,7 @@ export const {
   useCreateOrderMutation,
   useGetOrdersQuery,
   useGetAllOrdersQuery,
+  useGetProviderOrdersQuery,
   useVerifyOrderQuery,
   useGetUserOrdersQuery,
   useTrackOrderQuery,
