@@ -40,21 +40,29 @@ export default function ManageOrdersLoading() {
           <div className="h-8 w-20 animate-pulse rounded bg-gray-200"></div>
         </div>
 
-        <div className="rounded-md border">
-          <div className="grid grid-cols-6 gap-4 bg-gray-50 p-3">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-4 animate-pulse rounded bg-gray-200"></div>
-            ))}
-          </div>
-
-          {/* Order Rows */}
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="grid grid-cols-6 gap-4 border-t border-gray-100 p-3">
-              {[...Array(6)].map((_, j) => (
-                <div key={j} className="h-8 animate-pulse rounded bg-gray-200"></div>
+        <div className="rounded-md border overflow-x-auto">
+          <table className="w-full min-w-full">
+            <thead>
+              <tr className="bg-gray-50 text-xs font-medium text-gray-500">
+                {[...Array(8)].map((_, i) => (
+                  <th key={i} className="px-3 py-3">
+                    <div className="h-4 w-full animate-pulse rounded bg-gray-200"></div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[...Array(5)].map((_, i) => (
+                <tr key={i} className="border-t border-gray-100">
+                  {[...Array(8)].map((_, j) => (
+                    <td key={j} className="px-3 py-3">
+                      <div className="h-8 w-full animate-pulse rounded bg-gray-200"></div>
+                    </td>
+                  ))}
+                </tr>
               ))}
-            </div>
-          ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

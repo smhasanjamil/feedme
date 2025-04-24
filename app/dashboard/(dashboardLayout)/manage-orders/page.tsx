@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useGetProviderOrdersQuery, useUpdateOrderTrackingMutation, useDeleteOrderMutation } from "@/redux/features/orders/order";
+import type { Order } from "@/redux/features/orders/order";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +12,6 @@ import {
   MoreHorizontal, 
   CalendarIcon, 
   Search, 
-  ChevronDown, 
   Check, 
   X, 
   Eye, 
@@ -23,7 +23,8 @@ import {
   Tag,
   PlusCircle,
   MinusCircle,
-  Flame
+  Flame,
+  RefreshCw
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -36,10 +37,11 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useSelector } from "react-redux";
-import { currentUser } from "@/redux/features/auth/authSlice";
+import { currentUser, currentToken } from "@/redux/features/auth/authSlice";
 
 export default function ManageOrdersPage() {
   const user = useSelector(currentUser);
+  const token = useSelector(currentToken);
   const providerId = user?.id || "";
   const { data: orders, isLoading, refetch } = useGetProviderOrdersQuery(providerId, {
     skip: !providerId // Skip the query if no providerId is available
@@ -50,8 +52,10 @@ export default function ManageOrdersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [statusMessage, setStatusMessage] = useState("");
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [updateMessage, setUpdateMessage] = useState("");
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   
   useEffect(() => {
     setMounted(true);
@@ -90,20 +94,151 @@ export default function ManageOrdersPage() {
     return sortDirection === "desc" ? dateB - dateA : dateA - dateB;
   });
 
-  const handleStatusChange = async (orderId: string, newStatus: string) => {
+  const handleStatusChange = async (orderId: string, newStatus: string, message: string) => {
     try {
-      await updateOrderTracking({
+      console.log(`Updating order ${orderId} to status: ${newStatus}`);
+      
+      // Prepare update message if not provided
+      const updateMessage = message || `Order ${newStatus.toLowerCase()} successfully`;
+      
+      // Check if user is logged in and has an ID
+      if (!providerId) {
+        console.error('Cannot update order: Provider ID is missing');
+        setStatusMessage("Authentication required. Please log in.");
+        setTimeout(() => setStatusMessage(""), 3000);
+        return;
+      }
+
+      // Check for authentication token
+      if (!token) {
+        console.error('Cannot update order: Authentication token is missing');
+        setStatusMessage("Authentication required. Please log in again.");
+        setTimeout(() => setStatusMessage(""), 3000);
+        return;
+      }
+      
+      // Try using a direct fetch approach instead of RTK Query
+      try {
+        // Ensure the URL exactly matches the confirmed format
+        const apiUrl = `http://localhost:5000/api/orders/${orderId}/tracking`;
+        console.log('Making direct API call to:', apiUrl);
+        
+        const directResponse = await fetch(apiUrl, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `${token}`
+          },
+          body: JSON.stringify({
+            stage: newStatus.toLowerCase(),
+            message: updateMessage
+          }),
+          credentials: 'include',
+        });
+        
+        console.log('Response status:', directResponse.status);
+        
+        if (!directResponse.ok) {
+          const errorText = await directResponse.text();
+          console.error('Direct fetch error text:', errorText);
+          
+          try {
+            const errorData = JSON.parse(errorText);
+            console.error('Direct fetch error data:', errorData);
+            throw new Error(`API error: ${errorData.message || directResponse.statusText}`);
+          } catch {
+            throw new Error(`API error (${directResponse.status}): ${errorText || directResponse.statusText}`);
+          }
+        }
+        
+        const responseData = await directResponse.json();
+        console.log('Direct fetch successful:', responseData);
+        
+        // Show success message with highlighted styling
+        setStatusMessage(`✅ Order status updated to ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`);
+        
+        // Reset the update message
+        setUpdateMessage("");
+        setTimeout(() => setStatusMessage(""), 5000);
+        
+        // If we're updating in a modal, update the selected order
+        if (selectedOrder) {
+          const updatedOrder = {
+            ...selectedOrder,
+            status: newStatus.toLowerCase(),
+            trackingUpdates: [
+              ...(selectedOrder.trackingUpdates || []),
+              {
+                stage: newStatus.toLowerCase(),
+                message: updateMessage,
+                timestamp: new Date().toISOString()
+              }
+            ]
+          };
+          setSelectedOrder(updatedOrder);
+        }
+        
+        // Refetch orders to update the list
+        await refetch();
+        return;
+      } catch (fetchErr) {
+        console.error('Direct fetch attempt failed:', fetchErr);
+        // Fall back to RTK Query approach
+      }
+      
+      // Original RTK Query approach as fallback
+      const result = await updateOrderTracking({
         orderId,
-        data: { status: newStatus },
+        data: { 
+          "stage": newStatus.toLowerCase(),
+          "message": updateMessage
+        },
       }).unwrap();
       
-      setStatusMessage(`Order status changed to ${newStatus}`);
-      setTimeout(() => setStatusMessage(""), 3000);
+      console.log('Order update result:', result);
       
-      refetch();
-    } catch (error) {
-      setStatusMessage("Could not update the order status");
-      setTimeout(() => setStatusMessage(""), 3000);
+      // Show success message with highlighted styling
+      setStatusMessage(`✅ Order status updated to ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`);
+      
+      // Reset the update message
+      setUpdateMessage("");
+      setTimeout(() => setStatusMessage(""), 5000);
+      
+      // If we're updating in a modal, update the selected order
+      if (selectedOrder) {
+        const updatedOrder = {
+          ...selectedOrder,
+          status: newStatus.toLowerCase(),
+          trackingUpdates: [
+            ...(selectedOrder.trackingUpdates || []),
+            {
+              stage: newStatus.toLowerCase(),
+              message: updateMessage,
+              timestamp: new Date().toISOString()
+            }
+          ]
+        };
+        setSelectedOrder(updatedOrder);
+      }
+      
+      // Refetch orders to update the list
+      await refetch();
+      
+    } catch (err) {
+      console.error('Error updating status:', err);
+      
+      let errorMsg = "Could not update the order status";
+      if (err && typeof err === 'object' && 'data' in err) {
+        // Try to extract error message from RTK Query error
+        errorMsg = `Update failed: ${(err.data as any)?.message || 'Unknown error'}`;
+      } else if (err instanceof Error) {
+        errorMsg = `Update failed: ${err.message}`;
+      }
+      
+      // Show highlighted error message
+      setStatusMessage(`❌ ${errorMsg}`);
+      setTimeout(() => setStatusMessage(""), 5000);
     }
   };
 
@@ -115,30 +250,17 @@ export default function ManageOrdersPage() {
       setTimeout(() => setStatusMessage(""), 3000);
       
       refetch();
-    } catch (error) {
+    } catch (err) {
+      console.error('Error deleting order:', err);
       setStatusMessage("Could not delete the order");
       setTimeout(() => setStatusMessage(""), 3000);
     }
   };
 
-  const handleViewOrderDetails = (order) => {
+  const handleViewOrderDetails = (order: Order) => {
     setSelectedOrder(order);
+    setUpdateMessage(""); // Reset update message when opening modal
     setIsModalOpen(true);
-  };
-
-  const getStatusBadgeVariant = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "delivered":
-        return "success";
-      case "processed":
-        return "default";
-      case "approved":
-        return "outline";
-      case "placed":
-        return "secondary";
-      default:
-        return "outline";
-    }
   };
 
   const getStatusColor = (status: string) => {
@@ -173,6 +295,33 @@ export default function ManageOrdersPage() {
       default:
         return "bg-gray-100 text-gray-600";
     }
+  };
+
+  // Add a helper function to get the current stage from tracking updates
+  const getCurrentStage = (order: Order) => {
+    if (!order.trackingUpdates || order.trackingUpdates.length === 0) {
+      return order.status;
+    }
+    
+    // Sort updates by timestamp (newest first) and get the most recent stage
+    const sortedUpdates = [...order.trackingUpdates].sort(
+      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
+    
+    return sortedUpdates[0].stage;
+  };
+
+  // Updated modal opening with current stage check
+  const handleOpenUpdateModal = (order: Order) => {
+    // Get a copy of the order with the current stage set from the most recent update
+    const orderWithCurrentStage = {
+      ...order,
+      status: getCurrentStage(order) // Set status to the latest stage
+    };
+    
+    setSelectedOrder(orderWithCurrentStage);
+    setUpdateMessage(""); // Reset update message
+    setIsUpdateModalOpen(true);
   };
 
   if (!mounted || isLoading) {
@@ -271,102 +420,137 @@ export default function ManageOrdersPage() {
           </div>
         </div>
 
-        <div className="rounded-md border">
-          <div className="grid grid-cols-6 gap-4 bg-gray-50 p-3 text-xs font-medium text-gray-500">
-            <div>Order ID</div>
-            <div>Customer</div>
-            <div>Date</div>
-            <div>Payment Status</div>
-            <div>Order Stage</div>
-            <div className="text-right">Total</div>
-          </div>
-
-          {sortedOrders && sortedOrders.length > 0 ? (
-            sortedOrders.map((order) => (
-              <div key={order._id} className="grid grid-cols-6 gap-4 border-t border-gray-100 p-3 text-sm">
-                <div className="truncate text-xs font-medium">
-                  {order._id?.substring(0, 12)}...
-                </div>
-                <div>
-                  <div className="text-xs font-medium">{order.name || "N/A"}</div>
-                  <div className="text-xs text-gray-500">{order.email || "N/A"}</div>
-                </div>
-                <div className="flex items-center text-xs text-gray-500">
-                  <CalendarIcon className="mr-1 h-3 w-3" />
-                  {new Date(order.createdAt).toLocaleDateString()}
-                </div>
-                <div>
-                  <Badge
-                    variant={order.transaction?.transactionStatus === "Paid" ? "outline" : "secondary"}
-                    className="text-[10px]"
-                  >
-                    {order.transaction?.transactionStatus || "Pending"}
-                  </Badge>
-                </div>
-                <div>
-                  <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(order.status)}`}>
-                    {order.status}
-                  </span>
-                </div>
-                <div className="flex items-center justify-end gap-2">
-                  <span className="text-xs font-medium">
-                    ${order.totalPrice?.toFixed(2) || "0.00"}
-                  </span>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-7 w-7">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem 
-                        className="flex cursor-pointer items-center gap-2 px-2 py-1.5 text-xs"
-                        onClick={() => handleViewOrderDetails(order)}
+        <div className="rounded-md border overflow-x-auto">
+          <table className="w-full min-w-full">
+            <thead>
+              <tr className="bg-gray-50 text-xs font-medium text-gray-500">
+                <th className="px-3 py-3 text-left">Order ID</th>
+                <th className="px-3 py-3 text-left">Customer</th>
+                <th className="px-3 py-3 text-left">Date</th>
+                <th className="px-3 py-3 text-left">Delivery Date</th>
+                <th className="px-3 py-3 text-left">Payment Status</th>
+                <th className="px-3 py-3 text-left">Tracking Stage</th>
+                <th className="px-3 py-3 text-right">Total</th>
+                <th className="px-3 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedOrders && sortedOrders.length > 0 ? (
+                sortedOrders.map((order) => (
+                  <tr key={order._id} className="border-t border-gray-100 hover:bg-gray-50">
+                    <td className="px-3 py-3 text-xs font-medium">
+                      {order._id}
+                    </td>
+                    <td className="px-3 py-3">
+                      <div className="text-xs font-medium">{order.name || "N/A"}</div>
+                      <div className="text-xs text-gray-500">{order.email || "N/A"}</div>
+                    </td>
+                    <td className="px-3 py-3">
+                      <div className="flex items-center text-xs text-gray-500">
+                        <CalendarIcon className="mr-1 h-3 w-3" />
+                        {new Date(order.createdAt).toLocaleDateString()}
+                      </div>
+                    </td>
+                    <td className="px-3 py-3 text-xs text-gray-500">
+                      {order.deliveryDate ? (
+                        <>
+                          {new Date(order.deliveryDate).toLocaleDateString()}
+                          {order.deliverySlot && <div className="text-xs">{order.deliverySlot}</div>}
+                        </>
+                      ) : (
+                        "N/A"
+                      )}
+                    </td>
+                    <td className="px-3 py-3">
+                      <Badge
+                        variant={order.transaction?.transactionStatus === "Paid" ? "outline" : "secondary"}
+                        className="text-[10px]"
                       >
-                        <Eye className="h-3.5 w-3.5" />
-                        View Details
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuSub>
-                        <DropdownMenuSubTrigger className="flex items-center gap-2 text-xs">
-                          <PackageCheck className="h-3.5 w-3.5" />
-                          Update Status
-                        </DropdownMenuSubTrigger>
-                        <DropdownMenuSubContent className="w-32">
-                          {["Placed", "Approved", "Processed", "Delivered"].map((status) => (
-                            <DropdownMenuItem 
-                              key={status}
-                              className={`flex cursor-pointer items-center justify-between px-2 py-1.5 text-xs ${order.status === status ? 'bg-gray-100' : ''}`}
-                              onClick={() => handleStatusChange(order._id, status)}
-                            >
-                              {status}
-                              {order.status === status && <Check className="h-3 w-3" />}
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuSubContent>
-                      </DropdownMenuSub>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => {
-                          if (confirm("Are you sure you want to delete this order?")) {
-                            handleDeleteOrder(order._id);
-                          }
-                        }}
-                        className="flex items-center gap-2 px-2 py-1.5 text-xs text-red-600"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                        Delete Order
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="p-6 text-center">
-              <p className="text-sm text-gray-500">No orders found</p>
-            </div>
-          )}
+                        {order.transaction?.transactionStatus || "Pending"}
+                      </Badge>
+                    </td>
+                    <td className="px-3 py-3">
+                      {order.trackingUpdates && order.trackingUpdates.length > 0 ? (
+                        <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(order.trackingUpdates[order.trackingUpdates.length - 1].stage)}`}>
+                          {order.trackingUpdates[order.trackingUpdates.length - 1].stage}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-500">No tracking info</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-3 text-right">
+                      <span className="text-xs font-medium">
+                        ${order.totalPrice?.toFixed(2) || "0.00"}
+                      </span>
+                    </td>
+                    <td className="px-3 py-3 text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-7 w-7">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem 
+                            className="flex cursor-pointer items-center gap-2 px-2 py-1.5 text-xs"
+                            onClick={() => handleViewOrderDetails(order)}
+                          >
+                            <Eye className="h-3.5 w-3.5" />
+                            View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="flex cursor-pointer items-center gap-2 px-2 py-1.5 text-xs"
+                            onClick={() => handleOpenUpdateModal(order)}
+                          >
+                            <RefreshCw className="h-3.5 w-3.5" />
+                            Update Status
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuSub>
+                            <DropdownMenuSubTrigger className="flex items-center gap-2 text-xs">
+                              <PackageCheck className="h-3.5 w-3.5" />
+                              Quick Status Update
+                            </DropdownMenuSubTrigger>
+                            <DropdownMenuSubContent className="w-32">
+                              {["placed", "approved", "processed", "shipped", "delivered"].map((status) => (
+                                <DropdownMenuItem 
+                                  key={status}
+                                  className={`flex cursor-pointer items-center justify-between px-2 py-1.5 text-xs ${order.status === status ? 'bg-gray-100' : ''}`}
+                                  onClick={() => handleStatusChange(order._id, status, "")}
+                                >
+                                  {/* Capitalize first letter for display only */}
+                                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                                  {order.status === status && <Check className="h-3 w-3" />}
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuSubContent>
+                          </DropdownMenuSub>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => {
+                              if (confirm("Are you sure you want to delete this order?")) {
+                                handleDeleteOrder(order._id);
+                              }
+                            }}
+                            className="flex items-center gap-2 px-2 py-1.5 text-xs text-red-600"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                            Delete Order
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={8} className="p-6 text-center text-sm text-gray-500">
+                    No orders found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -481,7 +665,7 @@ export default function ManageOrdersPage() {
                 {/* For meals */}
                 {selectedOrder.meals && selectedOrder.meals.length > 0 ? (
                   <div className="space-y-4">
-                    {selectedOrder.meals.map((item, index) => (
+                    {selectedOrder.meals.map((item: any, index: number) => (
                       <div key={item._id || index} className="overflow-hidden rounded-md border">
                         {/* Meal header */}
                         <div className="border-b bg-gray-50 p-3">
@@ -561,7 +745,7 @@ export default function ManageOrdersPage() {
                                     Removed Ingredients:
                                   </div>
                                   <div className="mt-1 flex flex-wrap gap-1">
-                                    {item.customization.removedIngredients.map((ingredient, i) => (
+                                    {item.customization.removedIngredients.map((ingredient: string, i: number) => (
                                       <span key={i} className="rounded-full bg-red-50 px-2 py-0.5 text-xs text-red-700">
                                         {ingredient}
                                       </span>
@@ -578,7 +762,7 @@ export default function ManageOrdersPage() {
                                     Add-ons:
                                   </div>
                                   <div className="mt-1 space-y-1">
-                                    {item.customization.addOns.map((addon, i) => (
+                                    {item.customization.addOns.map((addon: any, i: number) => (
                                       <div key={i} className="flex items-center justify-between">
                                         <span className="text-xs">{addon.name}</span>
                                         <span className="text-xs font-medium">+${addon.price?.toFixed(2) || "0.00"}</span>
@@ -595,7 +779,7 @@ export default function ManageOrdersPage() {
                             <div className="mb-3">
                               <h5 className="text-sm font-medium">Ingredients</h5>
                               <div className="mt-1 flex flex-wrap gap-1">
-                                {item.mealId.ingredients.map((ingredient, i) => (
+                                {item.mealId.ingredients.map((ingredient: string, i: number) => (
                                   <span key={i} className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-700">
                                     {ingredient}
                                   </span>
@@ -686,49 +870,246 @@ export default function ManageOrdersPage() {
                 </div>
               </div>
 
+              {/* Modal Footer */}
+              <div className="mt-6 flex justify-end space-x-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  Close
+                </Button>
+                <Button 
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    handleOpenUpdateModal(selectedOrder);
+                  }}
+                >
+                  Update Order
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Order Update Modal */}
+      {isUpdateModalOpen && selectedOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg bg-white p-6 shadow-lg">
+            {/* Close button */}
+            <button
+              onClick={() => setIsUpdateModalOpen(false)}
+              className="absolute right-4 top-4 rounded-full p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            {/* Modal Header */}
+            <div className="mb-6">
+              <h2 className="text-xl font-bold">Update Order Status</h2>
+              <p className="text-sm text-gray-500">Change status and add tracking updates</p>
+            </div>
+            
+            <div className="space-y-6">
+              {/* Order basic info */}
+              <div className="rounded-md border p-4">
+                <div className="flex flex-wrap gap-4 justify-between">
+                  <div>
+                    <p className="text-xs text-gray-500">Order ID</p>
+                    <p className="font-medium">{selectedOrder._id}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Customer</p>
+                    <p className="font-medium">{selectedOrder.name || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Current Stage</p>
+                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(selectedOrder.status)}`}>
+                      {selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
               {/* Tracking Updates */}
               {selectedOrder.trackingUpdates && selectedOrder.trackingUpdates.length > 0 && (
                 <div>
                   <h3 className="mb-2 font-medium">Tracking Updates</h3>
-                  <div className="space-y-2">
-                    {selectedOrder.trackingUpdates.map((update, index) => (
-                      <div key={update._id || index} className="rounded-md border p-3">
-                        <div className="flex justify-between">
-                          <p className="text-sm font-medium">{update.stage}</p>
-                          <p className="text-xs text-gray-500">
-                            {new Date(update.timestamp).toLocaleString()}
-                          </p>
-                        </div>
-                        <p className="text-sm">{update.message}</p>
-                      </div>
-                    ))}
+                  <div className="space-y-2 max-h-60 overflow-y-auto border rounded-md p-2">
+                    {/* Sort tracking updates by timestamp, newest first */}
+                    {[...selectedOrder.trackingUpdates]
+                      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+                      .map((update: any, index: number) => {
+                        const isLatest = index === 0; // First item is the most recent update
+                        return (
+                          <div 
+                            key={update._id || index} 
+                            className={`rounded-md border p-3 ${isLatest ? 'border-blue-300 bg-blue-50' : ''}`}
+                          >
+                            <div className="flex justify-between mb-1">
+                              <div className="flex items-center">
+                                <p className="text-sm font-medium">
+                                  {update.stage.charAt(0).toUpperCase() + update.stage.slice(1)}
+                                </p>
+                                {isLatest && (
+                                  <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full font-medium">
+                                    Current
+                                  </span>
+                                )}
+                              </div>
+                              <span className="text-xs text-gray-500">
+                                {new Date(update.timestamp).toLocaleString()}
+                              </span>
+                            </div>
+                            {update.message && (
+                              <p className="text-sm text-gray-700 mt-1 bg-gray-50 p-2 rounded">
+                                {update.message}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
                   </div>
                 </div>
               )}
-            </div>
 
-            {/* Modal Footer */}
-            <div className="mt-6 flex justify-end space-x-2">
-              <Button 
-                variant="outline" 
-                onClick={() => setIsModalOpen(false)}
-              >
-                Close
-              </Button>
-              <Button 
-                onClick={() => {
-                  handleStatusChange(selectedOrder._id, 
-                    selectedOrder.status === "Delivered" ? "Processed" :
-                    selectedOrder.status === "Processed" ? "Delivered" :
-                    selectedOrder.status === "Approved" ? "Processed" : "Approved"
-                  );
-                  setIsModalOpen(false);
-                }}
-              >
-                {selectedOrder.status === "Delivered" ? "Mark as Processed" :
-                 selectedOrder.status === "Processed" ? "Mark as Delivered" :
-                 selectedOrder.status === "Approved" ? "Mark as Processed" : "Approve Order"}
-              </Button>
+              {/* Status update form */}
+              <div className="rounded-md border p-4">
+                <h4 className="mb-3 text-sm font-medium">Update Status</h4>
+                
+                {/* Current status tracking information */}
+                <div className="mb-5 p-3 bg-gray-50 rounded-md">
+                  <h5 className="text-sm font-semibold mb-2">Status Progression</h5>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {["placed", "approved", "processed", "shipped", "delivered"].map((stage, index) => {
+                      // Determine the order progression
+                      const stageOrder = {
+                        "placed": 1,
+                        "approved": 2,
+                        "processed": 3,
+                        "shipped": 4,
+                        "delivered": 5
+                      };
+                      
+                      // Get current stage order number
+                      const currentStageOrder = stageOrder[selectedOrder.status as keyof typeof stageOrder] || 0;
+                      
+                      // This stage's order number
+                      const thisStageOrder = stageOrder[stage as keyof typeof stageOrder];
+                      
+                      // Check if this stage has explicitly been reached in tracking updates
+                      const isExplicitlyCompleted = selectedOrder.trackingUpdates?.some(u => u.stage === stage);
+                      
+                      // A stage is considered completed if:
+                      // 1. It's explicitly in the tracking updates, OR
+                      // 2. It's a previous stage compared to the current stage (to handle skipped stages)
+                      const isCompleted = isExplicitlyCompleted || thisStageOrder < currentStageOrder;
+                      
+                      // Check if this is the current status
+                      const isCurrent = selectedOrder.status === stage;
+                      
+                      return (
+                        <div 
+                          key={stage} 
+                          className={`flex items-center gap-1 rounded-md px-2 py-1 text-xs ${
+                            isCurrent 
+                              ? 'bg-blue-100 text-blue-800 border border-blue-300' 
+                              : isCompleted 
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-gray-100 text-gray-500'
+                          }`}
+                        >
+                          {index + 1}. {stage.charAt(0).toUpperCase() + stage.slice(1)}
+                          {isCurrent && <span className="ml-1 text-[10px] font-medium">(Current)</span>}
+                          {isCompleted && !isCurrent && <Check className="h-3 w-3" />}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Current status: <span className="font-medium">{selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}</span>
+                  </p>
+                </div>
+                
+                {/* Status update message feedback */}
+                {statusMessage && (
+                  <div className="mb-3 rounded bg-green-50 p-2 text-sm text-green-700">
+                    {statusMessage}
+                  </div>
+                )}
+                
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="status" className="text-xs text-gray-500">New Status</label>
+                    <select 
+                      id="status"
+                      className="mt-1 w-full rounded-md border-gray-300 p-2 text-sm shadow-sm focus:border-primary focus:ring-primary"
+                      value={selectedOrder.status}
+                      onChange={(e) => setSelectedOrder({...selectedOrder, status: e.target.value})}
+                    >
+                      {["placed", "approved", "processed", "shipped", "delivered"].map((status) => (
+                        <option key={status} value={status}>
+                          {status.charAt(0).toUpperCase() + status.slice(1)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="message" className="flex items-center text-xs text-gray-500">
+                      Update Message <span className="text-red-500 ml-1">*</span>
+                    </label>
+                    <input 
+                      id="message"
+                      type="text"
+                      className="mt-1 w-full rounded-md border-gray-300 p-2 text-sm shadow-sm focus:border-primary focus:ring-primary"
+                      placeholder="Required message for this update"
+                      value={updateMessage}
+                      onChange={(e) => setUpdateMessage(e.target.value)}
+                      required
+                    />
+                    {!updateMessage && (
+                      <p className="mt-1 text-xs text-red-500">A message is required for status updates</p>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="mt-4 flex justify-end space-x-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setIsUpdateModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={async () => {
+                      // Validate message field
+                      if (!updateMessage) {
+                        setStatusMessage("❌ Please provide a message for the status update");
+                        return;
+                      }
+                      
+                      await handleStatusChange(selectedOrder._id, selectedOrder.status, updateMessage);
+                      // Don't close the modal so users can see the confirmation
+                      // Instead, refresh the order data to show the updated tracking
+                      const updatedOrders = await refetch();
+                      if (updatedOrders.data) {
+                        // Find and update the selected order with new data
+                        const refreshedOrder = updatedOrders.data.find(
+                          order => order._id === selectedOrder._id
+                        );
+                        if (refreshedOrder) {
+                          setSelectedOrder(refreshedOrder);
+                        }
+                      }
+                    }}
+                    disabled={!updateMessage}
+                  >
+                    <RefreshCw className="h-4 w-4 mr-1" />
+                    Update Status
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

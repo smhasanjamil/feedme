@@ -38,7 +38,11 @@ interface MealItem {
       carbs: number;
       fat: number;
     };
-    [key: string]: any;
+    ingredients?: string[];
+    category?: string;
+    portionSize?: string;
+    preparationTime?: number;
+    [key: string]: string | number | boolean | string[] | object | undefined;
   };
   quantity: number;
   price: number;
@@ -46,8 +50,8 @@ interface MealItem {
   customization?: {
     spiceLevel?: string;
     removedIngredients?: string[];
-    addOns?: string[];
-    [key: string]: any;
+    addOns?: Array<{name: string; price?: number}>;
+    [key: string]: string | string[] | Array<{name: string; price?: number}> | undefined;
   };
 }
 
@@ -76,7 +80,7 @@ interface TrackingStages {
   [key: string]: boolean;
 }
 
-interface Order {
+export interface Order {
   _id: string;
   user: string;
   name?: string;
@@ -158,6 +162,7 @@ interface TrackOrderResponse {
 }
 
 const orderApi = baseApi.injectEndpoints({
+  overrideExisting: true,
   endpoints: (builder) => ({
     createOrder: builder.mutation({
       query: (userInfo) => ({
@@ -219,14 +224,37 @@ const orderApi = baseApi.injectEndpoints({
     // Endpoint for updating order tracking
     updateOrderTracking: builder.mutation<
       ApiOrder,
-      { orderId: string; data: Partial<ApiOrder> }
+      { orderId: string; data: { stage: string; message: string } }
     >({
-      query: ({ orderId, data }) => ({
-        url: `/orders/track/${orderId}`,
-        method: "PATCH",
-        body: data,
-      }),
+      query: ({ orderId, data }) => {
+        // Ensure exact URL format matches the confirmed API endpoint
+        const url = `http://localhost:5000/api/orders/${orderId}/tracking`;
+        console.log('RTK Query making request to:', url);
+        console.log('With data:', data);
+        
+        // Get the token from the Redux store
+        // Note: The baseApi already handles this in prepareHeaders, but we're being explicit
+        return {
+          url,
+          method: "PATCH",
+          body: data,
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        };
+      },
+      async onQueryStarted(_, { queryFulfilled }) {
+        try {
+          const result = await queryFulfilled;
+          console.log('Order tracking update success:', result);
+        } catch (error) {
+          console.error('Order tracking update failed:', error);
+        }
+      },
       transformResponse: (response: { data: ApiOrder }) => {
+        console.log('Tracking update response:', response);
         return response?.data;
       },
     }),
