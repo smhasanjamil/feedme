@@ -9,11 +9,25 @@ type UpdateUserResponse = {
   data: DashboardUserData;
 };
 
+
+
 type DeleteUserResponse = {
   status: boolean;
   statusCode: number;
   message: string;
 };
+
+export type SingleUser = {
+  _id: string;
+  name: string;
+  email: string;
+  role: "admin" | "provider" | "customer";
+  isBlocked: boolean;
+  createdAt: string;
+  updatedAt: string;
+  password: string;
+}
+
 
 const userApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -27,11 +41,23 @@ const userApi = baseApi.injectEndpoints({
       providesTags: ["User"],
     }),
 
+    getUserById: builder.query<SingleUser, string>({
+      query: (id) => `user/${id}`,
+      transformResponse: (response: { data: SingleUser }) => response.data,
+    }),
+
+    updateSingleUser: builder.mutation<UpdateUserResponse, Partial<SingleUser>>({
+      query: (updatedUser) => ({
+        url: `user/update/${updatedUser._id}`,  // Full endpoint with dynamic ID
+        method: 'PATCH',
+        body: updatedUser,
+      }),
+    }),
+
+    // Dashboard user update
     updateUser: builder.mutation<
-      //   DashboardUserData,
-      //   { id: string; data: Partial<DashboardUserData> }
-      // >({
-      UpdateUserResponse, // ✅ Change this
+    
+      UpdateUserResponse, 
       { id: string; data: Partial<DashboardUserData> }
     >({
       query: ({ id, data }) => ({
@@ -59,4 +85,6 @@ export const {
   useGetAllUsersQuery,
   useUpdateUserMutation,
   useDeleteUserMutation,
+  useGetUserByIdQuery,
+  useUpdateSingleUserMutation,
 } = userApi;

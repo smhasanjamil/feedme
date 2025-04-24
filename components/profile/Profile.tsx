@@ -1,30 +1,87 @@
 "use client";
 
-import { currentUser } from "@/redux/features/auth/authSlice";
-import { useAppSelector } from "@/redux/hooks";
-import { useEffect, useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
-import { Ban, Edit, LocateIcon, Mail, Phone, Shield, User } from "lucide-react";
+import {
+  Ban,
+  Edit,
+  LocateIcon,
+  Lock,
+  Mail,
+  Phone,
+  Shield,
+  User,
+} from "lucide-react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { useAppSelector } from "@/redux/hooks";
+import { currentUser } from "@/redux/features/auth/authSlice";
+import {
+  useGetUserByIdQuery,
+  useUpdateSingleUserMutation,
+} from "@/redux/features/user/userApi";
+import { toast } from "sonner";
+import { useState } from "react";
+
+type ErrorResponse = {
+  data?: {
+    message?: string;
+  };
+};
 
 const Profile = () => {
-  const userFromStore = useAppSelector(currentUser);
-  const [user, setUser] = useState<typeof userFromStore | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Only set user after the component mounts on the client
-  useEffect(() => {
-    setUser(userFromStore);
-  }, [userFromStore]);
+  const idFromStore = useAppSelector(currentUser);
+  const userId = idFromStore?.id;
 
-  // If the user is not yet available (i.e. during hydration), return null or a loader
-  if (!user) {
-    return (
-      <div className="text-muted-foreground p-6 text-center">
-        Loading profile...
-      </div>
-    );
+  const {
+    data: user,
+    isLoading,
+    refetch,
+  } = useGetUserByIdQuery(userId as string);
+
+  const [updateUser] = useUpdateSingleUserMutation();
+
+  // Handle Profile Update
+  const handleProfileUpdate = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const name = (form.elements.namedItem("name") as HTMLInputElement).value;
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+    const password = (form.elements.namedItem("password") as HTMLInputElement)
+      .value;
+    // const data = { name, email,password };
+
+    const updatePayload = { _id: userId, name, email, password };
+
+    try {
+      const res = await updateUser(updatePayload).unwrap();
+      if (res.status) {
+        console.log(res);
+        toast.success(res.message);
+        refetch();
+        setIsDialogOpen(false);
+      }
+    } catch (err) {
+      const errorMessage =
+        (err as ErrorResponse)?.data?.message || "Failed to update profile.";
+      toast.error(errorMessage);
+    }
+  };
+  if (isLoading) {
+    return <p className="text-blue-500">Loading profile...</p>;
   }
   return (
     <div className="flex flex-col gap-6">
@@ -47,9 +104,70 @@ const Profile = () => {
         <CardContent>
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-xl font-semibold">User Information</h3>
-            <Button className="rounded-full bg-red-600">
+            {/* <Button className="rounded-full bg-red-600">
               <Edit /> Edit
-            </Button>
+            </Button> */}
+
+            {/* Dialog start here */}
+
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="rounded-full bg-red-600">
+                  <Edit /> Edit
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Edit profile</DialogTitle>
+                  <DialogDescription>
+                    Make changes to your profile here. Click save when
+                    you&#39;re done.
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleProfileUpdate}>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="name" className="text-right">
+                        Name
+                      </Label>
+                      <Input
+                        type="text"
+                        id="name"
+                        defaultValue={user?.name}
+                        className="col-span-3"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="email" className="text-right">
+                        Email
+                      </Label>
+                      <Input
+                        type="email"
+                        id="email"
+                        defaultValue={user?.email}
+                        className="col-span-3"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="password" className="text-right">
+                        Password
+                      </Label>
+                      <Input
+                        type="password"
+                        id="password"
+                        placeholder="Enter your current password"
+                        className="col-span-3"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit">Save changes</Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+
+            {/* Dialog end here */}
           </div>
           <div className="flex flex-col items-center gap-6 md:flex-row md:items-start md:justify-between">
             <div className="w-full md:w-1/2">
@@ -115,6 +233,7 @@ const Profile = () => {
           <div className="mb-4">
             <h3 className="text-xl font-semibold">Account Status</h3>
           </div>
+
           <div className="flex flex-row gap-2 py-4">
             <div>
               <Ban size={20} className="text-muted-foreground pt-1" />
@@ -169,6 +288,11 @@ const Profile = () => {
                   placeholder="Confirm New Password"
                   autoComplete="new-password"
                 />
+              </div>
+              <div className="pt-2">
+                <Button type="submit" className="bg-red-600">
+                  <Lock /> Update Password
+                </Button>
               </div>
             </div>
           </form>
