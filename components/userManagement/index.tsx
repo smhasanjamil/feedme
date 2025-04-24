@@ -57,6 +57,7 @@ export default function UserManagementTable() {
 
     const form = event.currentTarget;
     const name = (form.elements.namedItem("name") as HTMLInputElement).value;
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
     const role = (form.elements.namedItem("role") as HTMLInputElement).value;
 
     const validRoles: DashboardUserData["role"][] = [
@@ -84,6 +85,7 @@ export default function UserManagementTable() {
 
     const updatedData = {
       name,
+      email,
       role: role as DashboardUserData["role"],
       isBlocked,
       id,
@@ -144,6 +146,17 @@ export default function UserManagementTable() {
                     id="name"
                     name="name"
                     defaultValue={selectedUser.name}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="email" className="text-right">
+                    Email
+                  </Label>
+                  <Input
+                  type="email"
+                    id="email"
+                    defaultValue={selectedUser.email}
                     className="col-span-3"
                   />
                 </div>
