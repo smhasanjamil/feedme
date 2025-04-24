@@ -1,12 +1,13 @@
 "use client";
 import {
   Package2,
-  //   ShoppingCart,
+  ShoppingCart,
   Users,
   LogOut,
   LayoutDashboard,
   User,
   ListOrderedIcon,
+  Search,
 } from "lucide-react";
 
 import {
@@ -25,14 +26,24 @@ const menuItems = [
   { name: "Dashboard", path: "/dashboard", icon: <LayoutDashboard /> },
   { name: "Manage Users", path: "/dashboard/manage-users", icon: <Users /> },
   {
-    name: "Manage Products",
-    path: "/dashboard/manage-products",
+    name: "Manage Meals",
+    path: "/dashboard/manage-meals",
     icon: <Package2 />,
   },
   {
     name: "Manage Orders",
     path: "/dashboard/manage-orders",
     icon: <ListOrderedIcon />,
+  },
+  {
+    name: "My Orders",
+    path: "/dashboard/my-orders",
+    icon: <ShoppingCart />,
+  },
+  {
+    name: "Track Order",
+    path: "/dashboard/track-order",
+    icon: <Search />,
   },
   { name: "Profile", path: "/dashboard/profile", icon: <User /> },
 ];

@@ -62,8 +62,8 @@ interface CartItemProps {
 
 const CartItem = ({ item, removeItem, updateQuantity }: CartItemProps) => {
   // Fetch meal details to get the image if it's not in the cart item
-  const { data: mealData } = useGetMealByIdQuery(item.mealId, {
-    skip: !!item.imageUrl // Skip if we already have an image URL
+  const { data: mealData } = useGetMealByIdQuery({ id: item.mealId }, {
+    skip: !item.mealId
   });
   
   // Display the item ID for debugging purposes
@@ -219,7 +219,14 @@ const CartPage = () => {
   }, [user, router]);
 
   const handleCheckout = () => {
-    router.push('/checkout');
+    if (cart?.length > 0) {
+      const firstItem = cart[0];
+      // Use window.location.href for immediate navigation without showing empty cart
+      window.location.href = `/checkout/${firstItem.mealId}`;
+    } else {
+      // Use window.location.href for direct navigation without router transition
+      window.location.href = '/checkout';
+    }
   };
 
   const handleContinueShopping = () => {

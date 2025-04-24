@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useSignInMutation } from "@/redux/features/auth/authApi";
 import { useAppDispatch } from "@/redux/hooks";
 import { setUser } from "@/redux/features/auth/authSlice";
-import { toast } from "sonner";
+import { toast } from "react-hot-toast";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -15,8 +15,13 @@ type SignInFormData = {
   password: string;
 };
 
-type ErrorData = {
+type BackendErrorResponse = {
   message?: string;
+  errorSources?: Array<{
+    path?: string;
+    message?: string;
+  }>;
+  success?: boolean;
   status?: boolean;
   error?: string;
 };
@@ -44,10 +49,19 @@ export default function SignIn() {
       if ("error" in response) {
         const errorResponse = response.error;
         if (errorResponse && "data" in errorResponse && errorResponse.data) {
-          const errorData = errorResponse.data as ErrorData;
-          toast.error(errorData.message || "Login failed. Please try again.");
-        } else {
-          toast.error("Login failed. Please try again.");
+          const errorData = errorResponse.data as BackendErrorResponse;
+          
+          // Check for error message in errorSources array
+          if (errorData.errorSources && 
+              Array.isArray(errorData.errorSources) && 
+              errorData.errorSources.length > 0 && 
+              errorData.errorSources[0].message) {
+            toast.error(errorData.errorSources[0].message);
+          } 
+          // Fallback to general message if available
+          else if (errorData.message) {
+            toast.error(errorData.message);
+          }
         }
         setIsLoading(false);
         return;
@@ -61,21 +75,25 @@ export default function SignIn() {
           }
 
           dispatch(setUser(responseData));
-          toast.success(responseData.message || "Login successful", {
-            duration: 1000,
-          });
+          if (responseData.message) {
+            toast.success(responseData.message);
+          }
 
           router.push("/");
           router.refresh();
           setIsLoading(false);
-        } else {
-          toast.error(responseData.message || "Login failed.");
+        } else if (responseData.message) {
+          toast.error(responseData.message);
           setIsLoading(false);
         }
       }
     } catch (error) {
       console.error("Login error:", error);
-      toast.error("An unexpected error occurred. Please try again.");
+      // No toast for unexpected errors unless there's a message from the backend
+      if (error && typeof error === 'object' && 'message' in error) {
+        const errorMessage = (error as { message: string }).message;
+        toast.error(errorMessage);
+      }
       setIsLoading(false);
     }
   };

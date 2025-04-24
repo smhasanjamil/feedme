@@ -6,6 +6,8 @@ interface User {
   id: string; // API returns 'id', not '_id'
   name: string;
   email: string;
+  phone: string;
+  address: string;
   role: string;
   isBlocked?: boolean;
   createdAt?: string;
