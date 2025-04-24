@@ -70,6 +70,19 @@ const userApi = baseApi.injectEndpoints({
       invalidatesTags: ["User"],
     }),
 
+    // New change password endpoint
+    changePassword: builder.mutation<
+      { status: boolean; statusCode: number; message: string },
+      { userId: string; currentPassword: string; newPassword: string }
+    >({
+      query: ({ userId, currentPassword, newPassword }) => ({
+        url: `/user/change-password/${userId}`,
+        method: "PATCH",
+        body: { currentPassword, newPassword },
+      }),
+    }),
+
+    // Delete user
     deleteUser: builder.mutation<
       DeleteUserResponse,
       string // the user ID
@@ -89,4 +102,5 @@ export const {
   useDeleteUserMutation,
   useGetUserByIdQuery,
   useUpdateSingleUserMutation,
+  useChangePasswordMutation
 } = userApi;

@@ -2,6 +2,8 @@
 
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import {
   Ban,
   Edit,
@@ -26,11 +28,22 @@ import {
 import { useAppSelector } from "@/redux/hooks";
 import { currentUser } from "@/redux/features/auth/authSlice";
 import {
+  useChangePasswordMutation,
   useGetUserByIdQuery,
   useUpdateSingleUserMutation,
 } from "@/redux/features/user/userApi";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
+import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+import { passwordSchema } from "./passwordChangeValidation";
 
 type ErrorResponse = {
   data?: {
@@ -40,16 +53,17 @@ type ErrorResponse = {
 
 const Profile = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [changePassword, { isLoading: isUpdatingPassword }] =
+    useChangePasswordMutation();
 
   const idFromStore = useAppSelector(currentUser);
-  const userId = idFromStore?.id;
+  const userId = idFromStore?.id as string;
 
   const {
     data: user,
     isLoading,
     refetch,
   } = useGetUserByIdQuery(userId as string);
-
 
   const [updateUser] = useUpdateSingleUserMutation();
 
@@ -91,6 +105,41 @@ const Profile = () => {
       toast.error(errorMessage);
     }
   };
+
+  // Update password
+  const form = useForm({
+    resolver: zodResolver(passwordSchema),
+  });
+
+  const newPassword = form.watch("newPassword");
+  const passwordConfirm = form.watch("passwordConfirm");
+
+  const {
+    formState: { isSubmitting },
+  } = form;
+
+  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+    const { currentPassword, newPassword } = data;
+
+    try {
+      const res = await changePassword({
+        userId,
+        currentPassword,
+        newPassword,
+      }).unwrap();
+
+      toast.success(res.message || "Password updated successfully!");
+      form.reset({
+        currentPassword: "",
+        newPassword: "",
+        passwordConfirm: "",
+      });
+    } catch (err) {
+      const error = err as ErrorResponse;
+      toast.error(error?.data?.message || "Failed to update password");
+    }
+  };
+
   if (isLoading) {
     return <p className="text-blue-500">Loading profile...</p>;
   }
@@ -123,7 +172,7 @@ const Profile = () => {
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="rounded-full bg-red-600">
+                <Button className="rounded-full bg-red-500 hover:bg-red-600">
                   <Edit /> Edit
                 </Button>
               </DialogTrigger>
@@ -284,51 +333,81 @@ const Profile = () => {
           <div className="mb-4">
             <h3 className="text-xl font-semibold">Change Password</h3>
           </div>
-          <form>
-            <div className="py-4">
-              <div className="py-2">
-                <Label htmlFor="currentPassword" className="pb-2">
-                  Current Password
-                </Label>
-                <Input
-                  type="password"
-                  id="currentPassword"
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <div className="flex flex-col gap-3">
+                <FormField
+                  control={form.control}
                   name="currentPassword"
-                  placeholder="Enter Current Password"
-                  autoComplete="current-password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Current Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="Enter Your Current Password"
+                          {...field}
+                          value={field.value || ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-              <div className="py-2">
-                <Label htmlFor="newPassword" className="pb-2">
-                  New Password
-                </Label>
-                <Input
-                  type="password"
-                  id="newPassword"
+                <FormField
+                  control={form.control}
                   name="newPassword"
-                  placeholder="Enter New Password"
-                  autoComplete="new-password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>New Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="Enter Your New Password"
+                          {...field}
+                          value={field.value || ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-              <div className="py-2">
-                <Label htmlFor="confirmPassword" className="pb-2">
-                  Confirm New Password
-                </Label>
-                <Input
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  placeholder="Confirm New Password"
-                  autoComplete="new-password"
+                <FormField
+                  control={form.control}
+                  name="passwordConfirm"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirm Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="Confirm your Password"
+                          {...field}
+                          value={field.value || ""}
+                        />
+                      </FormControl>
+                      {passwordConfirm && newPassword !== passwordConfirm ? (
+                        <FormMessage> Password does not match </FormMessage>
+                      ) : (
+                        <FormMessage />
+                      )}
+                    </FormItem>
+                  )}
                 />
-              </div>
-              <div className="pt-2">
-                <Button type="submit" className="bg-red-600">
-                  <Lock /> Update Password
+
+                <Button
+                  type="submit"
+                  className="w-fit bg-red-500 hover:bg-red-600"
+                  disabled={isSubmitting || isUpdatingPassword}
+                >
+                  <Lock />
+                  {isSubmitting || isUpdatingPassword
+                    ? "Updating..."
+                    : "Update Password"}
                 </Button>
               </div>
-            </div>
-          </form>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>
