@@ -396,21 +396,87 @@ export default function EditMealPage() {
               />
             </div>
 
-            <div className="grid gap-1">
-              <Label>AddOns (format: name:price)</Label>
-              <Input
-                placeholder="e.g. Extra Cheese:2, Fries:3"
-                value={mealData.customizationOptions.addOns
-                  .map((addOn) => `${addOn.name}:${addOn.price}`)
-                  .join(", ")}
-                onChange={(e) => {
-                  const addOns = e.target.value.split(",").map((entry) => {
-                    const [name, price] = entry.split(":");
-                    return { name: name.trim(), price: parseFloat(price) };
-                  });
-                  handleNestedChange("customizationOptions", "addOns", addOns);
+            <div className="grid gap-2">
+              <Label className="text-sm font-medium">AddOns</Label>
+              <p className="text-muted-foreground -mt-1 mb-2 text-xs">
+                Add add-ons with name and price (e.g., Extra Cheese - 2)
+              </p>
+
+              {mealData.customizationOptions.addOns.map((addOn, index) => (
+                <div key={index} className="grid grid-cols-12 items-end gap-2">
+                  <div className="col-span-5">
+                    <Label className="text-sm">Name</Label>
+                    <Input
+                      placeholder="e.g. Extra Cheese"
+                      value={addOn.name}
+                      onChange={(e) => {
+                        const updated = [
+                          ...mealData.customizationOptions.addOns,
+                        ];
+                        updated[index].name = e.target.value;
+                        handleNestedChange(
+                          "customizationOptions",
+                          "addOns",
+                          updated,
+                        );
+                      }}
+                    />
+                  </div>
+                  <div className="col-span-4">
+                    <Label className="text-sm">Price</Label>
+                    <Input
+                      type="number"
+                      placeholder="e.g. 2"
+                      value={addOn.price}
+                      onChange={(e) => {
+                        const updated = [
+                          ...mealData.customizationOptions.addOns,
+                        ];
+                        updated[index].price = parseFloat(e.target.value) || 0;
+                        handleNestedChange(
+                          "customizationOptions",
+                          "addOns",
+                          updated,
+                        );
+                      }}
+                    />
+                  </div>
+                  <div className="col-span-3 flex items-end">
+                    <Button
+                      variant="destructive"
+                      type="button"
+                      className="w-full"
+                      onClick={() => {
+                        const updated =
+                          mealData.customizationOptions.addOns.filter(
+                            (_, i) => i !== index,
+                          );
+                        handleNestedChange(
+                          "customizationOptions",
+                          "addOns",
+                          updated,
+                        );
+                      }}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </div>
+              ))}
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  const updated = [
+                    ...mealData.customizationOptions.addOns,
+                    { name: "", price: 0 },
+                  ];
+                  handleNestedChange("customizationOptions", "addOns", updated);
                 }}
-              />
+              >
+                + Add AddOn
+              </Button>
             </div>
 
             <div className="flex items-center gap-2">
