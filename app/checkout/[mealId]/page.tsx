@@ -67,7 +67,7 @@ export default function CheckoutPage({ params }: PageProps) {
   const user = useAppSelector(currentUser);
   //console.log(user)
   const cartItems = useAppSelector((state) => state.cart.items) as CartItemType[];
-  const { data: mealData, isLoading: isMealLoading, error: mealError } = useGetMealByIdQuery(mealId);
+  const { data: mealData, isLoading: isMealLoading, error: mealError } = useGetMealByIdQuery({ id: mealId });
   
   const [createOrderFromCart] = useCreateOrderFromCartMutation();
   

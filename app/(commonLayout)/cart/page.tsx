@@ -62,8 +62,8 @@ interface CartItemProps {
 
 const CartItem = ({ item, removeItem, updateQuantity }: CartItemProps) => {
   // Fetch meal details to get the image if it's not in the cart item
-  const { data: mealData } = useGetMealByIdQuery(item.mealId, {
-    skip: !!item.imageUrl // Skip if we already have an image URL
+  const { data: mealData } = useGetMealByIdQuery({ id: item.mealId }, {
+    skip: !item.mealId
   });
   
   // Display the item ID for debugging purposes

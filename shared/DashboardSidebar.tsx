@@ -26,8 +26,8 @@ const menuItems = [
   { name: "Dashboard", path: "/dashboard", icon: <LayoutDashboard /> },
   { name: "Manage Users", path: "/dashboard/manage-users", icon: <Users /> },
   {
-    name: "Manage Products",
-    path: "/dashboard/manage-products",
+    name: "Manage Meals",
+    path: "/dashboard/manage-meals",
     icon: <Package2 />,
   },
   {

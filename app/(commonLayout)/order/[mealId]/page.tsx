@@ -97,7 +97,7 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
   const { mealId } = use(params);
   const user = useAppSelector(currentUser);
   
-  const { data: mealData, isLoading, isError } = useGetMealByIdQuery(mealId);
+  const { data: mealData, isLoading, isError } = useGetMealByIdQuery({ id: mealId });
   const meal = mealData?.data;
 
   const [quantity, setQuantity] = useState(1);
