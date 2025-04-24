@@ -19,7 +19,8 @@ import {
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
+// import { toast } from "sonner";
 
 export default function UserManagementTable() {
   const [updateUser] = useUpdateUserMutation();

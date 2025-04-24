@@ -29,8 +29,8 @@ import {
   useGetUserByIdQuery,
   useUpdateSingleUserMutation,
 } from "@/redux/features/user/userApi";
-import { toast } from "sonner";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 type ErrorResponse = {
   data?: {
@@ -50,6 +50,7 @@ const Profile = () => {
     refetch,
   } = useGetUserByIdQuery(userId as string);
 
+
   const [updateUser] = useUpdateSingleUserMutation();
 
   // Handle Profile Update
@@ -60,11 +61,21 @@ const Profile = () => {
     const form = event.currentTarget;
     const name = (form.elements.namedItem("name") as HTMLInputElement).value;
     const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+    const phone = (form.elements.namedItem("phone") as HTMLInputElement).value;
+    const address = (form.elements.namedItem("address") as HTMLInputElement)
+      .value;
     const password = (form.elements.namedItem("password") as HTMLInputElement)
       .value;
     // const data = { name, email,password };
 
-    const updatePayload = { _id: userId, name, email, password };
+    const updatePayload = {
+      _id: userId,
+      name,
+      email,
+      phone,
+      address,
+      password,
+    };
 
     try {
       const res = await updateUser(updatePayload).unwrap();
@@ -149,6 +160,28 @@ const Profile = () => {
                       />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="phone" className="text-right">
+                        Phone
+                      </Label>
+                      <Input
+                        type="text"
+                        id="phone"
+                        defaultValue={user?.phone}
+                        className="col-span-3"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="address" className="text-right">
+                        Address
+                      </Label>
+                      <Input
+                        type="text"
+                        id="address"
+                        defaultValue={user?.address}
+                        className="col-span-3"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="password" className="text-right">
                         Password
                       </Label>
@@ -208,7 +241,7 @@ const Profile = () => {
                   <div className="text-muted-foreground text-md">
                     Phone Number
                   </div>
-                  <div>0178965666666</div>
+                  <div>{user?.phone}</div>
                 </div>
               </div>
               <div className="flex flex-row gap-2 py-4">
@@ -220,7 +253,7 @@ const Profile = () => {
                 </div>
                 <div className="flex flex-col gap-1">
                   <div className="text-muted-foreground text-md">Address</div>
-                  <div>Khulna, Bangladesh</div>
+                  <div>{user?.address}</div>
                 </div>
               </div>
             </div>

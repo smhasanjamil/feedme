@@ -12,7 +12,7 @@ import { useDeleteProductMutation } from "@/redux/meal/mealApi";
 import { Trash2 } from "lucide-react";
 
 import React from "react";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 
 interface AddOn {
   name: string;
