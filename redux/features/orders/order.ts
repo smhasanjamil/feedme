@@ -264,6 +264,16 @@ const orderApi = baseApi.injectEndpoints({
         url: `/orders/${orderId}`,
         method: "DELETE",
       }),
+      async onQueryStarted(orderId, { queryFulfilled }) {
+        try {
+          console.log(`Deleting order with id: ${orderId}`);
+          await queryFulfilled;
+          console.log('Order deleted successfully');
+        } catch {
+          // Avoid logging the full error object which might be circular
+          console.error(`Delete operation failed, but the order might still be deleted. OrderId: ${orderId}`);
+        }
+      },
       transformResponse: (response: { success: boolean }) => {
         return response;
       },

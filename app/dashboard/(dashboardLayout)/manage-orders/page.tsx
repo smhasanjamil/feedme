@@ -24,7 +24,8 @@ import {
   PlusCircle,
   MinusCircle,
   Flame,
-  RefreshCw
+  RefreshCw,
+  Trash2
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -56,6 +57,19 @@ export default function ManageOrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState({ type: "", title: "", message: "" });
+  
+  // Function to display toast notification
+  const displayToast = (type: "success" | "error", title: string, message: string) => {
+    setToastMessage({ type, title, message });
+    setShowToast(true);
+    
+    // Auto hide toast after 3 seconds
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
+  };
   
   useEffect(() => {
     setMounted(true);
@@ -244,16 +258,179 @@ export default function ManageOrdersPage() {
 
   const handleDeleteOrder = async (orderId: string) => {
     try {
-      await deleteOrder(orderId).unwrap();
+      console.log(`Attempting to delete order with ID: ${orderId}`);
       
-      setStatusMessage("Order has been deleted successfully");
-      setTimeout(() => setStatusMessage(""), 3000);
+      // Check if user is logged in and has an ID
+      if (!providerId) {
+        console.error('Cannot delete order: Provider ID is missing');
+        setStatusMessage("❌ Authentication required. Please log in.");
+        displayToast("error", "Authentication Required", "Please log in to delete orders.");
+        setTimeout(() => setStatusMessage(""), 3000);
+        return;
+      }
+
+      // Check for authentication token
+      if (!token) {
+        console.error('Cannot delete order: Authentication token is missing');
+        setStatusMessage("❌ Authentication required. Please log in again.");
+        displayToast("error", "Authentication Required", "Your session has expired. Please log in again.");
+        setTimeout(() => setStatusMessage(""), 3000);
+        return;
+      }
       
-      refetch();
-    } catch (err) {
-      console.error('Error deleting order:', err);
-      setStatusMessage("Could not delete the order");
-      setTimeout(() => setStatusMessage(""), 3000);
+      let deleteSuccessful = false;
+      
+      // First try RTK Query approach
+      try {
+        console.log("Trying RTK Query delete approach");
+        const result = await deleteOrder(orderId).unwrap();
+        
+        if (result && result.success === true) {
+          console.log("RTK Query delete successful");
+          setStatusMessage("✅ Order has been deleted successfully");
+          deleteSuccessful = true;
+          await refetch();
+          
+          // Show toast notification
+          displayToast("success", "Order Deleted", "The order has been successfully deleted.");
+          
+          setTimeout(() => setStatusMessage(""), 3000);
+          return; // Exit early - do not try the fallback approach
+        } else {
+          console.log("RTK Query delete returned unsuccessful result:", result);
+        }
+      } catch (rtqError) {
+        console.log('RTK Query delete attempt failed, error:', rtqError);
+        // Check if the error contains a message about "not found" which could indicate
+        // the order was already deleted
+        if (rtqError && typeof rtqError === 'object' && 
+            ('message' in rtqError || 'data' in rtqError)) {
+          const errorMsg = (rtqError as { message?: string; data?: { message?: string } }).message || 
+                         ((rtqError as { data?: { message?: string } }).data && (rtqError as { data?: { message?: string } }).data?.message);
+          
+          if (errorMsg && typeof errorMsg === 'string' && 
+              errorMsg.toLowerCase().includes('not found')) {
+            console.log("Order was already deleted or doesn't exist");
+            setStatusMessage("✅ Order has been deleted successfully");
+            deleteSuccessful = true;
+            await refetch();
+            
+            // Show toast notification
+            displayToast("success", "Order Deleted", "The order has been successfully deleted.");
+            
+            setTimeout(() => setStatusMessage(""), 3000);
+            return; // Exit early if the order wasn't found (likely already deleted)
+          }
+        }
+        // Otherwise continue to fallback approach
+      }
+      
+      // Only try the direct fetch approach if RTK Query approach failed
+      // and it wasn't because the order was already deleted
+      if (!deleteSuccessful) {
+        try {
+          console.log("Trying direct fetch delete approach");
+          const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/orders/${orderId}`;
+          console.log('Making direct API call to:', apiUrl);
+          
+          const directResponse = await fetch(apiUrl, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'Authorization': token
+            },
+            credentials: 'include',
+          });
+          
+          console.log('Response status:', directResponse.status);
+          
+          // Handle 404 Not Found as a success case (the order is already gone)
+          if (directResponse.status === 404) {
+            console.log("Order not found - already deleted or doesn't exist");
+            setStatusMessage("✅ Order has been deleted successfully");
+            await refetch();
+            
+            // Show toast notification
+            displayToast("success", "Order Deleted", "The order has been successfully deleted.");
+            
+            setTimeout(() => setStatusMessage(""), 3000);
+            return;
+          }
+          
+          if (!directResponse.ok) {
+            const errorText = await directResponse.text();
+            console.log('Direct fetch error text:', errorText);
+            
+            try {
+              const errorData = JSON.parse(errorText);
+              console.log('Direct fetch error data:', errorData);
+              
+              // Check if the error is "Order not found" which is actually a success
+              if (errorData && errorData.message && 
+                  errorData.message.toLowerCase().includes('not found')) {
+                console.log("Order was already deleted or doesn't exist");
+                setStatusMessage("✅ Order has been deleted successfully");
+                await refetch();
+                
+                // Show toast notification
+                displayToast("success", "Order Deleted", "The order has been successfully deleted.");
+                
+                setTimeout(() => setStatusMessage(""), 3000);
+                return;
+              }
+              
+              throw new Error(`API error: ${errorData.message || directResponse.statusText}`);
+            } catch (e) {
+              if (e instanceof Error && e.message.includes('API error:')) {
+                throw e; // Re-throw our custom error
+              }
+              throw new Error(`API error (${directResponse.status}): ${errorText || directResponse.statusText}`);
+            }
+          }
+          
+          const responseData = await directResponse.json();
+          console.log('Direct fetch successful:', responseData);
+          
+          setStatusMessage("✅ Order has been deleted successfully");
+          await refetch();
+          
+          // Show toast notification
+          displayToast("success", "Order Deleted", "The order has been successfully deleted.");
+          
+          setTimeout(() => setStatusMessage(""), 3000);
+        } catch (fetchErr) {
+          console.error('All delete attempts failed:', fetchErr);
+          throw fetchErr; // Re-throw to be caught by outer handler
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting order:', error);
+      
+      let errorMsg = "Could not delete the order";
+      if (error && typeof error === 'object' && 'data' in error) {
+        // Try to extract error message from RTK Query error
+        errorMsg = `Deletion failed: ${(error.data as { message?: string })?.message || 'Unknown error'}`;
+      } else if (error instanceof Error) {
+        errorMsg = `Deletion failed: ${error.message}`;
+      }
+      
+      // Check if error indicates order was not found (which means it's already deleted)
+      if (typeof errorMsg === 'string' && errorMsg.toLowerCase().includes('not found')) {
+        setStatusMessage("✅ Order has been deleted successfully");
+        await refetch();
+        
+        // Show toast notification for "not found" case
+        displayToast("success", "Order Deleted", "The order has been successfully deleted.");
+      } else {
+        // Show highlighted error message
+        setStatusMessage(`❌ ${errorMsg}`);
+        
+        // Show error toast
+        displayToast("error", "Deletion Failed", errorMsg);
+      }
+      
+      setTimeout(() => setStatusMessage(""), 5000);
     }
   };
 
@@ -338,6 +515,36 @@ export default function ManageOrdersPage() {
 
   return (
     <div className="space-y-4">
+      {/* Toast notification */}
+      {showToast && (
+        <div className={`fixed top-4 right-4 z-50 max-w-md rounded-lg p-4 shadow-lg ${
+          toastMessage.type === "success" ? "bg-green-50 text-green-800 border border-green-200" : 
+          "bg-red-50 text-red-800 border border-red-200"
+        }`}>
+          <div className="flex items-center">
+            <div className={`mr-3 flex-shrink-0 rounded-full p-1.5 ${
+              toastMessage.type === "success" ? "bg-green-100" : "bg-red-100"
+            }`}>
+              {toastMessage.type === "success" ? (
+                <Trash2 className="h-5 w-5" />
+              ) : (
+                <X className="h-5 w-5" />
+              )}
+            </div>
+            <div>
+              <h3 className="text-sm font-medium">{toastMessage.title}</h3>
+              <p className="mt-1 text-sm">{toastMessage.message}</p>
+            </div>
+            <button 
+              onClick={() => setShowToast(false)}
+              className="ml-auto rounded-md p-1.5 hover:bg-opacity-20 hover:bg-gray-500"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       <div>
         <h1 className="text-xl font-bold">Orders Management</h1>
         <p className="text-xs text-gray-500">
