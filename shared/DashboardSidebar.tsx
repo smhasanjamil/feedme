@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   User,
   ListOrderedIcon,
+  Search,
 } from "lucide-react";
 
 import {
@@ -38,6 +39,11 @@ const menuItems = [
     name: "My Orders",
     path: "/dashboard/my-orders",
     icon: <ShoppingCart />,
+  },
+  {
+    name: "Track Order",
+    path: "/dashboard/track-order",
+    icon: <Search />,
   },
   { name: "Profile", path: "/dashboard/profile", icon: <User /> },
 ];
