@@ -1,7 +1,7 @@
 "use client";
 import {
   Package2,
-  //   ShoppingCart,
+  ShoppingCart,
   Users,
   LogOut,
   LayoutDashboard,
@@ -33,6 +33,11 @@ const menuItems = [
     name: "Manage Orders",
     path: "/dashboard/manage-orders",
     icon: <ListOrderedIcon />,
+  },
+  {
+    name: "My Orders",
+    path: "/dashboard/my-orders",
+    icon: <ShoppingCart />,
   },
   { name: "Profile", path: "/dashboard/profile", icon: <User /> },
 ];

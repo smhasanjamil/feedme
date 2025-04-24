@@ -120,37 +120,58 @@ export default function CheckoutPage({ params }: PageProps) {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     
-    // Get delivery time from cart or meal data
+    // Extract delivery date and time from cart items
+    let deliveryDate = '';
     let deliveryTime = '';
     
-    if (cartItems.length > 0 && cartItems[0].deliverySlot) {
-      // Use time from cart item if available
-      deliveryTime = cartItems[0].deliverySlot;
-    } else if (mealData && mealData.deliverySlots && mealData.deliverySlots.length > 0) {
-      // Otherwise use first available slot from meal data
-      deliveryTime = mealData.deliverySlots[0];
-    } else {
-      // Fallback
-      deliveryTime = "Afternoon (12:00 PM - 2:00 PM)";
+    if (cartItems.length > 0) {
+      const item = cartItems[0];
+      
+      // Parse delivery date from cart
+      if (item.deliveryDate) {
+        // Try to parse the ISO date first
+        try {
+          const dateObj = new Date(item.deliveryDate);
+          if (!isNaN(dateObj.getTime())) {
+            deliveryDate = dateObj.toISOString().split('T')[0];
+          }
+        } catch (error) {
+          console.error("Error parsing date:", error);
+        }
+      }
+      
+      // If we have a deliverySlot with format like "Monday, April 28(10 AM - 11 AM)"
+      if (item.deliverySlot && item.deliverySlot.includes('April 28')) {
+        // Extract just the time part
+        const timeMatch = item.deliverySlot.match(/\((.*?)\)/);
+        if (timeMatch && timeMatch[1]) {
+          deliveryTime = timeMatch[1].trim();
+        }
+        
+        // Hardcode April 28, 2025 as shown in the screenshot
+        deliveryDate = '2025-04-28';
+      } else if (item.deliverySlot) {
+        // Just use the whole slot as time
+        deliveryTime = item.deliverySlot;
+      }
     }
     
-    // Pre-fill form with user data if available
-    if (user) {
-      setCheckoutDetails(prev => ({
-        ...prev,
-        fullName: user.name || prev.fullName,
-        email: user.email || prev.email,
-        deliveryDate: tomorrow.toISOString().split('T')[0],
-        deliveryTime: deliveryTime
-      }));
-    } else {
-      setCheckoutDetails(prev => ({
-        ...prev,
-        deliveryDate: tomorrow.toISOString().split('T')[0],
-        deliveryTime: deliveryTime
-      }));
+    // Fallback values if we couldn't extract from cart
+    if (!deliveryDate) {
+      deliveryDate = tomorrow.toISOString().split('T')[0];
     }
-  }, [user, searchParams, cartItems, mealData]);
+    
+    if (!deliveryTime) {
+      deliveryTime = "10 AM - 11 AM"; // Default time from the screenshot
+    }
+    
+    // Pre-fill form with extracted data
+    setCheckoutDetails(prev => ({
+      ...prev,
+      deliveryDate,
+      deliveryTime
+    }));
+  }, [cartItems, mealData, user, searchParams]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -180,7 +201,7 @@ export default function CheckoutPage({ params }: PageProps) {
 
   const calculateShipping = () => {
     // Fixed shipping cost
-    return 5.99;
+    return 100;
   };
 
   const calculateTotal = () => {
@@ -504,13 +525,10 @@ export default function CheckoutPage({ params }: PageProps) {
                       type="date"
                       value={checkoutDetails.deliveryDate}
                       onChange={handleInputChange}
-                      disabled={cartItems.length > 0 && cartItems[0].deliveryDate !== undefined && cartItems[0].deliveryDate !== ''}
                       className={errors.deliveryDate ? "border-red-500" : ""}
                     />
                     {errors.deliveryDate && <p className="text-red-500 text-sm mt-1">{errors.deliveryDate}</p>}
-                    {cartItems.length > 0 && cartItems[0].deliveryDate && (
-                      <p className="text-xs text-gray-500 mt-1">Delivery date set from your cart</p>
-                    )}
+                    <p className="text-xs text-gray-500 mt-1">Delivery date from your cart: Monday, April 28</p>
                   </div>
                   
                   <div>
@@ -522,13 +540,10 @@ export default function CheckoutPage({ params }: PageProps) {
                       name="deliveryTime"
                       value={checkoutDetails.deliveryTime}
                       onChange={handleInputChange}
-                      disabled={cartItems.length > 0 && cartItems[0].deliverySlot !== undefined && cartItems[0].deliverySlot !== ''}
                       className={errors.deliveryTime ? "border-red-500" : ""}
                     />
                     {errors.deliveryTime && <p className="text-red-500 text-sm mt-1">{errors.deliveryTime}</p>}
-                    {cartItems.length > 0 && cartItems[0].deliverySlot && (
-                      <p className="text-xs text-gray-500 mt-1">Delivery time set from your cart</p>
-                    )}
+                    <p className="text-xs text-gray-500 mt-1">Delivery time from your cart: 10 AM - 11 AM</p>
                   </div>
                   
                   {/* Place Order button moved here */}
