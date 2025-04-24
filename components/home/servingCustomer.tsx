@@ -2,7 +2,7 @@ import Image from "next/image";
 
 const ServingCustomer = () => {
   return (
-    <div className="container mx-auto px-3 py-5 md:px-0 md:py-10">
+    <div className="container py-5 md:px-0 md:py-10">
       <div className="grid grid-cols-5 gap-5 md:gap-10 rounded-4xl border-[3px] p-3 md:p-10 lg:p-20">
         <div className="col-span-5 flex flex-col items-center gap-10 md:col-span-2">
           <h3 className="text-feed-black border-feed-jungle inline-block border-b-4 px-4 py-3 font-medium md:text-base text-lg lg:text-2xl">
@@ -62,7 +62,7 @@ const ServingCustomer = () => {
                 </p>
               </div>
             </div>
-            <p className="text-gray-600">
+            <p className="text-gray-600 text-lg">
               Our menu features a variety of dishes all made with seasonal
               ingredients
             </p>
