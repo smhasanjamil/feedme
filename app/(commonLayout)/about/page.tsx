@@ -1,6 +1,7 @@
 import { FaFacebookF, FaTwitter, FaYoutube } from "react-icons/fa";
 import Image from "next/image";
 import React from "react";
+import { Button } from "@/components/ui/button";
 
 interface HealthyFoodCardProps {
   heading: string;
@@ -12,8 +13,8 @@ const HealthyFoodCard: React.FC<HealthyFoodCardProps> = ({
   description,
 }) => {
   return (
-    <div className="bg-feed-lime/40 border-feed-jungle space-y-1 rounded-2xl border-2 p-4 shadow-sm">
-      <h3 className="text-xl font-medium">{heading}</h3>
+    <div className="space-y-1 rounded-2xl bg-gray-100 p-4 shadow-sm">
+      <h3 className="text-feed-jungle text-xl font-semibold">{heading}</h3>
       <p className="opacity-70">{description}</p>
     </div>
   );
@@ -55,72 +56,69 @@ export default function About() {
   return (
     <div className="">
       {/* Hero Section */}
-      <section className="bg-[#f7fbe9] px-4 pt-16 text-center">
-        <h1 className="mb-4 text-5xl font-bold text-[#2b4717]">About Us</h1>
-        <p className="mx-auto max-w-2xl text-lg">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit
-          tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.
-        </p>
+      <section className="flex flex-col items-center bg-gray-100/60 px-4 py-16 text-center">
+        <h1 className="mb-4 text-5xl font-semibold">About Us</h1>
+        <div className="bg-feed-lime h-2 w-20 rounded-full" />
       </section>
 
       {/* Home Sweet Bakery Section */}
-      <section className="relative mx-auto grid max-w-[1050px] flex-col gap-5 my-20 md:flex-row lg:grid-cols-2">
+      <section className="relative mx-auto my-20 grid max-w-[1050px] flex-col gap-5 md:flex-row lg:grid-cols-2">
         <Image
-          src="/chef.jpg"
+          src="/about/chef.jpg"
           alt="Bakery Man"
           width={600}
           height={400}
           className="aspect-square rounded-xl object-cover"
         />
-        <div className="bg-feed-lime/30 relative flex flex-col justify-between rounded-xl p-13">
+        <div className="relative flex flex-col justify-between rounded-xl bg-gray-100/60 p-13">
           {/* Large orange circle top-right */}
-          <div className="absolute top-[-30px] right-[-30px] z-0 h-24 w-24 rounded-full bg-orange-300 opacity-100 blur-lg"></div>
+          <div className="bg-feed-lime absolute top-[-30px] right-[-30px] z-0 h-24 w-24 rounded-full opacity-100 blur-lg" />
 
           {/* Small dot above "Opening Hours" */}
-          <div className="absolute top-[55%] left-[5%] z-10 h-3 w-3 rounded-full bg-orange-400 blur-xs"></div>
+          <div className="bg-feed-jungle absolute top-[55%] left-[5%] z-10 h-3 w-3 rounded-full blur-xs"></div>
 
           {/* Small bottom right dot */}
-          <div className="absolute right-3 bottom-3 z-10 h-2 w-2 rounded-full bg-orange-400 blur-xs"></div>
+          <div className="bg-feed-jungle absolute right-3 bottom-3 z-10 h-2 w-2 rounded-full blur-xs"></div>
 
-          <h2 className="text-feed-jungle relative z-10 mb-4 text-5xl font-semibold">
-          We&apos;re here when you&apos;re hungry!
+          <h2 className="text-feed-jungle relative z-10 mb-4 text-5xl font-medium">
+            We&apos;re here when you&apos;re hungry!
           </h2>
           <p className="relative z-10 text-lg leading-6">
-          Feedme is here to satisfy your cravings! We're open Monday to Friday from 9 AM to 4 PM, and Saturday to Sunday from 10 AM to 7 PM. Come hungry, leave happy!
+            Feedme is here to satisfy your cravings! We&apos;re open Monday to
+            Friday from 9 AM to 4 PM, and Saturday to Sunday from 10 AM to 7 PM.
+            Come hungry, leave happy!
           </p>
           <h3 className="relative z-10 text-xl font-bold">Opening Hours :</h3>
           <div className="relative z-10 text-lg font-medium">
             <p>
               Monday - Friday{" "}
-              <span className="ml-2 text-orange-400">09.00 - 04.00</span>
+              <span className="text-feed-jungle/70 ml-2 font-semibold">
+                09.00 - 04.00
+              </span>
             </p>
             <p>
               Saturday - Sunday{" "}
-              <span className="ml-2 text-orange-400">10.00 - 07.00</span>
+              <span className="text-feed-jungle/70 ml-2 font-semibold">
+                10.00 - 07.00
+              </span>
             </p>
           </div>
-          <div className="text-feed-jungle relative z-10 mt-4 flex space-x-4 text-2xl">
+          <div className="text-feed-jungle relative z-10 mt-4 flex space-x-3 text-[20px]">
             <a
-              href="https://facebook.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-feed-lime bg bg-feed-jungle rounded-full p-1"
+              href="#"
+              className="bg bg-feed-black hover: hover:text-feed-lime rounded-full p-1.5 text-gray-50 duration-300"
             >
               <FaFacebookF />
             </a>
             <a
-              href="https://twitter.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-feed-lime bg bg-feed-jungle rounded-full p-1"
+              href="#"
+              className="bg bg-feed-black hover: hover:text-feed-lime rounded-full p-1.5 text-gray-50 duration-300"
             >
               <FaTwitter />
             </a>
             <a
-              href="https://youtube.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-feed-lime bg bg-feed-jungle rounded-full p-1"
+              href="#"
+              className="bg bg-feed-black hover: hover:text-feed-lime rounded-full p-1.5 text-gray-50 duration-300"
             >
               <FaYoutube />
             </a>
@@ -129,31 +127,35 @@ export default function About() {
       </section>
 
       {/* Freshly Baked Section */}
-      <section className="relative overflow-hidden bg-[#f7fbe9] px-6 py-16">
-        {/* Half circle left side */}
-        <div className="absolute top-[-50px] left-[-50px] z-0 h-40 w-40 rounded-r-full bg-orange-400 opacity-100 shadow-2xl shadow-amber-600 blur-lg"></div>
+      <section className="my-20 bg-gray-100/60">
+        <div className="relative container">
+          {/* Half circle left side */}
+          <div className="bg-feed-lime shadow-feed-lime absolute top-[-50px] left-[-50px] z-0 size-25 rounded-full opacity-100 shadow-2xl blur-lg" />
 
-        {/* Small orange circle right */}
-        <div className="absolute top-[38%] left-[60%] z-0 h-4 w-4 rounded-full bg-orange-400 blur-xs lg:top-[35%] lg:left-[45%]"></div>
+          <div className="relative z-10 mx-auto grid items-center gap-10 md:grid-cols-2">
+            <div className="space-y-7">
+              <h2 className="text-feed-jungle mb-4 text-5xl font-medium">
+                Freshly made meal
+                <br />
+                everyday
+              </h2>
+              <p className="text-lg opacity-80">
+                At Feedme, we prioritize your health by offering freshly
+                prepared, nutritious meals every day. Our menu is carefully
+                crafted to provide balanced, wholesome options that fuel your
+                body and mind. We believe in the power of healthy eating and
+                make it our mission to serve meals made with fresh, high-quality
+                ingredients. Every dish is designed to support your well-being,
+                helping you feel your best, one bite at a time.
+              </p>
+              <Button className="bg-feed-lime hover:text-feed-lime border-feed-jungle text-feed-jungle hover:bg-feed-black h-11 rounded-full border-[1.5px] text-lg">
+                Visit Us
+              </Button>
+            </div>
 
-        <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-8 md:grid-cols-2">
-          <div>
-            <h2 className="mb-4 text-3xl font-bold text-[#2b4717]">
-              Freshly Baked Bread Every Morning
-            </h2>
-            <p className="mb-4">
-              Start your day with the aroma of oven-fresh bread. Our bakers rise
-              early so you can enjoy a crisp crust and fluffy inside every
-              morning.
-            </p>
-            <button className="mt-4 rounded-full bg-[#2b4717] px-6 py-3 text-white transition hover:bg-[#1f3512]">
-              Visit Us
-            </button>
-          </div>
-          <div>
             <Image
-              src="/bread.jpeg"
-              alt="Fresh Bread"
+              src="/about/fresh-food.png"
+              alt="fresh food"
               width={600}
               height={400}
               className="rounded-xl"
@@ -164,13 +166,14 @@ export default function About() {
 
       {/* Benefits Section */}
       <section className="container my-20 bg-white">
-        <div className="text-center space-y-3 mb-8">
+        <div className="mb-8 space-y-3 text-center">
           <h2 className="text-4xl font-medium">Benefits Of Healthy Food</h2>
           <p className="text-lg text-gray-700">
             Discover how healthy food fuels your body, sharpens your mind, and
             supports overall
-            <br />wellness—helping you live a vibrant, energetic, and balanced
-            life every single day.
+            <br />
+            wellness—helping you live a vibrant, energetic, and balanced life
+            every single day.
           </p>
         </div>
 
