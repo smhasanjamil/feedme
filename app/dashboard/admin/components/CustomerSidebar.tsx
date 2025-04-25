@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   User,
   Search,
+  Star,
 } from "lucide-react";
 
 import {
@@ -31,6 +32,11 @@ const customerMenuItems = [
     name: "Track Order",
     path: "/dashboard/customer/track-order",
     icon: <Search />,
+  },
+  {
+    name: "Reviews & Ratings",
+    path: "/dashboard/customer/reviews",
+    icon: <Star />,
   },
   { name: "Profile", path: "/dashboard/customer/profile", icon: <User /> },
 ];

@@ -10,12 +10,13 @@ import { clearCart } from '@/redux/features/cart/cartSlice';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { ShoppingCart, CreditCard, Store } from 'lucide-react';
+import { ShoppingCart, CreditCard, Store, Star } from 'lucide-react';
 import { useGetMealByIdQuery } from '@/redux/meal/mealApi';
 import { use } from 'react';
 import { currentUser } from '@/redux/features/auth/authSlice';
 import { useCreateOrderFromCartMutation } from '@/redux/features/cart/cartApi';
 import { toast } from 'react-hot-toast';
+import { Badge } from '@/components/ui/badge';
 
 interface PageProps {
   params: {
@@ -50,6 +51,8 @@ interface CartItemType {
       _id: string;
     }>;
   };
+  rating?: number;
+  reviewCount?: number;
 }
 
 type ParamsWithMealId = {
@@ -397,9 +400,25 @@ export default function CheckoutPage({ params }: PageProps) {
                     <div key={item._id || index} className="flex justify-between items-start py-3 border-b last:border-b-0">
                       <div>
                         <div className="flex mb-1">
-                          <span className="font-medium mr-2">{item.quantity}x</span>
-                          <span className="font-medium">{item.mealName}</span>
+                          <h3 className="font-semibold">{item.mealName}</h3>
+                          <Badge variant="outline" className="ml-2">{item.quantity > 1 ? `x${item.quantity}` : ''}</Badge>
                         </div>
+                        
+                        {/* Display ratings */}
+                        <div className="flex items-center mt-1 mb-2">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              className={`h-4 w-4 ${
+                                star <= (item.rating || 4) 
+                                  ? "fill-yellow-400 text-yellow-400" 
+                                  : "text-gray-300"
+                              }`}
+                            />
+                          ))}
+                          <span className="ml-1 text-xs text-gray-500">({item.reviewCount || 2})</span>
+                        </div>
+                        
                         <p className="text-sm text-gray-600">
                           Provider: {item.providerName || "Restaurant"}
                         </p>

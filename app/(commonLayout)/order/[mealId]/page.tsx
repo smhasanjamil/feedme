@@ -275,19 +275,19 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
       <div className="flex items-center">
         <div className="flex">
           {[...Array(fullStars)].map((_, i) => (
-            <Star key={`full-${i}`} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+            <Star key={`full-${i}`} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
           ))}
           {hasHalfStar && (
-            <div className="relative h-4 w-4">
-              <Star className="absolute h-4 w-4 text-gray-300" />
-              <Star className="absolute h-4 w-4 fill-yellow-400 text-yellow-400" style={{ clipPath: 'inset(0 50% 0 0)' }} />
+            <div className="relative h-5 w-5">
+              <Star className="absolute h-5 w-5 text-gray-300" />
+              <Star className="absolute h-5 w-5 fill-yellow-400 text-yellow-400" style={{ clipPath: 'inset(0 50% 0 0)' }} />
             </div>
           )}
           {[...Array(emptyStars)].map((_, i) => (
-            <Star key={`empty-${i}`} className="h-4 w-4 text-gray-300" />
+            <Star key={`empty-${i}`} className="h-5 w-5 text-gray-300" />
           ))}
         </div>
-        <span className="ml-1 text-sm text-gray-500">({reviewCount})</span>
+        <span className="ml-2 text-sm font-medium text-gray-600">({reviewCount} reviews)</span>
       </div>
     );
   };
@@ -349,12 +349,24 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
               <span className="text-xl">{typedMeal.name}</span>
               <span className="text-lg font-semibold text-red-500">${typedMeal.price.toFixed(2)}</span>
             </CardTitle>
-            <div className="flex items-center gap-2 text-sm text-gray-500">
+            
+            <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
               <ChefHat className="h-4 w-4" />
               <span>{providerName}</span>
             </div>
-            <div className="mt-1">
-              {renderRating(typedMeal)}
+            
+            <div className="mt-2">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star 
+                  key={star} 
+                  className={`inline-block h-4 w-4 ${
+                    star <= (typedMeal.ratings?.average || typedMeal.rating || 4)
+                      ? "fill-yellow-400 text-yellow-400"
+                      : "text-gray-300"
+                  }`} 
+                />
+              ))}
+              <span className="text-xs text-gray-500 ml-1">({typedMeal.ratings?.count || typedMeal.reviewCount || 2})</span>
             </div>
           </CardHeader>
           <CardContent>
@@ -393,6 +405,114 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
                 <span className="font-medium">{typedMeal.nutritionalInfo.carbs}g carbs</span>
                 <span>•</span>
                 <span className="font-medium">{typedMeal.nutritionalInfo.fat}g fat</span>
+              </div>
+              
+              {/* Customer Reviews Section */}
+              <div className="mt-4 pt-4 border-t">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-medium text-lg">Customer Reviews</h3>
+                  <div className="flex items-center">
+                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
+                    <span className="text-sm font-medium">{typedMeal.ratings?.average?.toFixed(1) || typedMeal.rating || "0"}</span>
+                    <span className="mx-1 text-gray-400">•</span>
+                    <span className="text-sm text-gray-500">{typedMeal.ratings?.count || typedMeal.reviewCount || 0} reviews</span>
+                  </div>
+                </div>
+                
+                {typedMeal.ratings?.reviews && typedMeal.ratings.reviews.length > 0 ? (
+                  <div className="space-y-4">
+                    {typedMeal.ratings.reviews.map((review, index) => {
+                      // Format the date safely - use date field from new API format
+                      let formattedDate = "Recently";
+                      try {
+                        // Get date from the response - use the 'date' field
+                        const reviewDate = new Date(review.date);
+                        
+                        if (!isNaN(reviewDate.getTime())) {
+                          // Check if it's a valid date
+                          const now = new Date();
+                          const diffTime = Math.abs(now.getTime() - reviewDate.getTime());
+                          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                          
+                          if (diffDays < 1) {
+                            formattedDate = "Today";
+                          } else if (diffDays <= 2) {
+                            // Use "Yesterday" for yesterday and day before yesterday to match the design
+                            formattedDate = "Yesterday";
+                          } else if (diffDays < 7) {
+                            formattedDate = `${diffDays} days ago`;
+                          } else if (diffDays < 30) {
+                            const weeks = Math.floor(diffDays / 7);
+                            formattedDate = `${weeks} ${weeks === 1 ? 'week' : 'weeks'} ago`;
+                          } else {
+                            // Format date like "Apr 25, 2025"
+                            formattedDate = reviewDate.toLocaleDateString(undefined, {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            });
+                          }
+                        }
+                      } catch (e) {
+                        console.error("Error formatting date:", e);
+                        formattedDate = "Yesterday"; // Fallback for display
+                      }
+                      
+                      // Get user name directly from customerName field in new API format
+                      let userName = review.customerName || "Customer";
+                      let userInitials = "CU";
+                      
+                      if (review.customerName) {
+                        // Use customer name from response
+                        userName = review.customerName;
+                        const nameParts = review.customerName.split(" ");
+                        if (nameParts.length >= 2) {
+                          userInitials = `${nameParts[0][0]}${nameParts[1][0]}`.toUpperCase();
+                        } else {
+                          userInitials = `${nameParts[0].substring(0, 2)}`.toUpperCase();
+                        }
+                      } else if (review.userId) {
+                        // Fall back to userId if no customer name
+                        const shortId = review.userId.substring(0, 4);
+                        userName = `Customer ${shortId}`;
+                        userInitials = shortId.substring(0, 2).toUpperCase();
+                      }
+                      
+                      return (
+                        <div key={index} className="border-b pb-3 last:border-b-0">
+                          <div className="flex items-start">
+                            <div className="bg-gray-100 text-gray-800 rounded-full h-8 w-8 flex items-center justify-center font-medium text-sm mr-3">
+                              {userInitials}
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex justify-between items-center mb-1">
+                                <span className="font-medium text-sm">{userName}</span>
+                              </div>
+                              <div className="flex items-center mb-1">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <Star 
+                                    key={star} 
+                                    className={`h-4 w-4 ${
+                                      star <= review.rating 
+                                        ? "fill-yellow-400 text-yellow-400" 
+                                        : "text-gray-300"
+                                    }`} 
+                                  />
+                                ))}
+                              </div>
+                              <p className="text-sm text-gray-700 mt-1">{review.comment || "This meal was delicious!"}</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="bg-gray-50 rounded-lg p-4 text-center">
+                    <p className="text-sm text-gray-500 mb-1">No reviews yet.</p>
+                    <p className="text-xs text-gray-400">Be the first to review this meal after ordering!</p>
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>
@@ -568,7 +688,7 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
                 <div className="text-xl font-semibold text-right">
                   Total: ${calculateTotal()}
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   {meal && (
                     <AddToCartButton
                       meal={{
@@ -605,12 +725,6 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
                       onSuccess={() => router.push('/cart')}
                     />
                   )}
-                  <Button 
-                    onClick={handleOrder} 
-                    className="bg-red-500 hover:bg-red-600"
-                  >
-                    Place Order
-                  </Button>
                 </div>
               </div>
             </CardContent>

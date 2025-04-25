@@ -80,6 +80,29 @@ interface TrackingStages {
   [key: string]: boolean;
 }
 
+// Add rating interface
+interface RatingData {
+  rating: number;
+  comment: string;
+  mealId: string;
+  orderId: string;
+}
+
+interface RatingResponse {
+  status: boolean;
+  statusCode: number;
+  message: string;
+  data: {
+    _id: string;
+    rating: number;
+    comment: string;
+    mealId: string;
+    userId: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
 export interface Order {
   _id: string;
   user: string;
@@ -278,6 +301,21 @@ const orderApi = baseApi.injectEndpoints({
         return response;
       },
     }),
+    // New endpoint for submitting meal ratings
+    submitRating: builder.mutation<RatingResponse["data"], RatingData>({
+      query: (ratingData) => ({
+        url: `/providers/menu/${ratingData.mealId}/ratings`,
+        method: "POST",
+        body: {
+          rating: ratingData.rating,
+          comment: ratingData.comment,
+          orderId: ratingData.orderId
+        }
+      }),
+      transformResponse: (response: RatingResponse) => {
+        return response?.data || null;
+      },
+    }),
   }),
 });
 
@@ -291,4 +329,5 @@ export const {
   useTrackOrderQuery,
   useUpdateOrderTrackingMutation,
   useDeleteOrderMutation,
+  useSubmitRatingMutation,
 } = orderApi;
