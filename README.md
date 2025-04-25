@@ -1,152 +1,150 @@
-# FeedMe 🍱 – Personalized Meal Planning & Delivery Platform
+# FeedMe - Personalized Meal Planning & Delivery 🍱
 
-A full-stack web application that bridges the gap between customers and meal providers through a dynamic platform for customized meal planning and seamless food delivery, based on dietary preferences and schedules.
+## Project Overview
 
-## 🚀 Live Demo
+FeedMe is a **Meal Planning & Delivery Web Application** that allows users to personalize their meal plans and schedule deliveries based on their dietary preferences. Customers can browse available meal options, select meals based on their preferences, and schedule delivery. Meal providers can manage menus, respond to customer orders, and track deliveries.
 
-🌐 [Live Frontend URL](https://feedme.vercel.app)  
-🔗 [Backend Deployment](https://feedme-api.onrender.com) _(if applicable)_  
-🎥 [Video Walkthrough](https://drive.google.com/your-demo-link)
+## Live URL
 
----
+[Live Demo](https://feedme-meal.vercel.app/)
 
-## 📌 Features
+## Features
 
-### 👤 User Authentication & Roles
+### 1. **User Authentication**
 
-- Secure JWT-based login for **Customers** and **Meal Providers**
-- Password encryption using **bcrypt**
-- Role-based dashboards and access control
+- Secure login system for customers and meal providers using email or phone number and password.
+- **JWT (JSON Web Tokens)** for authentication.
+- Passwords are securely hashed with **bcrypt**.
 
-### 🍽 Customer Panel
+### 2. **Customer Dashboard**
 
-- Browse, customize, and schedule meals
-- Set dietary preferences (vegan, keto, gluten-free, etc.)
-- Track active and past orders
-- Edit delivery profile and preferences
+- Browse meal options based on dietary preferences (vegan, keto, gluten-free, etc.).
+- Track meal orders and past deliveries.
+- Manage dietary preferences, cuisines, and portion sizes.
 
-### 👨‍🍳 Meal Provider Panel
+### 3. **Meal Provider Dashboard**
 
-- Manage meal listings with ingredients, pricing, and availability
-- View, accept, or modify customer orders
-- Update cuisine specialties and delivery options
+- Meal providers can create, update, and manage their menus.
+- Respond to customer orders by accepting, modifying, or declining requests.
 
-### 🔍 Search & Match
+### 4. **Meal Selection & Customization**
 
-- Customers can search meals based on cuisine, rating, or preferences
-- Providers can view preferences to tailor meals
+- Customers can personalize meals based on dietary needs.
+- Meal providers can specify ingredients, portion sizes, and pricing.
 
-### 📬 Notifications (Email)
+### 5. **Search and Match**
 
-- Order status updates for customers and providers via email
+- Customers can search for meals based on cuisine, dietary preferences, ratings, and availability.
+- Meal providers can view customer preferences and prepare meals accordingly.
 
----
+### 6. **Role-Based Access Control**
 
-## 🛠 Tech Stack
+- Custom dashboards and routes for customers and meal providers.
+- Admin access for managing users and content.
+
+### 7. **Email Notifications**
+
+- Notifications for customers when meals are prepared and out for delivery.
+- Notifications for meal providers when new orders are placed.
+
+## Technology Stack
 
 ### Frontend
 
-- [Next.js](https://nextjs.org/)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Redux Toolkit](https://redux-toolkit.js.org/)
-- [NextAuth (custom)](https://next-auth.js.org/)
-- [Radix UI](https://www.radix-ui.com/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Cloudinary](https://cloudinary.com/) for media uploads
+- **Next.js** (for SSR/SSG)
+- **TypeScript** for type safety
+- **React** for building user interfaces
+- **Tailwind CSS** for styling
 
 ### Backend
 
-- [Node.js](https://nodejs.org/)
-- [Express.js](https://expressjs.com/)
-- [MongoDB + Mongoose](https://mongoosejs.com/)
-- [JWT](https://jwt.io/) for authentication
-- [Nodemailer](https://nodemailer.com/) for emails
+- **Node.js** with **Express** for the RESTful API
+- **MongoDB** for storing data (users, meal menus, orders)
+- **JWT** for authentication
+- **bcrypt** for password hashing
+- **Nodemailer** for email notifications
 
----
+### Additional Libraries & Tools
 
-## 📦 Installation & Setup
+- **Redux** for state management
+- **NextAuth** for authentication
+- **Axios** for making HTTP requests
+- **Cloudinary** for image uploads
+
+## Routes
+
+### Customer Routes:
+
+- **Home Page:** Overview of the platform.
+- **Login Page:** Login using email or phone number.
+- **Dashboard:** Browse meals, manage orders and preferences.
+- **Profile:** Edit personal details.
+- **Find Meals:** Search for meals based on preferences.
+- **Order Meal:** Place meal orders with customization options.
+
+### Meal Provider Routes:
+
+- **Home Page:** Overview of platform benefits for meal providers.
+- **Login Page:** Login using email or phone number.
+- **Dashboard:** Manage menus and orders.
+- **Profile:** Edit meal provider profile, including available meals.
+- **Post Meal Menu:** Post detailed meal menus for customers to browse.
+- **Order Responses:** Respond to customer orders.
+
+## Setup & Installation
 
 ### Prerequisites
 
-- Node.js (v18+)
-- MongoDB URI
-- Cloudinary credentials
-- SMTP email config (e.g., Gmail or Mailtrap)
+- **Node.js** (version 16 or higher)
+- **MongoDB** (local setup or Atlas)
 
-### 1. Clone the repo
+### Installation Steps
 
-```bash
-git clone https://github.com/ifajul89/feedme.git
-cd feedme
-```
+1. **Clone the repository:**
 
-### 2. Install dependencies
+   ```bash
+   git clone https://github.com/ifajul89/feedme.git
+   ```
 
-```bash
-npm install
-```
+2. **Install dependencies for frontend and backend:**
 
-### 3. Create `.env.local`
+   In the root folder of the project:
 
-```env
-NEXT_PUBLIC_API_URL=https://feedme-backend-zeta.vercel.app
-MONGODB_URI=your_mongo_connection_string
-JWT_SECRET=your_jwt_secret
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
-EMAIL_USER=youremail@example.com
-EMAIL_PASS=your_email_password
-```
+   ```bash
+   cd feedme
+   npm install
+   ```
 
-### 4. Run Development Server
+3. **Set up the environment variables:**
 
-```bash
-npm run dev
-```
+   Create a `.env.local` file in the root directory and add your environment variables. Example:
 
-Visit `http://localhost:3000` to use the app locally.
+   ```bash
+   NEXT_PUBLIC_API_URL=backend-url
+   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=name
+   NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=preset
+   ```
 
----
+4. **Start the development server:**
 
-## 📁 Project Structure
+   To run the frontend and backend in development mode:
 
-```
-/pages          – Route-based files for Next.js
-/components     – Reusable React components
-/redux          – Global state management with slices
-/api            – REST API endpoints for backend services
-/models         – Mongoose schemas
-/utils          – Helper functions (auth, email, cloudinary)
-```
+   ```bash
+   npm run dev
+   ```
 
----
+   This will start the server on `http://localhost:3000`.
 
-## 📹 Demo Overview (Must-Watch)
-
-- User registration/login (Customer & Provider)
-- Meal customization & scheduling
-- Provider order management & menu creation
-- Meal search and dietary preference filtering
-- Email notification flow
-
----
-
-## 🧑‍💻 Contributors
-
-- **Ifajul** – [GitHub](https://github.com/ifajul89)  
-  _(Project Lead & Full Stack Developer)_
-
----
-
-## 📄 License
-
-MIT License © 2025 Ifajul  
-Feel free to fork and expand!
-
----
+## Project Structure
 
 ```
-
-Let me know if you'd like to add badges, images, or contribution guidelines to this!
+/feedme
+  /frontend   # Next.js frontend code
+  /backend    # Node.js and Express backend API
+  /models     # MongoDB Mongoose models for users, meals, orders
+  /controllers # Logic for handling API requests
+  /routes     # API routes for frontend interaction
+  /public     # Static files (e.g., images)
+  /utils      # Utility functions (e.g., for authentication, email sending)
+  /config     # Configuration files (e.g., for MongoDB, JWT)
 ```
