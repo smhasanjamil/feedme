@@ -23,6 +23,15 @@ import {
 } from "@/components/ui/select";
 import { CldUploadWidget, CldImage } from "next-cloudinary";
 
+// Define the type for Cloudinary upload result
+interface CloudinaryResult {
+  event: string;
+  info: {
+    secure_url: string;
+    [key: string]: unknown;
+  };
+}
+
 type MealType = {
   name: string;
   description: string;
@@ -49,7 +58,8 @@ type MealType = {
 };
 
 export default function EditMealPage() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id as string;
   const router = useRouter();
   const [mealData, setMealData] = useState<MealType | null>(null);
 
@@ -119,14 +129,6 @@ export default function EditMealPage() {
           }
         : prev,
     );
-  };
-
-  const handleImageUpload = (result: any) => {
-    if (result?.info?.secure_url) {
-      setMealData((prev) =>
-        prev ? { ...prev, image: result.info.secure_url } : null,
-      );
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -206,16 +208,22 @@ export default function EditMealPage() {
                 </div>
               ) : (
                 <CldUploadWidget
-                  uploadPreset={
-                    process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
-                  }
-                  onSuccess={handleImageUpload}
+                  uploadPreset="feedme"
+                  onSuccess={(result) => {
+                    const cloudinaryResult = result as CloudinaryResult;
+                    if (cloudinaryResult && cloudinaryResult.info && cloudinaryResult.info.secure_url) {
+                      setMealData((prev) =>
+                        prev ? { ...prev, image: cloudinaryResult.info.secure_url } : null
+                      );
+                    }
+                  }}
                   options={{
                     multiple: false,
                     sources: ["local"],
                     maxFiles: 1,
                     cropping: true,
                     croppingAspectRatio: 16 / 9,
+                    cloudName: "dciqyeuyp",
                     styles: {
                       palette: {
                         window: "#FFFFFF",

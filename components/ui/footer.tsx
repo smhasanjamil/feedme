@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Image from "next/image";
 import React from "react";
 import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope } from "react-icons/fa";

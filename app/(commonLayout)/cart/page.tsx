@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import React from 'react';
@@ -158,7 +159,7 @@ const CartItem = ({ item, removeItem, updateQuantity }: CartItemProps) => {
                       key={addon._id || index} 
                       className="text-xs bg-gray-100 px-2 py-1 rounded-full"
                     >
-                      {addon.name} (+${addon.price.toFixed(2)})
+                      {addon.name} (+৳{addon.price.toFixed(2)})
                     </span>
                   ))}
                 </div>
@@ -167,7 +168,7 @@ const CartItem = ({ item, removeItem, updateQuantity }: CartItemProps) => {
           </div>
           
           <div className="flex flex-col items-end justify-between">
-            <p className="font-bold text-lg text-gray-800">${(item.price * item.quantity).toFixed(2)}</p>
+            <p className="font-bold text-lg text-gray-800">৳{(item.price * item.quantity).toFixed(2)}</p>
             
             <div className="flex items-center mt-3 bg-gray-100 rounded-full p-1">
               <button 
@@ -321,7 +322,7 @@ const CartPage = () => {
   if (!cart || cart.length === 0) {
     return (
       <div className="container mx-auto py-12 px-4 max-w-6xl">
-        <h1 className="text-3xl font-bold mb-8 text-gray-800">Your Cart</h1>
+        <h1 className="text-3xl font-bold mb-8 text-gray-800"></h1>
         <div className="grid grid-cols-1 gap-4">
           <Card className="w-full border-none shadow-sm">
             <CardContent className="p-10">
@@ -373,16 +374,16 @@ const CartPage = () => {
                 <div className="space-y-4">
                   <div className="flex justify-between text-gray-600">
                     <span>Subtotal</span>
-                    <span className="text-gray-800">${totalAmount.toFixed(2)}</span>
+                    <span className="text-gray-800">৳{totalAmount.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-gray-600">
                     <span>Delivery Fee</span>
-                    <span className="text-gray-800">$0.00</span>
+                    <span className="text-gray-800">৳0.00</span>
                   </div>
                   <Separator className="my-2" />
                   <div className="flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span>${totalAmount.toFixed(2)}</span>
+                    <span>৳{totalAmount.toFixed(2)}</span>
                   </div>
                 </div>
               </CardContent>

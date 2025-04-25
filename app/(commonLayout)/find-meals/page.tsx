@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Image from 'next/image';
+import { Card, CardContent, } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useGetAllMealsQuery } from '@/redux/meal/mealApi';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Star, Search, Filter, ChefHat, CheckCircle, X, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Star, Search, ChefHat,  ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import {
   DropdownMenu,
@@ -18,6 +19,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+
+// Define interface for meal object
+interface Meal {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  image: string;
+  providerId: string | { name?: string; _id?: string; email?: string };
+  ratings?: { average: number; count: number };
+  rating?: number;
+  reviewCount?: number;
+  preferences?: string[];
+}
 
 export default function FindMealsPage() {
   const router = useRouter();
@@ -33,11 +49,7 @@ export default function FindMealsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const mealsPerPage = 9;
   
-  // Get all unique categories and providers from the data
-  const categories = mealData?.data ? 
-    Array.from(new Set(mealData.data.map(meal => meal.category))) : 
-    [];
-  
+  // Get all unique providers from the data
   const providers = mealData?.data ? 
     Array.from(new Set(mealData.data.map(meal => 
       typeof meal.providerId === 'object' && meal.providerId?.name
@@ -115,11 +127,11 @@ export default function FindMealsPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   
-  const handleMealSelect = (mealId) => {
+  const handleMealSelect = (mealId: string) => {
     router.push(`/order/${mealId}`);
   };
   
-  const handleProviderToggle = (provider) => {
+  const handleProviderToggle = (provider: string) => {
     setSelectedProviders(prev => 
       prev.includes(provider)
         ? prev.filter(p => p !== provider)
@@ -127,7 +139,7 @@ export default function FindMealsPage() {
     );
   };
   
-  const handlePreferenceToggle = (preference) => {
+  const handlePreferenceToggle = (preference: string) => {
     setSelectedPreferences(prev => 
       prev.includes(preference)
         ? prev.filter(p => p !== preference)
@@ -144,7 +156,7 @@ export default function FindMealsPage() {
     setCurrentPage(1);
   };
   
-  const renderRating = (meal: any) => {
+  const renderRating = (meal: Meal) => {
     const rating = meal.ratings?.average ?? meal.rating ?? 0;
     const reviewCount = meal.ratings?.count ?? meal.reviewCount ?? 0;
     
@@ -181,7 +193,7 @@ export default function FindMealsPage() {
     
     // Show at most 5 page numbers with current page in the middle when possible
     let startPage = Math.max(1, currentPage - 2);
-    let endPage = Math.min(totalPages, startPage + 4);
+    const endPage = Math.min(totalPages, startPage + 4);
     
     // Adjust startPage if endPage is at the maximum
     if (endPage === totalPages) {
@@ -282,7 +294,7 @@ export default function FindMealsPage() {
     return (
       <div className="container mx-auto py-8 px-4 text-center">
         <h1 className="text-3xl font-bold mb-4">Error Loading Meals</h1>
-        <p className="text-gray-600 mb-6">We're having trouble loading the available meals. Please try again later.</p>
+        <p className="text-gray-600 mb-6">We are having trouble loading the available meals. Please try again later.</p>
         <Button onClick={() => window.location.reload()}>Retry</Button>
       </div>
     );
@@ -693,10 +705,12 @@ export default function FindMealsPage() {
                 onClick={() => handleMealSelect(meal._id)}
               >
                 <div className="aspect-video relative">
-                  <img
+                  <Image
                     src={meal.image}
                     alt={meal.name}
-                    className="object-cover w-full h-full"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                   <Badge 
                     className="absolute top-2 right-2 bg-white text-black hover:bg-white"
@@ -708,7 +722,7 @@ export default function FindMealsPage() {
                 <CardContent className="p-4">
                   <div className="flex justify-between items-center mb-2">
                     <h3 className="font-semibold text-lg">{meal.name}</h3>
-                    <span className="text-red-500 font-semibold">${meal.price.toFixed(2)}</span>
+                    <span className="text-red-500 font-semibold">৳{meal.price.toFixed(2)}</span>
                   </div>
                   
                   <p className="text-gray-600 text-sm line-clamp-2 mb-2">{meal.description}</p>

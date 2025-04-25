@@ -63,7 +63,6 @@ interface MealData {
 export default function CreateMealForm() {
   const router = useRouter();
   const [createMeal, { isLoading }] = useCreateMealMutation();
-  const [imageUrl, setImageUrl] = useState("");
   const initialMealData: MealData = {
     name: "",
     description: "",
@@ -129,15 +128,6 @@ export default function CreateMealForm() {
   };
 
   useEffect(() => {
-    if (imageUrl) {
-      setMealData((prev) => ({
-        ...prev,
-        image: imageUrl,
-      }));
-    }
-  }, [imageUrl]);
-
-  useEffect(() => {
     const observer = new MutationObserver(() => {
       if (document.body.style.overflow === "hidden") {
         document.body.style.overflow = "auto";
@@ -151,6 +141,7 @@ export default function CreateMealForm() {
 
     return () => observer.disconnect();
   }, []);
+  
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     console.log(mealData);
@@ -216,110 +207,59 @@ export default function CreateMealForm() {
               />
             </div>
 
-            <div className="grid gap-1">
-              <Label>Meal Image</Label>
-              {imageUrl ? (
-                <div className="flex flex-col items-center gap-4">
-                  <CldImage
-                    width="300"
-                    height="200"
-                    src={imageUrl}
-                    alt="Uploaded meal image"
-                    className="rounded-lg object-cover"
-                  />
-                  <Button
-                    variant="outline"
-                    onClick={() => setImageUrl("")}
-                    type="button"
+            <div className="space-y-4">
+              <div>
+                <div className="mb-4 flex flex-col items-center gap-4">
+                  {mealData?.image ? (
+                    <div className="relative h-[200px] w-[200px]">
+                      <CldImage
+                        width={200}
+                        height={200}
+                        src={mealData.image}
+                        alt="Meal image"
+                        className="rounded-md object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="relative h-[200px] w-[200px] rounded-md bg-gray-100 flex items-center justify-center">
+                      <p className="text-gray-500">No image uploaded</p>
+                    </div>
+                  )}
+
+                  <CldUploadWidget
+                    options={{
+                      maxFiles: 1,
+                      resourceType: "image",
+                      cloudName: "dciqyeuyp"
+                    }}
+                    onSuccess={(result, { widget }) => {
+                      if (
+                        result?.info && 
+                        typeof result.info === 'object' && 
+                        'secure_url' in result.info
+                      ) {
+                        const secureUrl = result.info.secure_url as string;
+                        setMealData((prev) => ({
+                          ...prev,
+                          image: secureUrl
+                        }));
+                      }
+                      widget.close();
+                    }}
+                    uploadPreset="feedme"
                   >
-                    Change Image
-                  </Button>
-                </div>
-              ) : (
-                <CldUploadWidget
-                  uploadPreset={
-                    process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
-                  }
-                  onSuccess={(result: any) => {
-                    if (result?.info?.secure_url) {
-                      setImageUrl(result.info.secure_url);
-                    }
-                  }}
-                  options={{
-                    multiple: false,
-                    sources: ["local"],
-                    maxFiles: 1,
-                    cropping: true,
-                    croppingAspectRatio: 16 / 9,
-                    showPoweredBy: false,
-                    styles: {
-                      palette: {
-                        window: "#FFFFFF",
-                        sourceBg: "#F4F4F5",
-                        windowBorder: "#90A0B3",
-                        tabIcon: "#000000",
-                        inactiveTabIcon: "#555A5F",
-                        menuIcons: "#555A5F",
-                        link: "#000000",
-                        action: "#000000",
-                        inProgress: "#000000",
-                        complete: "#000000",
-                        error: "#FF0000",
-                        textDark: "#000000",
-                        textLight: "#FFFFFF",
-                      },
-                      frame: {
-                        background: "#F4F4F5",
-                      },
-                      modal: {
-                        position: "fixed",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        zIndex: 9999,
-                        overflow: "visible",
-                      },
-                    },
-                  }}
-                >
-                  {({ open }: { open: any }) => {
-                    return (
-                      <div
-                        className="flex h-48 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100"
+                    {({ open }) => (
+                      <Button
+                        type="button"
+                        variant="outline"
                         onClick={() => open()}
                       >
-                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                          <svg
-                            className="mb-4 h-8 w-8 text-gray-500"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 20 16"
-                          >
-                            <path
-                              stroke="currentColor"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                            />
-                          </svg>
-                          <p className="mb-2 text-sm text-gray-500">
-                            <span className="font-semibold">
-                              Click to upload
-                            </span>{" "}
-                            or drag and drop
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            PNG, JPG, or WEBP (MAX. 5MB)
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  }}
-                </CldUploadWidget>
-              )}
+                        Upload Image
+                      </Button>
+                    )}
+                  </CldUploadWidget>
+                </div>
+              </div>
             </div>
 
             <div className="grid gap-1">

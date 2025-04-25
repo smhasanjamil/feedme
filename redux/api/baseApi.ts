@@ -21,11 +21,42 @@ export const baseApi = createApi({
     fetchFn: async (...args) => {
       try {
         const response = await fetch(...args);
+        
+        // Check for successful HTTP status
+        if (!response.ok) {
+          // Try to parse error response
+          let errorData;
+          try {
+            errorData = await response.clone().json();
+          } catch (e) {
+            // If we can't parse JSON, use text
+            try {
+              errorData = { message: await response.clone().text() };
+            } catch (textError) {
+              errorData = { message: `HTTP error ${response.status}` };
+            }
+          }
+          
+          // Add error data to response for RTK Query to handle
+          (response as any).errorData = errorData;
+        }
+        
         return response;
       } catch (error) {
         console.error("Network error in API call:", error);
-        // Re-throw to let RTK Query's error handling take over
-        throw error;
+        // Create a Response object that includes the network error information
+        const errorResponse = new Response(JSON.stringify({ 
+          message: "Network connection error. Please check your internet connection." 
+        }), {
+          status: 500,
+          statusText: "Network Error",
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        // Add the original error for debugging
+        (errorResponse as any).originalError = error;
+        
+        return errorResponse;
       }
     }
   }),

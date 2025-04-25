@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Clock, CheckCircle2, User, Phone, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { trackOrder, OrderTrackingResponse } from "@/app/services/orderService";
+import { trackOrder, } from "@/app/services/orderService";
 
 // Order tracking status steps
 const orderStatusSteps = [

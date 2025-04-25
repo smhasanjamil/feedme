@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, ChangeEvent, FormEvent, useEffect } from "react";
@@ -153,31 +154,38 @@ export default function CreateMealForm() {
   }, []);
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    console.log(mealData);
     try {
+      // Validate required fields before submitting
+      if (!mealData.name || !mealData.description || !mealData.price) {
+        toast.error("Please fill in all required fields");
+        return;
+      }
+
       const result = await createMeal(mealData).unwrap();
       console.log("Meal created successfully", result);
       toast.success("Meal created successfully!");
       router.push("/dashboard/manage-meals");
       setMealData(initialMealData);
     } catch (err: unknown) {
+      console.error("Failed to create meal:", err);
+      
+      // Handle different error types
       if (err instanceof Error) {
-        console.error("Failed to create meal:", err.message);
-        toast.error(err.message || "Failed to create meal.");
-      } else {
-        console.error("Failed to create meal:", err);
-        if (
-          typeof err === "object" &&
-          err !== null &&
-          "data" in err &&
-          typeof err.data === "object" &&
-          err.data !== null &&
-          "message" in err.data
-        ) {
-          toast.error(`Failed to create meal. ${err.data.message}`);
+        toast.error(err.message || "Failed to create meal");
+      } else if (typeof err === "object" && err !== null) {
+        // Handle RTK query error response
+        if ("message" in err && typeof err.message === "string") {
+          toast.error(err.message);
+        } else if ("data" in err && typeof err.data === "object" && err.data && "message" in err.data) {
+          const errorMessage = typeof err.data.message === 'string' ? err.data.message : "Failed to create meal";
+          toast.error(errorMessage);
+        } else if (Object.keys(err).length === 0) {
+          toast.error("Failed to create meal. Please check your form inputs and try again.");
         } else {
-          toast.error("Failed to create meal.");
+          toast.error("Failed to create meal. Server error occurred.");
         }
+      } else {
+        toast.error("Failed to create meal. Unknown error occurred.");
       }
     }
   };
@@ -237,9 +245,7 @@ export default function CreateMealForm() {
                 </div>
               ) : (
                 <CldUploadWidget
-                  uploadPreset={
-                    process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
-                  }
+                  uploadPreset="feedme"
                   onSuccess={(result: any) => {
                     if (result?.info?.secure_url) {
                       setImageUrl(result.info.secure_url);
@@ -252,6 +258,7 @@ export default function CreateMealForm() {
                     cropping: true,
                     croppingAspectRatio: 16 / 9,
                     showPoweredBy: false,
+                    cloudName: "dciqyeuyp",
                     styles: {
                       palette: {
                         window: "#FFFFFF",

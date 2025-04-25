@@ -1,17 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { use } from 'react';
+
 import Link from "next/link";
 
 interface OrderPageProps {
-  params: {
+  params: Promise<{
     orderId: string;
-  };
+  }>;
 }
 
 export default function OrderPage({ params }: OrderPageProps) {
-  const { orderId } = params;
+  const { orderId } = use(params);
   
   // Normally you would fetch this data from an API
   const orderData = {
@@ -76,7 +77,7 @@ export default function OrderPage({ params }: OrderPageProps) {
                 <span className="font-medium">{orderData.date}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground text-red-500">Estimated Delivery:</span>
+                <span className="text-red-500">Estimated Delivery:</span>
                 <span className="font-medium text-red-500">{orderData.estimatedDelivery}</span>
               </div>
             </div>

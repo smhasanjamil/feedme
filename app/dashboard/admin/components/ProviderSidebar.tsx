@@ -1,7 +1,6 @@
 "use client";
 import {
   Package2,
-  ShoppingCart,
   LogOut,
   LayoutDashboard,
   User,

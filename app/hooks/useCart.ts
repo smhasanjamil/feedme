@@ -15,13 +15,11 @@ import {
 } from '@/redux/features/cart/cartApi';
 import { toast } from 'react-hot-toast';
 import { currentUser } from '@/redux/features/auth/authSlice';
-import { useRouter } from 'next/navigation';
 
 export const useCart = () => {
   const dispatch = useAppDispatch();
   const cartState = useAppSelector(state => state.cart);
   const user = useAppSelector(currentUser);
-  const router = useRouter();
   
   const { data, isLoading, error, refetch } = useGetCartQuery(user?.email, {
     skip: !user, // Skip the query if user is not logged in
@@ -40,7 +38,7 @@ export const useCart = () => {
     }
     
     if (error) {
-      dispatch(setError((error as any)?.data?.message || 'Failed to fetch cart'));
+      dispatch(setError((error as { data?: { message?: string } })?.data?.message || 'Failed to fetch cart'));
     } else {
       dispatch(setError(null));
     }
@@ -69,7 +67,7 @@ export const useCart = () => {
       // Use the specific API endpoint for the format http://localhost:5000/api/cart/by-email/item/[itemId]?email=[email]
       if (process.env.NEXT_PUBLIC_API_URL?.includes('localhost:5000')) {
         const removePayload = {
-          itemId,
+          mealId: itemId,
           email: user?.email
         };
         

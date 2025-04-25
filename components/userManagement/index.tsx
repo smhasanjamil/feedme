@@ -100,10 +100,11 @@ export default function UserManagementTable() {
       if (result?.message) {
         toast.success(result.message);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Log the error object in detail but suppress Next.js default error logging
+      const errorData = error as { data?: { message?: string }, message?: string };
       toast.error(
-        error?.data?.message || error?.message || "Something went wrong",
+        errorData?.data?.message || errorData?.message || "Something went wrong",
       );
     }
   };
@@ -113,8 +114,9 @@ export default function UserManagementTable() {
     try {
       const result = await deleteUser(id).unwrap(); // Use delete mutation
       toast.success(result.message); // Show success toast
-    } catch (error: any) {
-      toast.error(error); // Show error toast
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      toast.error(errorMessage); // Show error toast
     }
   };
 

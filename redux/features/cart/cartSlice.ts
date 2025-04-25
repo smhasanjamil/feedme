@@ -1,11 +1,18 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { CartItem as ApiCartItem } from "./cartApi";
 
+// Provider interface
+interface Provider {
+  _id: string;
+  name: string;
+  email?: string;
+}
+
 export interface CartItem {
   _id: string;
   mealId: string;
   mealName: string;
-  providerId: string;
+  providerId: string | Provider;
   providerName: string;
   quantity: number;
   price: number;

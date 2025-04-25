@@ -16,7 +16,6 @@ import {
   X, 
   Eye, 
   PackageCheck,
-  User,
   DollarSign,
   MapPin,
   Clock,
@@ -37,6 +36,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useSelector } from "react-redux";
 import { currentUser, currentToken } from "@/redux/features/auth/authSlice";
+import Image from "next/image";
 
 export default function ManageOrdersPage() {
   const user = useSelector(currentUser);
@@ -263,7 +263,7 @@ export default function ManageOrdersPage() {
       let errorMsg = "Could not update the order status";
       if (err && typeof err === 'object' && 'data' in err) {
         // Try to extract error message from RTK Query error
-        errorMsg = `Update failed: ${(err.data as any)?.message || 'Unknown error'}`;
+        errorMsg = `Update failed: ${(err.data as { message?: string })?.message || 'Unknown error'}`;
       } else if (err instanceof Error) {
         errorMsg = `Update failed: ${err.message}`;
       }
@@ -844,7 +844,32 @@ export default function ManageOrdersPage() {
                 {/* For meals */}
                 {selectedOrder.meals && selectedOrder.meals.length > 0 ? (
                   <div className="space-y-4">
-                    {selectedOrder.meals.map((item: any, index: number) => (
+                    {selectedOrder.meals.map((item: {
+                      _id?: string;
+                      mealId?: {
+                        name?: string;
+                        image?: string;
+                        category?: string;
+                        preparationTime?: number;
+                        portionSize?: string;
+                        description?: string;
+                        ingredients?: string[];
+                        nutritionalInfo?: {
+                          calories?: number;
+                          protein?: number;
+                          carbs?: number;
+                          fat?: number;
+                        };
+                      };
+                      price?: number;
+                      quantity: number;
+                      subtotal?: number;
+                      customization?: {
+                        spiceLevel?: string;
+                        removedIngredients?: string[];
+                        addOns?: { name: string; price?: number }[];
+                      };
+                    }, index: number) => (
                       <div key={item._id || index} className="overflow-hidden rounded-md border">
                         {/* Meal header */}
                         <div className="border-b bg-gray-50 p-3">
@@ -852,10 +877,12 @@ export default function ManageOrdersPage() {
                             <div className="flex items-center gap-3">
                               {item.mealId?.image ? (
                                 <div className="relative h-16 w-16 overflow-hidden rounded-md bg-gray-200">
-                                  <img 
-                                    src={item.mealId.image} 
-                                    alt={item.mealId.name}
+                                  <Image 
+                                    src={item.mealId.image ?? ''}
+                                    alt={item.mealId.name ?? 'Meal image'}
                                     className="h-full w-full object-cover"
+                                    width={64}
+                                    height={64}
                                   />
                                 </div>
                               ) : (
@@ -941,7 +968,7 @@ export default function ManageOrdersPage() {
                                     Add-ons:
                                   </div>
                                   <div className="mt-1 space-y-1">
-                                    {item.customization.addOns.map((addon: any, i: number) => (
+                                    {item.customization.addOns.map((addon: { name: string; price?: number }, i: number) => (
                                       <div key={i} className="flex items-center justify-between">
                                         <span className="text-xs">{addon.name}</span>
                                         <span className="text-xs font-medium">+${addon.price?.toFixed(2) || "0.00"}</span>
@@ -998,7 +1025,7 @@ export default function ManageOrdersPage() {
                           <div className="flex justify-between text-sm">
                             <span className="font-medium">Subtotal</span>
                             <span className="font-medium">
-                              ${item.subtotal?.toFixed(2) || (item.price * item.quantity).toFixed(2) || "0.00"}
+                              ${item.subtotal?.toFixed(2) || ((item.price || 0) * item.quantity).toFixed(2) || "0.00"}
                             </span>
                           </div>
                         </div>

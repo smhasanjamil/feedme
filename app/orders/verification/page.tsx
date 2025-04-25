@@ -12,8 +12,10 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, AlertCircle } from "lucide-react";
 import { useVerifyOrderQuery } from "@/redux/features/orders/order";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { toast } from "react-hot-toast";
+import { useAppDispatch } from "@/redux/hooks";
+import { clearCart } from "@/redux/features/cart/cartSlice";
 
 interface OrderData {
   id: string;
@@ -45,46 +47,9 @@ interface OrderData {
   value4: string | null;
 }
 
-export default function OrderVerification() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const orderId = searchParams.get("order_id");
-
-  const { isLoading, data } = useVerifyOrderQuery(
-    orderId,
-    {
-      refetchOnMountOrArgChange: true,
-    }
-  );
-
-  // Show toast notification when component mounts
-  useEffect(() => {
-    toast.success("Please check your email for order confirmation details", {
-      duration: 5000,
-      position: "top-center",
-      icon: "📧",
-    });
-    
-    console.log("==== COMPONENT MOUNTED ====");
-    console.log("API Response:", data);
-  }, []);
-
-  const orderData: OrderData = data?.data?.[0];
-  
-  // Create a delivery date (7 days from now)
-  const deliveryDate = new Date();
-  deliveryDate.setDate(deliveryDate.getDate() + 7);
-  
-  // Use the tracking number from the API response
-  const trackingNumber = orderData?.tracking_number || 
-    (orderData?.order_id ? `TRK-${orderData.order_id.substring(0, 8)}` : "Not available");
-
-  // Ensure we have default values for missing fields
-  const paymentMethod = orderData?.method || "Visa/Mastercard/Other Card";
-  const transactionStatus = orderData?.transaction_status || "";
-  const phoneNumber = orderData?.phone || "";
-
-  return isLoading ? (
+// Loading component for Suspense
+function OrderVerificationLoading() {
+  return (
     <div className="container mx-auto p-4 my-10">
       <div className="animate-pulse space-y-6">
         <div className="h-8 w-64 rounded bg-gray-200"></div>
@@ -105,6 +70,56 @@ export default function OrderVerification() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main component that uses useSearchParams
+function OrderVerificationContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const orderId = searchParams.get("order_id");
+
+  const { isLoading, data } = useVerifyOrderQuery(
+    orderId,
+    {
+      refetchOnMountOrArgChange: true,
+    }
+  );
+
+  // Show toast notification when component mounts and clear cart
+  useEffect(() => {
+    // Clear the cart immediately after successful payment verification
+    dispatch(clearCart());
+    
+    toast.success("Please check your email for order confirmation details", {
+      duration: 5000,
+      position: "top-center",
+      icon: "📧",
+    });
+    
+    console.log("==== COMPONENT MOUNTED ====");
+    console.log("API Response:", data);
+    console.log("Cart cleared after payment verification");
+  }, [dispatch, data]); // Add data to dependencies
+
+  const orderData: OrderData = data?.data?.[0];
+  
+  // Create a delivery date (7 days from now)
+  const deliveryDate = new Date();
+  deliveryDate.setDate(deliveryDate.getDate() + 7);
+  
+  // Use the tracking number from the API response
+  const trackingNumber = orderData?.tracking_number || 
+    (orderData?.order_id ? `TRK-${orderData.order_id.substring(0, 8)}` : "Not available");
+
+  // Ensure we have default values for missing fields
+  const paymentMethod = orderData?.method || "Visa/Mastercard/Other Card";
+  const transactionStatus = orderData?.transaction_status || "";
+  const phoneNumber = orderData?.phone || "";
+
+  return isLoading ? (
+    <OrderVerificationLoading />
   ) : (
     <div className="container mx-auto p-2 sm:p-4 my-6 sm:my-10">
       <h1 className="mb-4 sm:mb-6 text-2xl sm:text-3xl font-bold">Order Verification</h1>
@@ -209,5 +224,14 @@ export default function OrderVerification() {
         </Card>
       </div>
     </div>
+  );
+}
+
+// Export the wrapped component with Suspense boundary
+export default function OrderVerification() {
+  return (
+    <Suspense fallback={<OrderVerificationLoading />}>
+      <OrderVerificationContent />
+    </Suspense>
   );
 }

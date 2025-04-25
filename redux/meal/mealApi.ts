@@ -71,6 +71,27 @@ const mealApi = baseApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
+      transformErrorResponse: (response) => {
+        // Check if response is empty or undefined
+        if (!response || typeof response !== 'object' || Object.keys(response).length === 0) {
+          return { message: "Unknown error occurred. Please try again." };
+        }
+        
+        // Log the error after checking it's valid
+        console.error("Error creating meal:", response);
+        
+        // Return a structured error that will be easier to handle
+        if (response.status === 'FETCH_ERROR') {
+          return { message: "Network error. Please check your connection." };
+        }
+        
+        // Try to extract error message from response
+        if (response.data) {
+          return response.data;
+        }
+        
+        return { message: "Failed to create meal. Please try again." };
+      },
       invalidatesTags: ["Meal"],
     }),
 

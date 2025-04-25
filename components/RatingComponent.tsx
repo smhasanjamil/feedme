@@ -47,7 +47,8 @@ export default function RatingComponent({
       setIsOpen(false);
       setRating(0);
       setComment("");
-    } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_error) {
       toast.error("Failed to submit rating. Please try again.");
     } finally {
       setIsSubmitting(false);

@@ -27,6 +27,7 @@ import { RootState } from "@/redux/store";
 import { logout } from "@/redux/features/auth/authSlice";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+import { useEffect, useState } from "react";
 
 // Menu items for Provider
 const providerMenuItems = [
@@ -75,14 +76,21 @@ export default function DashboardSidebar() {
   const dispatch = useDispatch();
   const router = useRouter();
   
-  // Determine which menu items to display based on user role
-  let menuItems = customerMenuItems; // Default to customer
+  // Use state to control when menu items are displayed
+  const [menuItems, setMenuItems] = useState<Array<{name: string, path: string, icon: React.ReactNode}>>([]);
+  const [isClient, setIsClient] = useState(false);
   
-  if (user?.role === "provider") {
-    menuItems = providerMenuItems;
-  } else if (user?.role === "admin") {
-    menuItems = adminMenuItems;
-  }
+  // Only update menu items after component has mounted on client
+  useEffect(() => {
+    setIsClient(true);
+    if (user?.role === "provider") {
+      setMenuItems(providerMenuItems);
+    } else if (user?.role === "admin") {
+      setMenuItems(adminMenuItems);
+    } else {
+      setMenuItems(customerMenuItems);
+    }
+  }, [user?.role]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -90,6 +98,28 @@ export default function DashboardSidebar() {
     router.push("/login");
     toast.success("Logged out successfully");
   };
+
+  // Render a simple skeleton during SSR to prevent hydration mismatch
+  if (!isClient) {
+    return (
+      <Sidebar>
+        <SidebarHeader>
+          <div className="flex h-[60px] items-center px-6">
+            <div className="flex items-center gap-2 font-semibold">
+              <div className="h-6 w-6" />
+              <span className="">Feedme</span>
+            </div>
+          </div>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarMenu>
+            {/* Empty skeleton menu during SSR */}
+          </SidebarMenu>
+        </SidebarContent>
+        <SidebarRail />
+      </Sidebar>
+    );
+  }
 
   return (
     <Sidebar>

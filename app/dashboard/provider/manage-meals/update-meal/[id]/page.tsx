@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -53,7 +54,7 @@ export default function EditMealPage() {
   const router = useRouter();
   const [mealData, setMealData] = useState<MealType | null>(null);
 
-  const { data, error, isLoading } = useGetMealByIdQuery({ id });
+  const { data, error, isLoading } = useGetMealByIdQuery({ id: id as string });
 
   const [updateMeal, { isLoading: isUpdating }] = useUpdateMealMutation();
 
@@ -206,9 +207,7 @@ export default function EditMealPage() {
                 </div>
               ) : (
                 <CldUploadWidget
-                  uploadPreset={
-                    process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
-                  }
+                  uploadPreset="feedme"
                   onSuccess={handleImageUpload}
                   options={{
                     multiple: false,
@@ -216,6 +215,7 @@ export default function EditMealPage() {
                     maxFiles: 1,
                     cropping: true,
                     croppingAspectRatio: 16 / 9,
+                    cloudName: "dciqyeuyp",
                     styles: {
                       palette: {
                         window: "#FFFFFF",

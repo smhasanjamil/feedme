@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { use } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -11,16 +13,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { useGetMealByIdQuery } from '@/redux/meal/mealApi';
-import { useCreateOrderFromCartMutation } from '@/redux/features/cart/cartApi';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Clock, Utensils, DollarSign, Star, ChefHat, CheckCircle2, ShoppingCart } from 'lucide-react';
+import { Clock, Utensils, DollarSign, Star, ChefHat, CheckCircle2, } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { toast } from 'react-hot-toast';
-import { useAppSelector } from '@/redux/hooks';
-import { currentUser } from '@/redux/features/auth/authSlice';
-import { MealDetails as MealDetailsType, CustomizationOptions, getMealImageUrl } from './addToCartUtils';
+import { getMealImageUrl } from './addToCartUtils';
 import AddToCartButton from './AddToCartButton';
 
 // Meal interface used for API response typing
@@ -95,7 +93,6 @@ const LoadingSkeleton = () => {
 export default function OrderPage({ params }: { params: Promise<{ mealId: string }> }) {
   const router = useRouter();
   const { mealId } = use(params);
-  const user = useAppSelector(currentUser);
   
   const { data: mealData, isLoading, isError } = useGetMealByIdQuery({ id: mealId });
   const meal = mealData?.data;
@@ -107,11 +104,9 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
   const [spiceLevel, setSpiceLevel] = useState<string>('medium');
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('');
-  const [deliveryAddress, setDeliveryAddress] = useState<string>('');
+  const [deliveryAddress, ] = useState<string>('');
   const [availableDates, setAvailableDates] = useState<Array<{date: string, day: number, available: number}>>([]);
   const [currentMonth, setCurrentMonth] = useState<string>('');
-
-  const [createOrderFromCart] = useCreateOrderFromCartMutation();
 
   // Initialize calendar data
   useEffect(() => {
@@ -178,118 +173,11 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
     return total.toFixed(2);
   };
 
-  const handleOrder = async () => {
-    if (!selectedTimeSlot) {
-      alert("Please select a delivery time slot");
-      return;
-    }
-    
-    // Construct order object for display in console
-    const order = {
-      mealId: meal?._id,
-      mealName: meal?.name,
-      quantity,
-      customizations: {
-        removedIngredients,
-        addOns: selectedAddOns,
-        spiceLevel,
-        noteToChef: noteToChef.trim() || null
-      },
-      deliveryDate: formatDeliveryDate(selectedDate),
-      deliveryTime: selectedTimeSlot,
-      deliveryAddress: deliveryAddress.trim() || 'Default Address',
-      total: calculateTotal()
-    };
-    
-    console.log('Order details:', order);
-    
-    try {
-      // Create API payload
-      const orderData = {
-        name: user?.name || 'Guest',
-        email: user?.email || 'guest@example.com',
-        phone: user?.phone || '',
-        address: deliveryAddress.trim() || 'Default Address',
-        city: user?.city || '',
-        zipCode: user?.zipCode || '',
-        deliveryDate: selectedDate,
-        deliverySlot: selectedTimeSlot
-      };
-      
-      console.log('Sending order data to API:', orderData);
-      
-      // Call API to create order
-      const response = await createOrderFromCart(orderData).unwrap();
-      
-      // Log the response
-      console.log('API Response:', JSON.stringify(response, null, 2));
-      
-      // Check for checkout URL and redirect
-      if (response && response.data && response.data.checkoutUrl) {
-        console.log('Redirecting to checkout URL:', response.data.checkoutUrl);
-        
-        // Short delay before redirecting
-        setTimeout(() => {
-          window.location.href = response.data.checkoutUrl;
-        }, 1000);
-      } else if (response.data?.data?.checkoutUrl) {
-        console.log('Redirecting to checkout URL:', response.data.data.checkoutUrl);
-        
-        setTimeout(() => {
-          window.location.href = response.data.data.checkoutUrl;
-        }, 1000);
-      } else {
-        alert('Order created but no payment URL was returned');
-      }
-    } catch (error) {
-      console.error('Error creating order:', error);
-      alert('Error creating order. Check console for details.');
-    }
-  };
-
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
     if (!isNaN(value) && value > 0) {
       setQuantity(value);
     }
-  };
-
-  const formatDeliveryDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'long', 
-      day: 'numeric'
-    });
-  };
-
-  const renderRating = (meal: Meal) => {
-    const rating = meal.ratings?.average ?? meal.rating ?? 0;
-    const reviewCount = meal.ratings?.count ?? meal.reviewCount ?? 0;
-    
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
-    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-    
-    return (
-      <div className="flex items-center">
-        <div className="flex">
-          {[...Array(fullStars)].map((_, i) => (
-            <Star key={`full-${i}`} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-          ))}
-          {hasHalfStar && (
-            <div className="relative h-5 w-5">
-              <Star className="absolute h-5 w-5 text-gray-300" />
-              <Star className="absolute h-5 w-5 fill-yellow-400 text-yellow-400" style={{ clipPath: 'inset(0 50% 0 0)' }} />
-            </div>
-          )}
-          {[...Array(emptyStars)].map((_, i) => (
-            <Star key={`empty-${i}`} className="h-5 w-5 text-gray-300" />
-          ))}
-        </div>
-        <span className="ml-2 text-sm font-medium text-gray-600">({reviewCount} reviews)</span>
-      </div>
-    );
   };
 
   if (isLoading) {
@@ -332,10 +220,11 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card>
           <div className="aspect-video relative">
-            <img
+            <Image
               src={typedMeal.image}
               alt={typedMeal.name}
-              className="object-cover w-full h-full"
+              fill
+              className="object-cover"
             />
             <Badge 
               className="absolute top-2 right-2 bg-white text-black hover:bg-white"
@@ -347,7 +236,7 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
           <CardHeader>
             <CardTitle className="flex justify-between items-center">
               <span className="text-xl">{typedMeal.name}</span>
-              <span className="text-lg font-semibold text-red-500">${typedMeal.price.toFixed(2)}</span>
+              <span className="text-lg font-semibold text-red-500">৳{typedMeal.price.toFixed(2)}</span>
             </CardTitle>
             
             <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
@@ -422,31 +311,27 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
                 {typedMeal.ratings?.reviews && typedMeal.ratings.reviews.length > 0 ? (
                   <div className="space-y-4">
                     {typedMeal.ratings.reviews.map((review, index) => {
-                      // Format the date safely - use date field from new API format
-                      let formattedDate = "Recently";
+                      // Format the review date directly
+                      let displayDate = "Recently";
                       try {
-                        // Get date from the response - use the 'date' field
-                        const reviewDate = new Date(review.date);
+                        const reviewDate = new Date(review.createdAt);
                         
                         if (!isNaN(reviewDate.getTime())) {
-                          // Check if it's a valid date
                           const now = new Date();
                           const diffTime = Math.abs(now.getTime() - reviewDate.getTime());
                           const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                           
                           if (diffDays < 1) {
-                            formattedDate = "Today";
+                            displayDate = "Today";
                           } else if (diffDays <= 2) {
-                            // Use "Yesterday" for yesterday and day before yesterday to match the design
-                            formattedDate = "Yesterday";
+                            displayDate = "Yesterday";
                           } else if (diffDays < 7) {
-                            formattedDate = `${diffDays} days ago`;
+                            displayDate = `${diffDays} days ago`;
                           } else if (diffDays < 30) {
                             const weeks = Math.floor(diffDays / 7);
-                            formattedDate = `${weeks} ${weeks === 1 ? 'week' : 'weeks'} ago`;
+                            displayDate = `${weeks} ${weeks === 1 ? 'week' : 'weeks'} ago`;
                           } else {
-                            // Format date like "Apr 25, 2025"
-                            formattedDate = reviewDate.toLocaleDateString(undefined, {
+                            displayDate = reviewDate.toLocaleDateString(undefined, {
                               year: 'numeric',
                               month: 'short',
                               day: 'numeric'
@@ -455,24 +340,16 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
                         }
                       } catch (e) {
                         console.error("Error formatting date:", e);
-                        formattedDate = "Yesterday"; // Fallback for display
+                        // Keep default "Recently"
                       }
                       
-                      // Get user name directly from customerName field in new API format
-                      let userName = review.customerName || "Customer";
+                      // Get user name from userId since customerName doesn't exist
+                      let userName = "Customer";
                       let userInitials = "CU";
                       
-                      if (review.customerName) {
-                        // Use customer name from response
-                        userName = review.customerName;
-                        const nameParts = review.customerName.split(" ");
-                        if (nameParts.length >= 2) {
-                          userInitials = `${nameParts[0][0]}${nameParts[1][0]}`.toUpperCase();
-                        } else {
-                          userInitials = `${nameParts[0].substring(0, 2)}`.toUpperCase();
-                        }
-                      } else if (review.userId) {
-                        // Fall back to userId if no customer name
+                      // Extract initials from userId
+                      if (review.userId) {
+                        // Use userId for display
                         const shortId = review.userId.substring(0, 4);
                         userName = `Customer ${shortId}`;
                         userInitials = shortId.substring(0, 2).toUpperCase();
@@ -487,6 +364,7 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
                             <div className="flex-1">
                               <div className="flex justify-between items-center mb-1">
                                 <span className="font-medium text-sm">{userName}</span>
+                                <span className="text-xs text-gray-500">{displayDate}</span>
                               </div>
                               <div className="flex items-center mb-1">
                                 {[1, 2, 3, 4, 5].map((star) => (
@@ -686,7 +564,7 @@ export default function OrderPage({ params }: { params: Promise<{ mealId: string
 
               <div className="pt-4 space-y-4">
                 <div className="text-xl font-semibold text-right">
-                  Total: ${calculateTotal()}
+                  Total: ৳{calculateTotal()}
                 </div>
                 <div className="grid grid-cols-1 gap-4">
                   {meal && (

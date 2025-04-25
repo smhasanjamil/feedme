@@ -49,6 +49,25 @@ export default function CustomerDashboard() {
             </button>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Select Meal</CardTitle>
+            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">Select Meal</div>
+            <p className="text-xs text-muted-foreground">
+              Select Your Meals
+            </p>
+            <button 
+              onClick={() => router.push("/find-meals")}
+              className="mt-4 bg-primary text-white px-4 py-2 rounded-md text-sm"
+            >
+              Select Meal
+            </button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

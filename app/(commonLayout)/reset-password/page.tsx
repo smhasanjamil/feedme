@@ -4,10 +4,11 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "react-hot-toast";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useResetPasswordMutation } from "@/redux/features/auth/authApi";
+import { CheckCircle } from "lucide-react";
 
 type ResetPasswordFormData = {
   email: string;
@@ -26,7 +27,26 @@ type BackendErrorResponse = {
   error?: string;
 };
 
-export default function ResetPassword() {
+// Loading component for Suspense
+function ResetPasswordLoading() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="w-full max-w-[500px] overflow-hidden rounded-2xl bg-white shadow-2xl p-8">
+        <div className="text-center">
+          <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900 mb-4">
+            Loading...
+          </h2>
+          <div className="flex justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main component that uses useSearchParams
+function ResetPasswordContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [resetComplete, setResetComplete] = useState(false);
   const router = useRouter();
@@ -253,16 +273,22 @@ export default function ResetPassword() {
                 <div>
                   <Button
                     type="submit"
-                    className="w-full rounded-md bg-[#FF0000] px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#CC0000] focus:ring-2 focus:ring-[#FF0000] focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70"
                     disabled={isLoading}
+                    className="flex w-full justify-center rounded-md bg-[#FF0000] px-4 py-3 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#CC0000] focus:ring-2 focus:ring-[#FF0000] focus:ring-offset-2 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isLoading ? "Resetting..." : "Reset Password"}
+                    {isLoading ? "Processing..." : "Reset Password"}
                   </Button>
                 </div>
               </form>
             </div>
           ) : (
-            <div className="mt-6 flex justify-center">
+            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md text-center">
+              <div className="flex justify-center mb-4">
+                <CheckCircle className="h-16 w-16 text-green-500" />
+              </div>
+              <p className="text-gray-600 mb-6">
+                Your password has been reset successfully. You will be redirected to the login page.
+              </p>
               <Link
                 href="/login"
                 className="rounded-md bg-[#FF0000] px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#CC0000] focus:ring-2 focus:ring-[#FF0000] focus:ring-offset-2 focus:outline-none"
@@ -274,5 +300,14 @@ export default function ResetPassword() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Export the component with Suspense boundary
+export default function ResetPassword() {
+  return (
+    <Suspense fallback={<ResetPasswordLoading />}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 } 

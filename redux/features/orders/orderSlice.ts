@@ -188,8 +188,8 @@ const orderSlice = createSlice({
 });
 
 export const { clearCheckoutUrl } = orderSlice.actions;
-export const selectCheckoutUrl = (state: RootState) => state.order.checkoutUrl;
-export const selectOrderLoading = (state: RootState) => state.order.isLoading;
-export const selectOrderError = (state: RootState) => state.order.error;
+export const selectCheckoutUrl = (state: RootState) => state.orders.checkoutUrl;
+export const selectOrderLoading = (state: RootState) => state.orders.isLoading;
+export const selectOrderError = (state: RootState) => state.orders.error;
 
 export default orderSlice.reducer;

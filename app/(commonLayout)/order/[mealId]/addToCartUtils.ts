@@ -89,15 +89,17 @@ export const useAddToCart = () => {
         };
         
         // Remove any undefined properties from the object
-        Object.keys(normalizedCustomization).forEach(key => {
-          if (normalizedCustomization[key as keyof CustomizationOptions] === undefined) {
-            delete normalizedCustomization[key as keyof CustomizationOptions];
+        if (normalizedCustomization) {
+          Object.keys(normalizedCustomization).forEach(key => {
+            if (normalizedCustomization && normalizedCustomization[key as keyof CustomizationOptions] === undefined) {
+              delete normalizedCustomization[key as keyof CustomizationOptions];
+            }
+          });
+          
+          // If all customization options are undefined, set the whole object to undefined
+          if (Object.keys(normalizedCustomization).length === 0) {
+            normalizedCustomization = undefined;
           }
-        });
-        
-        // If all customization options are undefined, set the whole object to undefined
-        if (Object.keys(normalizedCustomization).length === 0) {
-          normalizedCustomization = undefined;
         }
       }
 

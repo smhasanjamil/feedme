@@ -8,14 +8,40 @@ import { Separator } from "@/components/ui/separator";
 import { ShoppingBag, CalendarIcon } from "lucide-react";
 import Image from "next/image";
 import RatingComponent from "@/components/RatingComponent";
-import { Button } from "@/components/ui/button";
-import toast from "react-hot-toast";
+
+// Define interface for order type
+interface Meal {
+  _id?: string;
+  mealId?: {
+    _id: string;
+    name: string;
+    image?: string;
+  };
+  quantity?: number;
+  price?: number;
+}
+
+interface Order {
+  _id: string;
+  trackingNumber?: string;
+  status: string;
+  createdAt: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  meals?: Meal[];
+  deliveryDate?: string;
+  subtotal?: number;
+  tax?: number;
+  shipping?: number;
+  totalPrice?: number;
+}
 
 export default function MyOrdersPage() {
   const { data: orders, isLoading, isError } = useGetUserOrdersQuery();
   const [submitRating] = useSubmitRatingMutation();
   const [mounted, setMounted] = useState(false);
-  const [testOrders, setTestOrders] = useState<{[key: string]: boolean}>({});
 
   useEffect(() => {
     setMounted(true);
@@ -37,18 +63,9 @@ export default function MyOrdersPage() {
     }
   };
 
-  // Function to toggle order status for testing
-  const toggleDeliveredStatus = (orderId: string) => {
-    setTestOrders(prev => ({
-      ...prev,
-      [orderId]: !prev[orderId]
-    }));
-    toast.success("Order status toggled for testing");
-  };
-
   // Function to check if order should be treated as delivered
-  const isOrderDelivered = (order: any) => {
-    return order.status === "Delivered" || testOrders[order._id] === true;
+  const isOrderDelivered = (order: Order) => {
+    return order.status === "Delivered";
   };
 
   if (!mounted || isLoading) {
@@ -88,9 +105,9 @@ export default function MyOrdersPage() {
         Track your order status using tracking number from track order status page. View order status and delivery details.
       </p>
 
-      {orders && orders.length > 0 ? (
+      {orders && Array.isArray(orders) && orders.length > 0 ? (
         <div className="space-y-4">
-          {orders.map((order) => (
+          {orders.filter(order => order !== null).map((order) => (
             <Card key={order._id} className="overflow-hidden border">
               {/* Header with tracking number and status */}
               <div className="flex items-center justify-between bg-gray-50 px-3 py-2">
@@ -105,7 +122,7 @@ export default function MyOrdersPage() {
                 <div className="flex items-center gap-2">
                   <Badge
                     variant={
-                      order.status === "Delivered" || testOrders[order._id]
+                      order.status === "Delivered"
                         ? "success"
                         : order.status === "Processing"
                         ? "outline"
@@ -115,16 +132,8 @@ export default function MyOrdersPage() {
                     }
                     className="text-[10px] px-2 py-0"
                   >
-                    {testOrders[order._id] ? "Delivered (Test)" : order.status}
+                    {order.status}
                   </Badge>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="text-[10px] h-6"
-                    onClick={() => toggleDeliveredStatus(order._id)}
-                  >
-                    {testOrders[order._id] ? "Set Not Delivered" : "Set Delivered"}
-                  </Button>
                 </div>
               </div>
 
@@ -144,10 +153,10 @@ export default function MyOrdersPage() {
                 {/* Products column */}
                 <div className="p-3">
                   <h3 className="mb-1 text-xs font-medium">Products ({order.meals?.length || 0})</h3>
-                  {order.meals && order.meals.length > 0 ? (
+                  {order.meals && Array.isArray(order.meals) && order.meals.length > 0 ? (
                     <div className="space-y-2">
                       {order.meals.map((meal, index) => (
-                        <div key={meal._id || index} className="flex items-center gap-2 py-1">
+                        <div key={meal?._id || `meal-${index}`} className="flex items-center gap-2 py-1">
                           <div className="relative h-8 w-8 overflow-hidden rounded-sm border">
                             {meal?.mealId?.image ? (
                               <Image
@@ -173,13 +182,17 @@ export default function MyOrdersPage() {
                             </div>
                           </div>
                           <div>
-                            <RatingComponent 
-                              orderId={order._id}
-                              mealId={meal.mealId._id}
-                              mealName={meal.mealId.name}
-                              onRatingSubmit={handleRatingSubmit}
-                              isDelivered={isOrderDelivered(order)}
-                            />
+                            {meal?.mealId ? (
+                              <RatingComponent 
+                                orderId={order._id}
+                                mealId={meal.mealId._id}
+                                mealName={meal.mealId.name}
+                                onRatingSubmit={handleRatingSubmit}
+                                isDelivered={isOrderDelivered(order)}
+                              />
+                            ) : (
+                              <span className="text-[10px] text-gray-400">Rating unavailable</span>
+                            )}
                           </div>
                         </div>
                       ))}

@@ -105,17 +105,19 @@ export interface OrderFromCartRequest {
 
 // Order response interface
 export interface OrderResponse {
+  checkoutUrl: string;
   status: boolean;
   statusCode: number;
   message: string;
   data: {
+    data: Record<string, unknown>;
     checkoutUrl: string;
     order: {
       orderId: string;
       trackingNumber: string;
       totalPrice: number;
       status: string;
-      meals: any[];
+      meals: Array<Record<string, unknown>>;
       deliveryDate: string;
       deliverySlot: string;
     }
@@ -126,7 +128,7 @@ export const cartApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (builder) => ({
     addToCart: builder.mutation<CartResponse, AddToCartRequest>({
-      queryFn: async (data, { getState }, _extraOptions, baseQuery) => {
+      queryFn: async (data, api, _extraOptions, baseQuery) => {
         try {
           // Add some basic validation
           if (!data.mealId || !data.customerEmail) {
@@ -225,6 +227,12 @@ export const cartApi = baseApi.injectEndpoints({
           // If the request fails, log it and return a mock success
           console.log('Using offline mode for addToCart - original error:', result.error);
           
+          // Create mock addOns with _id field to match the CartItem interface
+          const mockAddOns = data.customization?.addOns?.map(addon => ({
+            ...addon,
+            _id: 'mock-addon-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9)
+          }));
+          
           return { 
             data: {
               status: true,
@@ -246,7 +254,10 @@ export const cartApi = baseApi.injectEndpoints({
                   deliveryDate: data.deliveryDate,
                   deliverySlot: data.deliverySlot,
                   imageUrl: data.imageUrl,
-                  customization: data.customization
+                  customization: data.customization ? {
+                    ...data.customization,
+                    addOns: mockAddOns
+                  } : undefined
                 }],
                 totalAmount: data.price * data.quantity,
                 deliveryAddress: data.deliveryAddress,
@@ -283,7 +294,7 @@ export const cartApi = baseApi.injectEndpoints({
     }),
     
     removeFromCart: builder.mutation<CartResponse, { itemId: string, email?: string }>({
-      queryFn: async (arg, { getState }, _extraOptions, baseQuery) => {
+      queryFn: async (arg, api, _extraOptions, baseQuery) => {
         const { itemId, email } = arg;
         
         // Simple approach: just try the most likely endpoint
@@ -318,7 +329,7 @@ export const cartApi = baseApi.injectEndpoints({
       CartResponse, 
       { itemId: string, quantity: number, email?: string }
     >({
-      queryFn: async (arg, { getState }, _extraOptions, baseQuery) => {
+      queryFn: async (arg, api, _extraOptions, baseQuery) => {
         const { itemId, quantity, email } = arg;
         
         // Validate arguments to prevent issues

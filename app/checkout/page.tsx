@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useAppSelector, useAppDispatch } from '@/redux/hooks';
 import { clearCart } from '@/redux/features/cart/cartSlice';
 import { useCreateOrderFromCartMutation } from '@/redux/features/cart/cartApi';
@@ -13,7 +13,22 @@ import { Textarea } from '@/components/ui/textarea';
 import { ShoppingCart, CreditCard, Store } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
-export default function CheckoutPage() {
+// Loading fallback for Suspense
+function CheckoutLoading() {
+  return (
+    <div className="container mx-auto py-12 px-4">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main checkout component
+function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
@@ -39,11 +54,11 @@ export default function CheckoutPage() {
     // Get first item's provider info
     const firstItem = cartItems[0];
     
-    if (typeof firstItem.providerId === 'object' && firstItem.providerId && firstItem.providerId.name) {
+    if (typeof firstItem.providerId === 'object' && firstItem.providerId) {
       return {
         id: firstItem.providerId._id,
         name: firstItem.providerId.name,
-        email: firstItem.providerId.email
+        email: firstItem.providerId.email || ''
       };
     } else if (typeof firstItem.providerId === 'string') {
       // If providerId is just a string, use that as id and name
@@ -274,18 +289,18 @@ export default function CheckoutPage() {
       console.log('API Response (Full):', JSON.stringify(response, null, 2));
       
       // Get the checkout URL from the response
-      let checkoutUrl = null;
+      let checkoutUrl: string = '';
       
       // Try different paths in the response object to find the checkout URL
       if (response.data?.checkoutUrl) {
-        checkoutUrl = response.data.checkoutUrl;
+        checkoutUrl = response.data.checkoutUrl as string;
       } else if (response.data?.data?.checkoutUrl) {
-        checkoutUrl = response.data.data.checkoutUrl;
+        checkoutUrl = response.data.data.checkoutUrl as string;
       } else if (response.checkoutUrl) {
-        checkoutUrl = response.checkoutUrl;
+        checkoutUrl = response.checkoutUrl as string;
       }
       
-      if (checkoutUrl) {
+      if (checkoutUrl && typeof checkoutUrl === 'string') {
         // Show success message before redirecting
         toast.success('Order created successfully! Redirecting to payment...');
         console.log('Redirecting to checkout URL:', checkoutUrl);
@@ -320,16 +335,7 @@ export default function CheckoutPage() {
 
   // Show a loading state until client-side rendering is ready
   if (!isClient) {
-    return (
-      <div className="container mx-auto py-12 px-4">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold mb-8">Checkout</h1>
-          <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
-          </div>
-        </div>
-      </div>
-    );
+    return <CheckoutLoading />;
   }
 
   return (
@@ -628,5 +634,14 @@ export default function CheckoutPage() {
         )}
       </div>
     </div>
+  );
+}
+
+// Export the wrapped component with Suspense boundary
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<CheckoutLoading />}>
+      <CheckoutContent />
+    </Suspense>
   );
 } 

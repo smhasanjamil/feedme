@@ -4,37 +4,27 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAppSelector, useAppDispatch } from '@/redux/hooks';
-import { clearCart } from '@/redux/features/cart/cartSlice';
+import { clearCart, CartItem } from '@/redux/features/cart/cartSlice';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { ShoppingCart, CreditCard, Store, Star } from 'lucide-react';
+import { ShoppingCart, CreditCard, Star } from 'lucide-react';
 import { useGetMealByIdQuery } from '@/redux/meal/mealApi';
 import { use } from 'react';
+
 import { currentUser } from '@/redux/features/auth/authSlice';
 import { useCreateOrderFromCartMutation } from '@/redux/features/cart/cartApi';
 import { toast } from 'react-hot-toast';
 import { Badge } from '@/components/ui/badge';
 
-interface PageProps {
-  params: {
-    mealId: string;
-  };
-}
-
-interface Provider {
-  _id?: string;
-  name?: string;
-  email?: string;
-}
-
-interface CartItemType {
+// UI-specific type for cart items in this component
+interface UICartItem {
   _id: string;
   mealId: string;
   mealName: string;
-  providerId: string | Provider;
+  providerId: string | { _id?: string; name?: string; email?: string };
   providerName: string;
   quantity: number;
   price: number;
@@ -55,21 +45,25 @@ interface CartItemType {
   reviewCount?: number;
 }
 
-type ParamsWithMealId = {
-  mealId: string;
-};
-
-export default function CheckoutPage({ params }: PageProps) {
-  // Use React.use to unwrap params
-  const unwrappedParams = use(params as ParamsWithMealId);
-  const { mealId } = unwrappedParams;
+export default function CheckoutPage({ params }: { params: Promise<{ mealId: string }> }) {
+  // Access mealId using the use() hook to unwrap the Promise
+  const { mealId } = use(params);
   
   const router = useRouter();
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
   const user = useAppSelector(currentUser);
   //console.log(user)
-  const cartItems = useAppSelector((state) => state.cart.items) as CartItemType[];
+  const cartState = useAppSelector((state) => state.cart);
+  const cartItems = useMemo<UICartItem[]>(() => {
+    return Array.isArray(cartState?.items) 
+      ? cartState.items.map(item => ({
+          ...item as CartItem,
+          rating: 4, // Default rating
+          reviewCount: 2, // Default review count
+        }))
+      : [];
+  }, [cartState?.items]);
   const { data: mealData, isLoading: isMealLoading, error: mealError } = useGetMealByIdQuery({ id: mealId });
   
   const [createOrderFromCart] = useCreateOrderFromCartMutation();
@@ -87,31 +81,31 @@ export default function CheckoutPage({ params }: PageProps) {
   });
 
   // Get provider information from cart items
-  const getProviderInfo = () => {
-    if (!cartItems.length) return null;
+  // const getProviderInfo = () => {
+  //   if (!cartItems.length) return null;
     
-    // Get first item's provider info
-    const firstItem = cartItems[0];
+  //   // Get first item's provider info
+  //   const firstItem = cartItems[0];
     
-    if (typeof firstItem.providerId === 'object' && firstItem.providerId && firstItem.providerId.name) {
-      return {
-        id: firstItem.providerId._id,
-        name: firstItem.providerId.name,
-        email: firstItem.providerId.email
-      };
-    } else if (typeof firstItem.providerId === 'string') {
-      // If providerId is just a string, use that as id and name
-      return {
-        id: firstItem.providerId,
-        name: firstItem.providerId,
-        email: ''
-      };
-    }
+  //   if (typeof firstItem.providerId === 'object' && firstItem.providerId && firstItem.providerId.name) {
+  //     return {
+  //       id: firstItem.providerId._id,
+  //       name: firstItem.providerId.name,
+  //       email: firstItem.providerId.email
+  //     };
+  //   } else if (typeof firstItem.providerId === 'string') {
+  //     // If providerId is just a string, use that as id and name
+  //     return {
+  //       id: firstItem.providerId,
+  //       name: firstItem.providerId,
+  //       email: ''
+  //     };
+  //   }
     
-    return null;
-  };
+  //   return null;
+  // };
 
-  const providerInfo = getProviderInfo();
+  //const providerInfo = getProviderInfo();
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isClient, setIsClient] = useState(false);
@@ -255,12 +249,12 @@ export default function CheckoutPage({ params }: PageProps) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const generateOrderId = () => {
-    // Generate a unique order ID based on timestamp and random numbers
-    const timestamp = new Date().getTime().toString().slice(-6);
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    return `ORD-${timestamp}-${random}`;
-  };
+  // const generateOrderId = () => {
+  //   // Generate a unique order ID based on timestamp and random numbers
+  //   const timestamp = new Date().getTime().toString().slice(-6);
+  //   const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+  //   return `ORD-${timestamp}-${random}`;
+  // };
 
   const handlePlaceOrder = async () => {
     if (!validateForm()) {
@@ -297,18 +291,18 @@ export default function CheckoutPage({ params }: PageProps) {
       console.log('API Response:', JSON.stringify(response, null, 2));
       
       // Check for checkout URL and redirect immediately
-      let checkoutUrl = null;
+      let checkoutUrl: string = '';
       
       // Try different paths in the response object to find the checkout URL
       if (response && response.data && response.data.checkoutUrl) {
-        checkoutUrl = response.data.checkoutUrl;
+        checkoutUrl = response.data.checkoutUrl as string;
       } else if (response.data?.data?.checkoutUrl) {
-        checkoutUrl = response.data.data.checkoutUrl;
+        checkoutUrl = response.data.data.checkoutUrl as string;
       } else if (response.checkoutUrl) {
-        checkoutUrl = response.checkoutUrl;
+        checkoutUrl = response.checkoutUrl as string;
       }
       
-      if (checkoutUrl) {
+      if (checkoutUrl && typeof checkoutUrl === 'string') {
         // Show success toast notification before redirecting
         toast.success('Order created successfully! Redirecting to payment...', {
           duration: 3000
@@ -427,7 +421,7 @@ export default function CheckoutPage({ params }: PageProps) {
                           ({item.deliverySlot || checkoutDetails.deliveryTime})
                         </p>
                       </div>
-                      <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                      <span className="font-medium">৳{(item.price * item.quantity).toFixed(2)}</span>
                     </div>
                   ))}
                 </CardContent>
@@ -592,7 +586,7 @@ export default function CheckoutPage({ params }: PageProps) {
                               <span className="mr-2">{item.quantity}x</span>
                               <span>{item.mealName}</span>
                             </div>
-                            <span>${(item.price * item.quantity).toFixed(2)}</span>
+                            <span>৳{(item.price * item.quantity).toFixed(2)}</span>
                           </div>
                         ))}
                       </div>
@@ -601,24 +595,24 @@ export default function CheckoutPage({ params }: PageProps) {
                       
                       <div className="flex justify-between">
                         <span>Subtotal</span>
-                        <span>${calculateSubtotal().toFixed(2)}</span>
+                        <span>৳{calculateSubtotal().toFixed(2)}</span>
                       </div>
                       
                       <div className="flex justify-between text-gray-600">
                         <span>Tax (5%)</span>
-                        <span>${calculateTax().toFixed(2)}</span>
+                        <span>৳{calculateTax().toFixed(2)}</span>
                       </div>
                       
                       <div className="flex justify-between text-gray-600">
                         <span>Shipping</span>
-                        <span>${calculateShipping().toFixed(2)}</span>
+                        <span>৳{calculateShipping().toFixed(2)}</span>
                       </div>
                       
                       <Separator />
                       
                       <div className="flex justify-between font-bold text-lg">
                         <span>Total</span>
-                        <span>${calculateTotal().toFixed(2)}</span>
+                        <span>৳{calculateTotal().toFixed(2)}</span>
                       </div>
                       
                       <Button 
