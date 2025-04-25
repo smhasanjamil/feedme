@@ -10,9 +10,9 @@ const Footer = () => {
           <Link href="/" className="text-3xl font-semibold">
             feedme.
           </Link>
-          <p className="text-sm md:text-base">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          <p className="text-sm md:text-base w-11/12">
+            Feedme delivers fresh, fully customizable meals made just for
+            you—simple, healthy, and tailored to your unique lifestyle.
           </p>
         </div>
         <div>
