@@ -105,7 +105,8 @@ const MealsPage: React.FC = () => {
                 alt="menu pictures"
                 width={500}
                 height={500}
-              ></Image>
+                className="w-full h-[230px] object-cover"
+              />
             )}
 
             <CardContent className="space-y-3 p-4">
