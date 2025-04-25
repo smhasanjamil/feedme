@@ -25,7 +25,8 @@ import {
   MinusCircle,
   Flame,
   RefreshCw,
-  Trash2
+  Trash2,
+  Package2
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -559,7 +560,7 @@ export default function ManageOrdersPage() {
       </div>
 
       {/* Order Statistics */}
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         <Card>
           <CardContent className="pt-6">
             <h3 className="text-sm font-medium text-gray-500">Total Orders</h3>
@@ -627,17 +628,17 @@ export default function ManageOrdersPage() {
           </div>
         </div>
 
-        <div className="rounded-md border overflow-x-auto">
+        <div className="overflow-x-auto rounded-md border">
           <table className="w-full min-w-full">
             <thead>
               <tr className="bg-gray-50 text-xs font-medium text-gray-500">
                 <th className="px-3 py-3 text-left">Order ID</th>
                 <th className="px-3 py-3 text-left">Customer</th>
-                <th className="px-3 py-3 text-left">Date</th>
-                <th className="px-3 py-3 text-left">Delivery Date</th>
-                <th className="px-3 py-3 text-left">Payment Status</th>
+                <th className="px-3 py-3 text-left hidden md:table-cell">Date</th>
+                <th className="px-3 py-3 text-left hidden lg:table-cell">Delivery Date</th>
+                <th className="px-3 py-3 text-left hidden md:table-cell">Payment Status</th>
                 <th className="px-3 py-3 text-left">Tracking Stage</th>
-                <th className="px-3 py-3 text-right">Total</th>
+                <th className="px-3 py-3 text-right hidden sm:table-cell">Total</th>
                 <th className="px-3 py-3 text-right">Actions</th>
               </tr>
             </thead>
@@ -652,13 +653,13 @@ export default function ManageOrdersPage() {
                       <div className="text-xs font-medium">{order.name || "N/A"}</div>
                       <div className="text-xs text-gray-500">{order.email || "N/A"}</div>
                     </td>
-                    <td className="px-3 py-3">
+                    <td className="px-3 py-3 hidden md:table-cell">
                       <div className="flex items-center text-xs text-gray-500">
                         <CalendarIcon className="mr-1 h-3 w-3" />
                         {new Date(order.createdAt).toLocaleDateString()}
                       </div>
                     </td>
-                    <td className="px-3 py-3 text-xs text-gray-500">
+                    <td className="px-3 py-3 text-xs text-gray-500 hidden lg:table-cell">
                       {order.deliveryDate ? (
                         <>
                           {new Date(order.deliveryDate).toLocaleDateString()}
@@ -668,7 +669,7 @@ export default function ManageOrdersPage() {
                         "N/A"
                       )}
                     </td>
-                    <td className="px-3 py-3">
+                    <td className="px-3 py-3 hidden md:table-cell">
                       <Badge
                         variant={order.transaction?.transactionStatus === "Paid" ? "outline" : "secondary"}
                         className="text-[10px]"
@@ -677,18 +678,15 @@ export default function ManageOrdersPage() {
                       </Badge>
                     </td>
                     <td className="px-3 py-3">
-                      {order.trackingUpdates && order.trackingUpdates.length > 0 ? (
-                        <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(order.trackingUpdates[order.trackingUpdates.length - 1].stage)}`}>
-                          {order.trackingUpdates[order.trackingUpdates.length - 1].stage}
-                        </span>
-                      ) : (
-                        <span className="text-xs text-gray-500">No tracking info</span>
-                      )}
+                      <Badge
+                        variant="outline"
+                        className={`text-[10px] ${getStatusColor(order.status)}`}
+                      >
+                        {order.status}
+                      </Badge>
                     </td>
-                    <td className="px-3 py-3 text-right">
-                      <span className="text-xs font-medium">
-                        ${order.totalPrice?.toFixed(2) || "0.00"}
-                      </span>
+                    <td className="px-3 py-3 text-right font-medium hidden sm:table-cell">
+                      ${order.totalAmount ? parseFloat(order.totalAmount).toFixed(2) : "0.00"}
                     </td>
                     <td className="px-3 py-3 text-right">
                       <DropdownMenu>
@@ -764,35 +762,35 @@ export default function ManageOrdersPage() {
       {/* Order Details Modal */}
       {isModalOpen && selectedOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-          <div className="relative max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-lg bg-white p-6 shadow-lg">
+          <div className="relative max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-lg bg-white p-4 sm:p-6 shadow-lg">
             {/* Close button */}
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute right-4 top-4 rounded-full p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+              className="absolute right-3 top-3 rounded-full p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
             >
               <X className="h-5 w-5" />
             </button>
 
             {/* Modal Header */}
-            <div className="mb-6">
+            <div className="mb-4 sm:mb-6">
               <h2 className="text-xl font-bold">Order Details</h2>
               <p className="text-sm text-gray-500">Complete information about the order</p>
             </div>
             
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* Order ID and Date */}
-              <div className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-gray-50 p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 rounded-md bg-gray-50 p-4">
                 <div>
                   <p className="text-xs text-gray-500">Order ID</p>
-                  <p className="font-medium">{selectedOrder._id}</p>
+                  <p className="font-medium text-sm md:text-base truncate">{selectedOrder._id}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">Date</p>
-                  <p className="font-medium">{new Date(selectedOrder.createdAt).toLocaleString()}</p>
+                  <p className="font-medium text-sm md:text-base">{new Date(selectedOrder.createdAt).toLocaleString()}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">Tracking Number</p>
-                  <p className="font-medium">{selectedOrder.trackingNumber || "N/A"}</p>
+                  <p className="font-medium text-sm md:text-base">{selectedOrder.trackingNumber || "N/A"}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">Status</p>
@@ -803,30 +801,24 @@ export default function ManageOrdersPage() {
               </div>
 
               {/* Customer Information */}
-              <div>
-                <h3 className="mb-2 flex items-center gap-2 font-medium">
-                  <User className="h-4 w-4" />
-                  Customer Information
-                </h3>
-                <div className="rounded-md border p-4">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <p className="text-xs text-gray-500">Name</p>
-                      <p className="font-medium">
-                        {selectedOrder.name || 
-                         (selectedOrder.customerFirstName && selectedOrder.customerLastName 
-                           ? `${selectedOrder.customerFirstName} ${selectedOrder.customerLastName}`
-                           : "N/A")}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">Email</p>
-                      <p className="font-medium">{selectedOrder.email || "N/A"}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">Phone</p>
-                      <p className="font-medium">{selectedOrder.phone || "N/A"}</p>
-                    </div>
+              <div className="rounded-md border p-4">
+                <h3 className="mb-2 text-sm font-medium">Customer Information</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <p className="text-xs text-gray-500">Name</p>
+                    <p className="font-medium">{selectedOrder.name || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Email</p>
+                    <p className="font-medium">{selectedOrder.email || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Phone</p>
+                    <p className="font-medium">{selectedOrder.phoneNumber || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Address</p>
+                    <p className="font-medium">{selectedOrder.address || "N/A"}</p>
                   </div>
                 </div>
               </div>
@@ -839,10 +831,6 @@ export default function ManageOrdersPage() {
                 </h3>
                 <div className="rounded-md border p-4">
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <p className="text-xs text-gray-500">Address</p>
-                      <p className="font-medium">{selectedOrder.address || "N/A"}</p>
-                    </div>
                     <div>
                       <p className="text-xs text-gray-500">City</p>
                       <p className="font-medium">{selectedOrder.city || "N/A"}</p>
@@ -1099,223 +1087,94 @@ export default function ManageOrdersPage() {
         </div>
       )}
 
-      {/* Order Update Modal */}
+      {/* Order Status Update Modal */}
       {isUpdateModalOpen && selectedOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-          <div className="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg bg-white p-6 shadow-lg">
-            {/* Close button */}
+          <div className="relative w-full max-w-md rounded-lg bg-white p-4 sm:p-6 shadow-lg">
             <button
               onClick={() => setIsUpdateModalOpen(false)}
-              className="absolute right-4 top-4 rounded-full p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+              className="absolute right-3 top-3 rounded-full p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
             >
               <X className="h-5 w-5" />
             </button>
 
-            {/* Modal Header */}
-            <div className="mb-6">
+            <div className="mb-4 sm:mb-6">
               <h2 className="text-xl font-bold">Update Order Status</h2>
-              <p className="text-sm text-gray-500">Change status and add tracking updates</p>
+              <p className="text-sm text-gray-500">
+                Current Status: <span className={`font-medium ${getStatusColor(selectedOrder.status)}`}>{selectedOrder.status}</span>
+              </p>
             </div>
-            
-            <div className="space-y-6">
-              {/* Order basic info */}
-              <div className="rounded-md border p-4">
-                <div className="flex flex-wrap gap-4 justify-between">
-                  <div>
-                    <p className="text-xs text-gray-500">Order ID</p>
-                    <p className="font-medium">{selectedOrder._id}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Customer</p>
-                    <p className="font-medium">{selectedOrder.name || "N/A"}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Current Stage</p>
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(selectedOrder.status)}`}>
-                      {selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}
-                    </span>
-                  </div>
+
+            <div className="space-y-4">
+              {/* Status selection */}
+              <div>
+                <label className="mb-2 block text-sm font-medium">New Status</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <Button
+                    variant={selectedOrder.status === "placed" ? "default" : "outline"}
+                    size="sm"
+                    className="justify-start"
+                    onClick={() => handleStatusChange(selectedOrder._id, "placed", updateMessage)}
+                  >
+                    <PackageCheck className="mr-2 h-4 w-4" />
+                    Placed
+                  </Button>
+                  <Button
+                    variant={selectedOrder.status === "approved" ? "default" : "outline"}
+                    size="sm"
+                    className="justify-start"
+                    onClick={() => handleStatusChange(selectedOrder._id, "approved", updateMessage)}
+                  >
+                    <Check className="mr-2 h-4 w-4" />
+                    Approved
+                  </Button>
+                  <Button
+                    variant={selectedOrder.status === "processed" ? "default" : "outline"}
+                    size="sm"
+                    className="justify-start"
+                    onClick={() => handleStatusChange(selectedOrder._id, "processed", updateMessage)}
+                  >
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Processed
+                  </Button>
+                  <Button
+                    variant={selectedOrder.status === "delivered" ? "default" : "outline"}
+                    size="sm"
+                    className="justify-start"
+                    onClick={() => handleStatusChange(selectedOrder._id, "delivered", updateMessage)}
+                  >
+                    <Package2 className="mr-2 h-4 w-4" />
+                    Delivered
+                  </Button>
                 </div>
               </div>
 
-              {/* Tracking Updates */}
-              {selectedOrder.trackingUpdates && selectedOrder.trackingUpdates.length > 0 && (
-                <div>
-                  <h3 className="mb-2 font-medium">Tracking Updates</h3>
-                  <div className="space-y-2 max-h-60 overflow-y-auto border rounded-md p-2">
-                    {/* Sort tracking updates by timestamp, newest first */}
-                    {[...selectedOrder.trackingUpdates]
-                      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-                      .map((update: any, index: number) => {
-                        const isLatest = index === 0; // First item is the most recent update
-                        return (
-                          <div 
-                            key={update._id || index} 
-                            className={`rounded-md border p-3 ${isLatest ? 'border-blue-300 bg-blue-50' : ''}`}
-                          >
-                            <div className="flex justify-between mb-1">
-                              <div className="flex items-center">
-                                <p className="text-sm font-medium">
-                                  {update.stage.charAt(0).toUpperCase() + update.stage.slice(1)}
-                                </p>
-                                {isLatest && (
-                                  <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full font-medium">
-                                    Current
-                                  </span>
-                                )}
-                              </div>
-                              <span className="text-xs text-gray-500">
-                                {new Date(update.timestamp).toLocaleString()}
-                              </span>
-                            </div>
-                            {update.message && (
-                              <p className="text-sm text-gray-700 mt-1 bg-gray-50 p-2 rounded">
-                                {update.message}
-                              </p>
-                            )}
-                          </div>
-                        );
-                      })}
-                  </div>
-                </div>
-              )}
+              {/* Update message */}
+              <div>
+                <label htmlFor="update-message" className="mb-2 block text-sm font-medium">Update Message (Optional)</label>
+                <Input
+                  id="update-message"
+                  value={updateMessage}
+                  onChange={(e) => setUpdateMessage(e.target.value)}
+                  placeholder="Add a message with this status update"
+                />
+              </div>
 
-              {/* Status update form */}
-              <div className="rounded-md border p-4">
-                <h4 className="mb-3 text-sm font-medium">Update Status</h4>
-                
-                {/* Current status tracking information */}
-                <div className="mb-5 p-3 bg-gray-50 rounded-md">
-                  <h5 className="text-sm font-semibold mb-2">Status Progression</h5>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {["placed", "approved", "processed", "shipped", "delivered"].map((stage, index) => {
-                      // Determine the order progression
-                      const stageOrder = {
-                        "placed": 1,
-                        "approved": 2,
-                        "processed": 3,
-                        "shipped": 4,
-                        "delivered": 5
-                      };
-                      
-                      // Get current stage order number
-                      const currentStageOrder = stageOrder[selectedOrder.status as keyof typeof stageOrder] || 0;
-                      
-                      // This stage's order number
-                      const thisStageOrder = stageOrder[stage as keyof typeof stageOrder];
-                      
-                      // Check if this stage has explicitly been reached in tracking updates
-                      const isExplicitlyCompleted = selectedOrder.trackingUpdates?.some(u => u.stage === stage);
-                      
-                      // A stage is considered completed if:
-                      // 1. It's explicitly in the tracking updates, OR
-                      // 2. It's a previous stage compared to the current stage (to handle skipped stages)
-                      const isCompleted = isExplicitlyCompleted || thisStageOrder < currentStageOrder;
-                      
-                      // Check if this is the current status
-                      const isCurrent = selectedOrder.status === stage;
-                      
-                      return (
-                        <div 
-                          key={stage} 
-                          className={`flex items-center gap-1 rounded-md px-2 py-1 text-xs ${
-                            isCurrent 
-                              ? 'bg-blue-100 text-blue-800 border border-blue-300' 
-                              : isCompleted 
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-gray-100 text-gray-500'
-                          }`}
-                        >
-                          {index + 1}. {stage.charAt(0).toUpperCase() + stage.slice(1)}
-                          {isCurrent && <span className="ml-1 text-[10px] font-medium">(Current)</span>}
-                          {isCompleted && !isCurrent && <Check className="h-3 w-3" />}
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <p className="text-xs text-gray-500">
-                    Current status: <span className="font-medium">{selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}</span>
-                  </p>
-                </div>
-                
-                {/* Status update message feedback */}
-                {statusMessage && (
-                  <div className="mb-3 rounded bg-green-50 p-2 text-sm text-green-700">
-                    {statusMessage}
-                  </div>
-                )}
-                
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label htmlFor="status" className="text-xs text-gray-500">New Status</label>
-                    <select 
-                      id="status"
-                      className="mt-1 w-full rounded-md border-gray-300 p-2 text-sm shadow-sm focus:border-primary focus:ring-primary"
-                      value={selectedOrder.status}
-                      onChange={(e) => setSelectedOrder({...selectedOrder, status: e.target.value})}
-                    >
-                      {["placed", "approved", "processed", "shipped", "delivered"].map((status) => (
-                        <option key={status} value={status}>
-                          {status.charAt(0).toUpperCase() + status.slice(1)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label htmlFor="message" className="flex items-center text-xs text-gray-500">
-                      Update Message <span className="text-red-500 ml-1">*</span>
-                    </label>
-                    <input 
-                      id="message"
-                      type="text"
-                      className="mt-1 w-full rounded-md border-gray-300 p-2 text-sm shadow-sm focus:border-primary focus:ring-primary"
-                      placeholder="Required message for this update"
-                      value={updateMessage}
-                      onChange={(e) => setUpdateMessage(e.target.value)}
-                      required
-                    />
-                    {!updateMessage && (
-                      <p className="mt-1 text-xs text-red-500">A message is required for status updates</p>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="mt-4 flex justify-end space-x-2">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setIsUpdateModalOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button 
-                    onClick={async () => {
-                      // Validate message field
-                      if (!updateMessage) {
-                        setStatusMessage("❌ Please provide a message for the status update");
-                        return;
-                      }
-                      
-                      await handleStatusChange(selectedOrder._id, selectedOrder.status, updateMessage);
-                      // Don't close the modal so users can see the confirmation
-                      // Instead, refresh the order data to show the updated tracking
-                      const updatedOrders = await refetch();
-                      if (updatedOrders.data) {
-                        // Find and update the selected order with new data
-                        const refreshedOrder = updatedOrders.data.find(
-                          order => order._id === selectedOrder._id
-                        );
-                        if (refreshedOrder) {
-                          setSelectedOrder(refreshedOrder);
-                        }
-                      }
-                    }}
-                    disabled={!updateMessage}
-                  >
-                    <RefreshCw className="h-4 w-4 mr-1" />
-                    Update Status
-                  </Button>
-                </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsUpdateModalOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="flex gap-1"
+                  onClick={() => handleDeleteOrder(selectedOrder._id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete Order
+                </Button>
               </div>
             </div>
           </div>

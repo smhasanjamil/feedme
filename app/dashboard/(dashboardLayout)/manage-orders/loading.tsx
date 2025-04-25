@@ -11,7 +11,7 @@ export default function ManageOrdersLoading() {
       </div>
 
       {/* Order Statistics Skeleton */}
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {[...Array(5)].map((_, i) => (
           <Card key={i}>
             <CardContent className="pt-6">
@@ -40,7 +40,7 @@ export default function ManageOrdersLoading() {
           <div className="h-8 w-20 animate-pulse rounded bg-gray-200"></div>
         </div>
 
-        <div className="rounded-md border overflow-x-auto">
+        <div className="overflow-x-auto rounded-md border">
           <table className="w-full min-w-full">
             <thead>
               <tr className="bg-gray-50 text-xs font-medium text-gray-500">

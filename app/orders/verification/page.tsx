@@ -11,7 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, AlertCircle } from "lucide-react";
 import { useVerifyOrderQuery } from "@/redux/features/orders/order";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 interface OrderData {
@@ -46,6 +46,7 @@ interface OrderData {
 
 export default function OrderVerification() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const orderId = searchParams.get("order_id");
 
   const { isLoading, data } = useVerifyOrderQuery(
@@ -67,13 +68,6 @@ export default function OrderVerification() {
   const deliveryDate = new Date();
   deliveryDate.setDate(deliveryDate.getDate() + 7);
   
-  // Format the delivery date
-  const formattedDeliveryDate = deliveryDate.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
   // Use the tracking number from the API response
   const trackingNumber = orderData?.tracking_number || 
     (orderData?.order_id ? `TRK-${orderData.order_id.substring(0, 8)}` : "Not available");
@@ -84,7 +78,7 @@ export default function OrderVerification() {
   const phoneNumber = orderData?.phone || "";
 
   return isLoading ? (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 my-10">
       <div className="animate-pulse space-y-6">
         <div className="h-8 w-64 rounded bg-gray-200"></div>
         <div className="grid gap-6 md:grid-cols-2">
@@ -105,7 +99,7 @@ export default function OrderVerification() {
       </div>
     </div>
   ) : (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 my-10">
       <h1 className="mb-6 text-3xl font-bold">Order Verification</h1>
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
@@ -134,12 +128,7 @@ export default function OrderVerification() {
               </dd>
               <dt className="font-semibold">Order Date:</dt>
               <dd>{new Date(orderData?.date_time)?.toLocaleString()}</dd>
-              <dt className="font-semibold text-red-600">
-                Estimated Delivery:
-              </dt>
-              <dd className="text-red-600">
-                {formattedDeliveryDate}
-              </dd>
+             
             </dl>
           </CardContent>
         </Card>
@@ -192,10 +181,6 @@ export default function OrderVerification() {
             <dl className="mb-4 grid grid-cols-2 gap-2">
               <dt className="font-semibold">Tracking Number:</dt>
               <dd>{trackingNumber}</dd>
-              <dt className="font-semibold">Estimated Delivery:</dt>
-              <dd className="text-velo-red">
-                {formattedDeliveryDate} (7days latter from Current date)
-              </dd>
             </dl>
             <div className="flex items-center gap-2">
               {orderData?.bank_status === "Success" ? (
@@ -212,7 +197,7 @@ export default function OrderVerification() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button className="w-full">Track Order</Button>
+            <Button className="w-full" onClick={() => router.push('/dashboard/my-orders')}>Track Order</Button>
           </CardFooter>
         </Card>
       </div>

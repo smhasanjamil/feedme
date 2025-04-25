@@ -156,15 +156,7 @@ export default function OrderPage({ params }: OrderPageProps) {
                 <span className="text-muted-foreground">Tracking Number:</span>
                 <span className="font-medium">{orderData.tracking.number}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Estimated Delivery:</span>
-                <span className="font-medium">
-                  {orderData.tracking.estimatedDelivery}
-                  <span className="text-red-500 ml-1">
-                    ({orderData.tracking.daysRemaining}days later from Current date)
-                  </span>
-                </span>
-              </div>
+
               <div className="flex items-center gap-2 mt-4">
                 {orderData.tracking.verified && (
                   <>
