@@ -143,12 +143,12 @@ body {
     transform: translateX(0%);
   }
   100% {
-    transform: translateX(-30%);
+    transform: translateX(-100%); /* or larger value */
   }
 }
 
 .marquee {
-  animation: marqueeScroll 10s linear infinite;
+  animation: marqueeScroll 30s linear infinite;
 }
 
 body.cloudinary-modal-open {
