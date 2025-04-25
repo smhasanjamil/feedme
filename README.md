@@ -1,38 +1,142 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FeedMe 🍱 – Personalized Meal Planning & Delivery Platform
 
-## Getting Started
+A full-stack web application that bridges the gap between customers and meal providers through a dynamic platform for customized meal planning and seamless food delivery, based on dietary preferences and schedules.
 
-First, run the development server:
+## 🚀 Live Demo
+
+🌐 [Live Frontend URL](https://feedme.vercel.app)  
+🔗 [Backend Deployment](https://feedme-api.onrender.com) *(if applicable)*  
+🎥 [Video Walkthrough](https://drive.google.com/your-demo-link)
+
+---
+
+## 📌 Features
+
+### 👤 User Authentication & Roles
+- Secure JWT-based login for **Customers** and **Meal Providers**
+- Password encryption using **bcrypt**
+- Role-based dashboards and access control
+
+### 🍽 Customer Panel
+- Browse, customize, and schedule meals
+- Set dietary preferences (vegan, keto, gluten-free, etc.)
+- Track active and past orders
+- Edit delivery profile and preferences
+
+### 👨‍🍳 Meal Provider Panel
+- Manage meal listings with ingredients, pricing, and availability
+- View, accept, or modify customer orders
+- Update cuisine specialties and delivery options
+
+### 🔍 Search & Match
+- Customers can search meals based on cuisine, rating, or preferences
+- Providers can view preferences to tailor meals
+
+### 📬 Notifications (Email)
+- Order status updates for customers and providers via email
+
+---
+
+## 🛠 Tech Stack
+
+### Frontend
+- [Next.js](https://nextjs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Redux Toolkit](https://redux-toolkit.js.org/)
+- [NextAuth (custom)](https://next-auth.js.org/)
+- [Radix UI](https://www.radix-ui.com/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Cloudinary](https://cloudinary.com/) for media uploads
+
+### Backend
+- [Node.js](https://nodejs.org/)
+- [Express.js](https://expressjs.com/)
+- [MongoDB + Mongoose](https://mongoosejs.com/)
+- [JWT](https://jwt.io/) for authentication
+- [Nodemailer](https://nodemailer.com/) for emails
+
+---
+
+## 📦 Installation & Setup
+
+### Prerequisites
+- Node.js (v18+)
+- MongoDB URI
+- Cloudinary credentials
+- SMTP email config (e.g., Gmail or Mailtrap)
+
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/ifajul89/feedme.git
+cd feedme
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Create `.env.local`
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000
+MONGODB_URI=your_mongo_connection_string
+JWT_SECRET=your_jwt_secret
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+EMAIL_USER=youremail@example.com
+EMAIL_PASS=your_email_password
+```
+
+### 4. Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit `http://localhost:3000` to use the app locally.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📁 Project Structure
 
-## Learn More
+```
+/pages          – Route-based files for Next.js
+/components     – Reusable React components
+/redux          – Global state management with slices
+/api            – REST API endpoints for backend services
+/models         – Mongoose schemas
+/utils          – Helper functions (auth, email, cloudinary)
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📹 Demo Overview (Must-Watch)
+- User registration/login (Customer & Provider)
+- Meal customization & scheduling
+- Provider order management & menu creation
+- Meal search and dietary preference filtering
+- Email notification flow
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🧑‍💻 Contributors
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Ifajul** – [GitHub](https://github.com/ifajul89)  
+  *(Project Lead & Full Stack Developer)*
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
 
-# feedme
+## 📄 License
+
+MIT License © 2025 Ifajul  
+Feel free to fork and expand!
+
+---
+
+```
+
+Let me know if you'd like to add badges, images, or contribution guidelines to this!
