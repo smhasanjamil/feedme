@@ -51,20 +51,16 @@ const Navbar = () => {
 
   const navItems = [
     {
-      name: "About",
-      link: "/about",
-    },
-    {
       name: "Find Meals",
       link: "/find-meals",
     },
     {
-      name: "Pricing",
-      link: "/pricing",
+      name: "About",
+      link: "/about",
     },
     {
-      name: "Services",
-      link: "/services",
+      name: "Contact Us",
+      link: "/contact",
     },
   ];
 
@@ -108,7 +104,7 @@ const Navbar = () => {
             <Link href="/cart" className="relative flex items-center">
               <ShoppingCart className="h-6 w-6 text-gray-700" />
               {cartItemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#FF0000] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#FF0000] text-xs text-white">
                   {cartItemCount}
                 </span>
               )}
@@ -175,12 +171,12 @@ const Navbar = () => {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
+          <div className="flex items-center md:hidden">
             {/* Mobile Cart Icon */}
             <Link href="/cart" className="relative mr-4">
               <ShoppingCart className="h-6 w-6 text-gray-700" />
               {cartItemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#FF0000] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#FF0000] text-xs text-white">
                   {cartItemCount}
                 </span>
               )}
@@ -206,45 +202,39 @@ const Navbar = () => {
         <div className="md:hidden">
           <div className="space-y-1 px-2 pt-2 pb-3 sm:px-3">
             <Link
+              href="/find-meals"
+              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-feed-lime"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Find Meals
+            </Link>
+            <Link
               href="/about"
-              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
+              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-feed-lime"
               onClick={() => setIsMenuOpen(false)}
             >
               About
             </Link>
+
             <Link
-              href="#menu"
-              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
+              href="/contact"
+              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-feed-lime"
               onClick={() => setIsMenuOpen(false)}
             >
-              Menu
+              Contact Us
             </Link>
-            <Link
-              href="#pricing"
-              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Pricing
-            </Link>
-            <Link
-              href="#services"
-              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Services
-            </Link>
-            {user ? (
+            {!user ? (
               <>
                 <Link
                   href="/dashboard"
-                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
+                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-feed-lime"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Dashboard
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="w-full rounded-md px-3 py-2 text-left text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
+                  className="w-full rounded-md px-3 py-2 text-left text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-feed-lime"
                 >
                   Sign Out
                 </button>
@@ -253,14 +243,14 @@ const Navbar = () => {
               <>
                 <Link
                   href="/login"
-                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
+                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-feed-lime"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/register"
-                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#FF0000]"
+                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-feed-lime"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Sign Up
