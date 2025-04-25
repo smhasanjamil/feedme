@@ -1,5 +1,5 @@
 import { FaInstagram } from "react-icons/fa";
-import { BsPinterest } from "react-icons/bs"; 
+import { BsPinterest } from "react-icons/bs";
 import { RiTwitterXFill } from "react-icons/ri";
 import Image from "next/image";
 
@@ -15,10 +15,10 @@ const OurTeamCard: React.FC<OurTeamCardProps> = ({
   description,
 }) => {
   const socialIconStyle =
-    "text-gray-100 hover:text-feed-lime hover:bg-feed-black bg-feed-black p-1.5 text-[40px] cursor-pointer rounded-full duration-300";
+    "text-gray-100 hover:text-feed-lime hover:bg-feed-black bg-feed-black p-1.5 text-3xl lg:text-[40px] cursor-pointer rounded-full duration-300";
 
   return (
-    <div className="col-span-2 rounded-full bg-gray-100 p-5 md:col-span-1">
+    <div className="col-span-2 rounded-full bg-gray-100 p-2 md:col-span-1 lg:p-3 xl:p-5">
       <Image
         className="w-full rounded-full"
         src={`/home/ourTeam/team-person-${num}.jpg`}
@@ -27,8 +27,8 @@ const OurTeamCard: React.FC<OurTeamCardProps> = ({
         width={250}
       />
       <div className="pt-2 pb-5 text-center">
-        <h3 className="text-2xl font-medium">{name}</h3>
-        <p className="mx-auto mt-1 mb-2.5 w-10/12 text-center text-[17px]">
+        <h3 className="font-medium lg:text-[17px] xl:text-2xl">{name}</h3>
+        <p className="mx-auto mt-1 mb-2.5 text-center text-sm text-gray-600 lg:text-base xl:w-11/12 xl:text-[17px]">
           {description}
         </p>
         <div className="flex justify-center gap-2 text-xl">
@@ -54,7 +54,7 @@ const ourTeamCardData: OurTeamCardProps[] = [
   },
   {
     num: 3,
-    name: "Md Saiful Islam Rafel",
+    name: "Saiful Islam Rafel",
     description: "Builds and maintains core platform",
   },
   {
@@ -71,7 +71,7 @@ const OurTeam = () => {
         <h3 className="text-4xl font-medium">Meet Our Team</h3>
         <div className="bg-feed-jungle h-1.5 w-30 rounded-full" />
       </div>
-      <div className="grid grid-cols-4 gap-6">
+      <div className="grid grid-cols-4 gap-3 lg:gap-4 xl:gap-6">
         {ourTeamCardData.map((masterChef) => (
           <OurTeamCard
             key={masterChef.num}
