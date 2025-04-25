@@ -29,7 +29,7 @@ const OurTeamCard: React.FC<OurTeamCardProps> = ({
       />
       <div className="pt-2 pb-5 text-center">
         <h3 className="text-2xl font-medium">{name}</h3>
-        <p className="mx-auto mt-1 mb-2 w-10/12 text-center text-[17px]">
+        <p className="mx-auto mt-1 mb-2.5 w-10/12 text-center text-[17px]">
           {description}
         </p>
         <div className="flex justify-center gap-2 text-xl">
