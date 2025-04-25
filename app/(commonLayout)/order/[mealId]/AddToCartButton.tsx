@@ -53,7 +53,7 @@ const AddToCartButton = ({
     <Button
       onClick={handleAddToCart}
       disabled={isLoading || adding}
-      className="bg-primary hover:bg-primary/90 w-full rounded-md py-2 text-white"
+      className="bg-feed-jungle hover:bg-feed-black/90 w-full rounded-md py-2 text-white"
     >
       {isLoading || adding ? (
         <>
