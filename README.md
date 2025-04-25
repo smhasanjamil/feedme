@@ -81,7 +81,7 @@ npm install
 ### 3. Create `.env.local`
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:5000
+NEXT_PUBLIC_API_URL=https://feedme-backend-zeta.vercel.app
 MONGODB_URI=your_mongo_connection_string
 JWT_SECRET=your_jwt_secret
 CLOUDINARY_CLOUD_NAME=your_cloud_name

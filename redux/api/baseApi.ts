@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../store";
 
 // Define a fallback API URL in case environment variable is not set
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://feedme-backend-zeta.vercel.app/api";
 
 export const baseApi = createApi({
   reducerPath: "baseApi",

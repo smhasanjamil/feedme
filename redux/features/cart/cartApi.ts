@@ -426,7 +426,7 @@ export const cartApi = baseApi.injectEndpoints({
     
     createOrderFromCart: builder.mutation<OrderResponse, OrderFromCartRequest>({
       query: (orderData) => ({
-        url: 'http://localhost:5000/api/orders/from-cart',
+        url: 'https://feedme-backend-zeta.vercel.app/api/orders/from-cart',
         method: 'POST',
         body: orderData,
         headers: {
