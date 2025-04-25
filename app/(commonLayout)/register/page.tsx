@@ -113,15 +113,15 @@ export default function SignUp() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-[900px] overflow-hidden rounded-2xl bg-white shadow-2xl">
         <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="relative hidden bg-gradient-to-br from-[#FF0000] to-[#CC0000] md:block">
+          <div className="relative hidden bg-feed-lime md:block">
             <div className="absolute inset-0 bg-black/10" />
             <div className="relative flex h-full flex-col justify-center p-12">
-              <h3 className="text-4xl font-bold text-white md:text-5xl lg:text-6xl">
+              <h3 className="text-4xl font-semibold text-feed-black md:text-5xl lg:text-6xl">
                 Join Us
                 <br />
                 Today!
               </h3>
-              <p className="mt-4 text-lg text-white/90">
+              <p className="mt-4 text-lg text-feed-jungle/90">
                 Create an account to start your journey towards better nutrition
                 and healthier living.
               </p>
@@ -137,7 +137,7 @@ export default function SignUp() {
                 Already have an account?{" "}
                 <Link
                   href="/login"
-                  className="font-semibold text-[#FF0000] transition-colors hover:text-[#CC0000]"
+                  className="font-semibold text-feed-jungle transition-colors hover:text-feed-black"
                 >
                   Sign in
                 </Link>
@@ -158,7 +158,7 @@ export default function SignUp() {
                       id="name"
                       type="text"
                       placeholder="Enter your full name"
-                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
+                      className="block w-full rounded-full h-10 border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
                       {...register("name", { required: "Name is required" })}
                     />
                     {errors.name && (
@@ -181,7 +181,7 @@ export default function SignUp() {
                       id="email"
                       type="email"
                       placeholder="Enter your email"
-                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
+                      className="block w-full rounded-full h-10 border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
                       {...register("email", {
                         required: "Email is required",
                         pattern: {
@@ -210,7 +210,7 @@ export default function SignUp() {
                       id="password"
                       type="password"
                       placeholder="Create a password"
-                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
+                      className="block w-full rounded-full h-10 border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
                       {...register("password", {
                         required: "Password is required",
                         minLength: {
@@ -239,7 +239,7 @@ export default function SignUp() {
                       id="phone"
                       type="tel"
                       placeholder="Enter your phone number"
-                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
+                      className="block w-full rounded-full h-10 border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
                       {...register("phone", {
                         required: "Phone number is required",
                       })}
@@ -264,7 +264,7 @@ export default function SignUp() {
                       id="address"
                       type="text"
                       placeholder="Enter your address"
-                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
+                      className="block w-full rounded-full h-10 border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
                       {...register("address", {
                         required: "Address is required",
                       })}
@@ -286,10 +286,9 @@ export default function SignUp() {
                   </label>
                   <div className="mt-1">
                     <Select
-                      defaultValue="customer"
                       onValueChange={(value) => setValue("role", value)}
                     >
-                      <SelectTrigger className="w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none">
+                      <SelectTrigger className="w-full h-10 rounded-full border border-gray-200 bg-white px-4 py-3 text-base focus:border-feed-lime focus:ring-2 focus:ring-feed-lime/20 focus:outline-none">
                         <SelectValue placeholder="Select a role" />
                       </SelectTrigger>
                       <SelectContent>
@@ -308,7 +307,7 @@ export default function SignUp() {
                 <div>
                   <Button
                     type="submit"
-                    className="w-full rounded-md bg-[#FF0000] px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#CC0000] focus:ring-2 focus:ring-[#FF0000] focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70"
+                    className="w-full bg-feed-jungle px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-feed-black h-10 rounded-full focus:ring-2 focus:ring-[#FF0000] focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70"
                     disabled={isLoading}
                   >
                     {isLoading ? "Creating account..." : "Create account"}
