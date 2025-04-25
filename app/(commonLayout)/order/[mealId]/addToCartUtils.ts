@@ -47,6 +47,18 @@ export const useAddToCart = () => {
       toast.error("Please login to add items to cart");
       return false;
     }
+    
+    // Check if the user has the role of provider or admin
+    if (user.role === 'provider' || user.role === 'admin') {
+      toast.error(`${user.role === 'provider' ? 'Providers' : 'Admins'} cannot add items to cart`);
+      return false;
+    }
+
+    // Check if delivery slot is selected
+    if (!deliverySlot || deliverySlot.trim() === '') {
+      toast.error("Please select a delivery slot before adding to cart");
+      return false;
+    }
 
     try {
       // Normalize customization structure to ensure it matches backend expectations

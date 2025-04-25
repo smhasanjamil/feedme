@@ -1,7 +1,7 @@
 "use client";
 import { useGetAllMealsQuery } from "@/redux/meal/mealApi";
 import FoodDetailsCard from "@/shared/FoodDetailsCard";
-import React from "react";
+import React, { useEffect } from "react";
 
 // const meals = [
 //   {
@@ -107,13 +107,80 @@ import React from "react";
 //   },
 // ];
 
-const page = () => {
+const Page = () => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { data: meals = [], isLoading, isError } = useGetAllMealsQuery({});
-  console.log(meals);
+  const { data: meals, isLoading, isError, error } = useGetAllMealsQuery({});
+  
+  // Debug log to check the API response structure
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (meals) {
+      console.log('Meals API Response:', meals);
+      console.log('Meals data type:', typeof meals);
+      console.log('Has data property:', meals.hasOwnProperty('data'));
+      if (meals.data) {
+        console.log('Data type:', typeof meals.data);
+        console.log('Data is array:', Array.isArray(meals.data));
+        console.log('Data length:', meals.data.length);
+      }
+    }
+  }, [meals]);
 
-  if (isLoading) return <p>Loading meals...</p>;
-  if (isError) return <p>Failed to fetch meals</p>;
+  if (isLoading) {
+    return <div className="flex justify-center p-8">Loading meals...</div>;
+  }
+
+  if (isError) {
+    return (
+      <div className="p-8">
+        <div className="text-red-500 mb-4">Failed to fetch meals. Please try again later.</div>
+        <div className="text-sm bg-gray-100 p-4 rounded">
+          Error: {JSON.stringify(error, null, 2)}
+        </div>
+      </div>
+    );
+  }
+
+  if (!meals || !meals.data) {
+    // Using the mock data as fallback for demonstration
+    const mockMeals = [
+      {
+        _id: "1",
+        name: "Grilled Chicken Salad",
+        providerId: "provider01",
+        ingredients: ["Chicken Breast", "Lettuce", "Tomatoes", "Cucumber", "Olive Oil"],
+        portionSize: "Large",
+        price: 10.99,
+        image: "https://source.unsplash.com/featured/?chicken,salad",
+        category: "Lunch",
+        description: "A healthy salad with grilled chicken and fresh veggies.",
+        preparationTime: 15,
+        isAvailable: true,
+        nutritionalInfo: {
+          calories: 350,
+          protein: 30,
+          carbs: 12,
+          fat: 15,
+        },
+      },
+      // Add more mock meals if needed
+    ];
+    
+    return (
+      <div>
+        <div className="bg-yellow-100 p-4 mb-4 rounded-md">
+          <p className="text-yellow-700">Using sample data. API data not available.</p>
+          <p className="text-sm text-yellow-600 mt-2">Response: {JSON.stringify(meals)}</p>
+        </div>
+        <FoodDetailsCard
+          meals={mockMeals}
+          onEdit={(id) => console.log("Edit meal", id)}
+          onDelete={(id) => console.log("Delete meal", id)}
+        />
+      </div>
+    );
+  }
+  
   return (
     <FoodDetailsCard
       meals={meals.data}
@@ -123,4 +190,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

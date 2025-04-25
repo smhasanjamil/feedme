@@ -150,3 +150,23 @@ body {
 .marquee {
   animation: marqueeScroll 10s linear infinite;
 }
+
+/* Home Page Banner Marquee */
+
+@keyframes marqueeScroll {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-30%);
+  }
+}
+
+.marquee {
+  animation: marqueeScroll 10s linear infinite;
+}
+
+body.cloudinary-modal-open {
+  overflow: auto !important;
+  position: static !important;
+}

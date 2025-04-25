@@ -91,7 +91,39 @@ const createMockResponse = (email?: string): CartResponse => ({
   }
 });
 
+// Order from cart request interface
+export interface OrderFromCartRequest {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  zipCode: string;
+  deliveryDate: string;
+  deliverySlot: string;
+}
+
+// Order response interface
+export interface OrderResponse {
+  status: boolean;
+  statusCode: number;
+  message: string;
+  data: {
+    checkoutUrl: string;
+    order: {
+      orderId: string;
+      trackingNumber: string;
+      totalPrice: number;
+      status: string;
+      meals: any[];
+      deliveryDate: string;
+      deliverySlot: string;
+    }
+  }
+}
+
 export const cartApi = baseApi.injectEndpoints({
+  overrideExisting: true,
   endpoints: (builder) => ({
     addToCart: builder.mutation<CartResponse, AddToCartRequest>({
       queryFn: async (data, { getState }, _extraOptions, baseQuery) => {
@@ -380,6 +412,27 @@ export const cartApi = baseApi.injectEndpoints({
       },
       invalidatesTags: ["User"],
     }),
+    
+    createOrderFromCart: builder.mutation<OrderResponse, OrderFromCartRequest>({
+      query: (orderData) => ({
+        url: 'http://localhost:5000/api/orders/from-cart',
+        method: 'POST',
+        body: orderData,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      }),
+      async onQueryStarted(arg, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          console.log('Successfully created order from cart');
+        } catch (error) {
+          console.error('Error creating order from cart:', error);
+        }
+      },
+      invalidatesTags: ["User"],
+    }),
   }),
 });
 
@@ -389,4 +442,5 @@ export const {
   useRemoveFromCartMutation,
   useUpdateCartItemMutation,
   useRemoveFromCartByEmailMutation,
+  useCreateOrderFromCartMutation,
 } = cartApi; 

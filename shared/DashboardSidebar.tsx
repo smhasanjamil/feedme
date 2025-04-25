@@ -1,12 +1,14 @@
 "use client";
 import {
   Package2,
-  //   ShoppingCart,
+  ShoppingCart,
   Users,
   LogOut,
   LayoutDashboard,
   User,
   ListOrderedIcon,
+  Search,
+  Home,
 } from "lucide-react";
 
 import {
@@ -20,34 +22,75 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/redux/store";
+import { logout } from "@/redux/features/auth/authSlice";
+import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
-const menuItems = [
-  { name: "Dashboard", path: "/dashboard", icon: <LayoutDashboard /> },
-  { name: "Manage Users", path: "/dashboard/manage-users", icon: <Users /> },
+// Menu items for Provider
+const providerMenuItems = [
+  { name: "Home", path: "/", icon: <Home /> },
+  { name: "Dashboard", path: "/dashboard/provider", icon: <LayoutDashboard /> },
   {
-    name: "Manage Products",
-    path: "/dashboard/manage-products",
+    name: "Manage Meals",
+    path: "/dashboard/provider/manage-meals",
     icon: <Package2 />,
   },
   {
     name: "Manage Orders",
-    path: "/dashboard/manage-orders",
+    path: "/dashboard/provider/manage-orders",
     icon: <ListOrderedIcon />,
   },
-  { name: "Profile", path: "/dashboard/profile", icon: <User /> },
+  { name: "Profile", path: "/dashboard/provider/profile", icon: <User /> },
 ];
 
-// const userMenuItems = [
-//   { name: "Dashboard", path: "/dashboard", icon: <LayoutDashboard /> },
-//   { name: "Profile", path: "/dashboard/profile", icon: <User /> },
-//   {
-//     name: "View Orders",
-//     path: "/dashboard/view-orders",
-//     icon: <ShoppingCart />,
-//   },
-// ];
+// Menu items for Customer
+const customerMenuItems = [
+  { name: "Home", path: "/", icon: <Home /> },
+  { name: "Dashboard", path: "/dashboard/customer", icon: <LayoutDashboard /> },
+  {
+    name: "My Orders",
+    path: "/dashboard/customer/my-orders",
+    icon: <ShoppingCart />,
+  },
+  {
+    name: "Track Order",
+    path: "/dashboard/customer/track-order",
+    icon: <Search />,
+  },
+  { name: "Profile", path: "/dashboard/customer/profile", icon: <User /> },
+];
+
+// Menu items for Admin
+const adminMenuItems = [
+  { name: "Home", path: "/", icon: <Home /> },
+  { name: "Dashboard", path: "/dashboard/admin", icon: <LayoutDashboard /> },
+  { name: "Manage Users", path: "/dashboard/admin/manage-users", icon: <Users /> },
+  { name: "Profile", path: "/dashboard/admin/profile", icon: <User /> },
+];
 
 export default function DashboardSidebar() {
+  const { user } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch();
+  const router = useRouter();
+  
+  // Determine which menu items to display based on user role
+  let menuItems = customerMenuItems; // Default to customer
+  
+  if (user?.role === "provider") {
+    menuItems = providerMenuItems;
+  } else if (user?.role === "admin") {
+    menuItems = adminMenuItems;
+  }
+
+  const handleLogout = () => {
+    dispatch(logout());
+    localStorage.removeItem("token");
+    router.push("/login");
+    toast.success("Logged out successfully");
+  };
+
   return (
     <Sidebar>
       <SidebarHeader>
@@ -82,7 +125,10 @@ export default function DashboardSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <button className="w-full text-left text-red-500 hover:text-red-600">
+              <button 
+                className="w-full text-left text-red-500 hover:text-red-600"
+                onClick={handleLogout}
+              >
                 <LogOut className="h-4 w-4" />
                 <span className="font-bold">Logout</span>
               </button>

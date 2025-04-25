@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useGetAllMealsQuery } from '@/redux/meal/mealApi';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Star, Search, Filter, ChefHat, CheckCircle, X, ChevronDown } from 'lucide-react';
+import { Star, Search, Filter, ChefHat, CheckCircle, X, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import {
   DropdownMenu,
@@ -29,6 +29,9 @@ export default function FindMealsPage() {
   const [selectedPreferences, setSelectedPreferences] = useState<string[]>([]);
   const [preferenceSearchTerm, setPreferenceSearchTerm] = useState('');
   const [providerSearchTerm, setProviderSearchTerm] = useState('');
+  // New pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const mealsPerPage = 9;
   
   // Get all unique categories and providers from the data
   const categories = mealData?.data ? 
@@ -95,6 +98,23 @@ export default function FindMealsPage() {
     return matchesSearch && matchesCategory && matchesRating && matchesProvider && matchesPreferences;
   }) || [];
   
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredMeals.length / mealsPerPage);
+  const indexOfLastMeal = currentPage * mealsPerPage;
+  const indexOfFirstMeal = indexOfLastMeal - mealsPerPage;
+  const currentMeals = filteredMeals.slice(indexOfFirstMeal, indexOfLastMeal);
+  
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory, minRating, selectedProviders, selectedPreferences]);
+  
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+    // Scroll to top of results
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  
   const handleMealSelect = (mealId) => {
     router.push(`/order/${mealId}`);
   };
@@ -121,6 +141,7 @@ export default function FindMealsPage() {
     setMinRating(0);
     setSelectedProviders([]);
     setSelectedPreferences([]);
+    setCurrentPage(1);
   };
   
   const renderRating = (meal: any) => {
@@ -148,6 +169,90 @@ export default function FindMealsPage() {
           ))}
         </div>
         <span className="ml-1 text-sm text-gray-500">({reviewCount})</span>
+      </div>
+    );
+  };
+  
+  // Pagination UI component
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+    
+    const pageNumbers = [];
+    
+    // Show at most 5 page numbers with current page in the middle when possible
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + 4);
+    
+    // Adjust startPage if endPage is at the maximum
+    if (endPage === totalPages) {
+      startPage = Math.max(1, endPage - 4);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+    
+    return (
+      <div className="flex justify-center mt-8 items-center gap-1">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="h-9 w-9"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        
+        {startPage > 1 && (
+          <>
+            <Button
+              variant={currentPage === 1 ? "default" : "outline"}
+              size="sm"
+              onClick={() => handlePageChange(1)}
+              className="h-9 w-9"
+            >
+              1
+            </Button>
+            {startPage > 2 && <span className="mx-1">...</span>}
+          </>
+        )}
+        
+        {pageNumbers.map(number => (
+          <Button
+            key={number}
+            variant={currentPage === number ? "default" : "outline"}
+            size="sm"
+            onClick={() => handlePageChange(number)}
+            className="h-9 w-9"
+          >
+            {number}
+          </Button>
+        ))}
+        
+        {endPage < totalPages && (
+          <>
+            {endPage < totalPages - 1 && <span className="mx-1">...</span>}
+            <Button
+              variant={currentPage === totalPages ? "default" : "outline"}
+              size="sm"
+              onClick={() => handlePageChange(totalPages)}
+              className="h-9 w-9"
+            >
+              {totalPages}
+            </Button>
+          </>
+        )}
+        
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages || totalPages === 0}
+          className="h-9 w-9"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
       </div>
     );
   };
@@ -565,6 +670,7 @@ export default function FindMealsPage() {
       <div className="mb-4">
         <p className="text-sm text-gray-500">
           {filteredMeals.length} {filteredMeals.length === 1 ? 'meal' : 'meals'} found
+          {filteredMeals.length > 0 ? ` (showing ${indexOfFirstMeal + 1}-${Math.min(indexOfLastMeal, filteredMeals.length)} of ${filteredMeals.length})` : ''}
         </p>
       </div>
       
@@ -578,51 +684,56 @@ export default function FindMealsPage() {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredMeals.map((meal) => (
-            <Card 
-              key={meal._id} 
-              className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
-              onClick={() => handleMealSelect(meal._id)}
-            >
-              <div className="aspect-video relative">
-                <img
-                  src={meal.image}
-                  alt={meal.name}
-                  className="object-cover w-full h-full"
-                />
-                <Badge 
-                  className="absolute top-2 right-2 bg-white text-black hover:bg-white"
-                  variant="secondary"
-                >
-                  {meal.category}
-                </Badge>
-              </div>
-              <CardContent className="p-4">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-semibold text-lg">{meal.name}</h3>
-                  <span className="text-red-500 font-semibold">${meal.price.toFixed(2)}</span>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {currentMeals.map((meal) => (
+              <Card 
+                key={meal._id} 
+                className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => handleMealSelect(meal._id)}
+              >
+                <div className="aspect-video relative">
+                  <img
+                    src={meal.image}
+                    alt={meal.name}
+                    className="object-cover w-full h-full"
+                  />
+                  <Badge 
+                    className="absolute top-2 right-2 bg-white text-black hover:bg-white"
+                    variant="secondary"
+                  >
+                    {meal.category}
+                  </Badge>
                 </div>
-                
-                <p className="text-gray-600 text-sm line-clamp-2 mb-2">{meal.description}</p>
-                
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <ChefHat className="h-4 w-4" />
-                    <span>
-                      {typeof meal.providerId === 'object' && meal.providerId?.name
-                        ? meal.providerId.name
-                        : (typeof meal.providerId === 'string'
-                            ? meal.providerId
-                            : 'Unknown Provider')}
-                    </span>
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-semibold text-lg">{meal.name}</h3>
+                    <span className="text-red-500 font-semibold">${meal.price.toFixed(2)}</span>
                   </div>
-                  {renderRating(meal)}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                  
+                  <p className="text-gray-600 text-sm line-clamp-2 mb-2">{meal.description}</p>
+                  
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <ChefHat className="h-4 w-4" />
+                      <span>
+                        {typeof meal.providerId === 'object' && meal.providerId?.name
+                          ? meal.providerId.name
+                          : (typeof meal.providerId === 'string'
+                              ? meal.providerId
+                              : 'Unknown Provider')}
+                      </span>
+                    </div>
+                    {renderRating(meal)}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          
+          {/* Pagination controls */}
+          {renderPagination()}
+        </>
       )}
     </div>
   );

@@ -4,21 +4,34 @@ import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useSignUpMutation } from "@/redux/features/auth/authApi";
-import { toast } from "sonner";
+import { toast } from "react-hot-toast";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue 
+} from "@/components/ui/select";
 
 type FormData = {
   name: string;
   email: string;
   password: string;
+  phone: string;
+  address: string;
+  role: string;
 };
 
-type ErrorData = {
+type BackendErrorResponse = {
   message?: string;
-  status?: boolean;
-  error?: string;
+  errorSources?: Array<{
+    path?: string;
+    message?: string;
+  }>;
+  success?: boolean;
 };
 
 export default function SignUp() {
@@ -28,10 +41,15 @@ export default function SignUp() {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<FormData>();
+    setValue,
+  } = useForm<FormData>({
+    defaultValues: {
+      role: "customer"
+    }
+  });
   const [SignUp] = useSignUpMutation();
   const router = useRouter();
-
+  
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
 
@@ -39,6 +57,9 @@ export default function SignUp() {
       name: data.name,
       email: data.email,
       password: data.password,
+      phone: data.phone,
+      address: data.address,
+      role: data.role,
     };
 
     try {
@@ -47,28 +68,40 @@ export default function SignUp() {
       if ("error" in response) {
         const errorResponse = response.error;
         if (errorResponse && "data" in errorResponse && errorResponse.data) {
-          const errorData = errorResponse.data as ErrorData;
-          toast.error(
-            errorData.message || "Registration failed. Please try again.",
-          );
-        } else {
-          toast.error("Registration failed. Please try again.");
+          const errorData = errorResponse.data as BackendErrorResponse;
+          
+          // Check for error message in errorSources array (for duplicate email etc.)
+          if (errorData.errorSources && 
+              Array.isArray(errorData.errorSources) && 
+              errorData.errorSources.length > 0 && 
+              errorData.errorSources[0].message) {
+            toast.error(errorData.errorSources[0].message);
+          } 
+          // Fallback to general message if available
+          else if (errorData.message) {
+            toast.error(errorData.message);
+          }
         }
+        setIsLoading(false);
         return;
       }
 
-      if (response.data?.status) {
-        toast.success(response.data.message || "Registration successful!");
-        router.push("/login");
-        reset();
-      } else {
-        toast.error(
-          response.data?.message || "Registration failed. Please try again.",
-        );
+      if (response.data) {
+        if (response.data.status && response.data.message) {
+          toast.success(response.data.message);
+          router.push("/login");
+          reset();
+        } else if (response.data.message) {
+          toast.error(response.data.message);
+        }
       }
     } catch (error) {
       console.error("Registration error:", error);
-      toast.error("An unexpected error occurred. Please try again.");
+      // No toast for unexpected errors unless there's a message from the backend
+      if (error && typeof error === 'object' && 'message' in error) {
+        const errorMessage = (error as { message: string }).message;
+        toast.error(errorMessage);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -93,7 +126,7 @@ export default function SignUp() {
             </div>
           </div>
 
-          <div className="flex flex-col justify-center px-8 py-12 sm:px-12">
+          <div className="p-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
               <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
                 Create your account
@@ -187,6 +220,80 @@ export default function SignUp() {
                     {errors.password && (
                       <p className="mt-1 text-sm text-red-600">
                         {errors.password.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Phone Number
+                  </label>
+                  <div className="mt-1">
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="Enter your phone number"
+                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
+                      {...register("phone", { required: "Phone number is required" })}
+                    />
+                    {errors.phone && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.phone.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="address"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Address
+                  </label>
+                  <div className="mt-1">
+                    <Input
+                      id="address"
+                      type="text"
+                      placeholder="Enter your address"
+                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
+                      {...register("address", { required: "Address is required" })}
+                    />
+                    {errors.address && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.address.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="role"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Role
+                  </label>
+                  <div className="mt-1">
+                    <Select
+                      defaultValue="customer"
+                      onValueChange={(value) => setValue("role", value)}
+                    >
+                      <SelectTrigger className="w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none">
+                        <SelectValue placeholder="Select a role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="customer">Customer</SelectItem>
+                        <SelectItem value="provider">Meal Provider</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.role && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.role.message}
                       </p>
                     )}
                   </div>
