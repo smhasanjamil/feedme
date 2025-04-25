@@ -13,6 +13,7 @@ import { CheckCircle, AlertCircle } from "lucide-react";
 import { useVerifyOrderQuery } from "@/redux/features/orders/order";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { toast } from "react-hot-toast";
 
 interface OrderData {
   id: string;
@@ -56,11 +57,17 @@ export default function OrderVerification() {
     }
   );
 
-  // Add useEffect to ensure logging happens after component mounts
+  // Show toast notification when component mounts
   useEffect(() => {
+    toast.success("Please check your email for order confirmation details", {
+      duration: 5000,
+      position: "top-center",
+      icon: "📧",
+    });
+    
     console.log("==== COMPONENT MOUNTED ====");
     console.log("API Response:", data);
-  }, [data]);
+  }, []);
 
   const orderData: OrderData = data?.data?.[0];
   
