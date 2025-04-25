@@ -51,20 +51,16 @@ const Navbar = () => {
 
   const navItems = [
     {
-      name: "About",
-      link: "/about",
-    },
-    {
       name: "Find Meals",
       link: "/find-meals",
     },
     {
-      name: "Pricing",
-      link: "/pricing",
+      name: "About",
+      link: "/about",
     },
     {
-      name: "Services",
-      link: "/services",
+      name: "Contact Us",
+      link: "/contact",
     },
   ];
 
