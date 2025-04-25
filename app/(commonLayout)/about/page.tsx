@@ -56,23 +56,23 @@ export default function About() {
   return (
     <div className="">
       {/* Hero Section */}
-      <section className="flex flex-col items-center bg-gray-100/60 px-4 py-16 text-center">
-        <h1 className="mb-4 text-5xl font-semibold">About Us</h1>
-        <div className="bg-feed-lime h-2 w-20 rounded-full" />
+      <section className="flex flex-col items-center bg-gray-100/60 px-4 py-10 md:py-16 text-center">
+        <h1 className="mb-4 text-2xl md:text-3xl lg:text-5xl font-semibold">About Us</h1>
+        <div className="bg-feed-lime h-1 md:h-2 w-20 rounded-full" />
       </section>
 
       {/* Home Sweet Bakery Section */}
-      <section className="relative mx-auto my-20 grid max-w-[1050px] flex-col gap-5 md:flex-row lg:grid-cols-2">
+      <section className="relative container mx-auto my-10 md:my-20 grid max-w-[1050px] flex-col gap-5 md:grid-cols-2 md:flex-row">
         <Image
           src="/about/chef.jpg"
           alt="Bakery Man"
           width={600}
           height={400}
-          className="aspect-square rounded-xl object-cover"
+          className="aspect-square w-full rounded-xl object-cover"
         />
-        <div className="relative flex flex-col justify-between rounded-xl bg-gray-100/60 p-13">
+        <div className="relative flex flex-col justify-between rounded-xl bg-gray-100/60 p-5 lg:p-13">
           {/* Large orange circle top-right */}
-          <div className="bg-feed-lime absolute top-[-30px] right-[-30px] z-0 h-24 w-24 rounded-full opacity-100 blur-lg" />
+          <div className="bg-feed-lime absolute top-[-30px] right-[-30px] z-0 hidden h-24 w-24 rounded-full opacity-100 blur-lg lg:block" />
 
           {/* Small dot above "Opening Hours" */}
           <div className="bg-feed-jungle absolute top-[55%] left-[5%] z-10 h-3 w-3 rounded-full blur-xs"></div>
@@ -80,16 +80,18 @@ export default function About() {
           {/* Small bottom right dot */}
           <div className="bg-feed-jungle absolute right-3 bottom-3 z-10 h-2 w-2 rounded-full blur-xs"></div>
 
-          <h2 className="text-feed-jungle relative z-10 mb-4 text-5xl font-medium">
+          <h2 className="text-feed-jungle relative z-10 mb-4 text-2xl font-medium lg:text-5xl">
             We&apos;re here when you&apos;re hungry!
           </h2>
-          <p className="relative z-10 text-lg leading-6">
+          <p className="relative z-10 leading-6 lg:text-lg">
             Feedme is here to satisfy your cravings! We&apos;re open Monday to
             Friday from 9 AM to 4 PM, and Saturday to Sunday from 10 AM to 7 PM.
             Come hungry, leave happy!
           </p>
-          <h3 className="relative z-10 text-xl font-bold">Opening Hours :</h3>
-          <div className="relative z-10 text-lg font-medium">
+          <h3 className="relative z-10 text-lg font-semibold lg:text-xl">
+            Opening Hours :
+          </h3>
+          <div className="relative z-10 font-medium lg:text-lg">
             <p>
               Monday - Friday{" "}
               <span className="text-feed-jungle/70 ml-2 font-semibold">
@@ -127,19 +129,18 @@ export default function About() {
       </section>
 
       {/* Freshly Baked Section */}
-      <section className="my-20 bg-gray-100/60">
+      <section className="my-10 md:my-20 bg-gray-100/60 p-3 sm:p-5 md:p-0">
         <div className="relative container">
           {/* Half circle left side */}
           <div className="bg-feed-lime shadow-feed-lime absolute top-[-50px] left-[-50px] z-0 size-25 rounded-full opacity-100 shadow-2xl blur-lg" />
 
-          <div className="relative z-10 mx-auto grid items-center gap-10 md:grid-cols-2">
-            <div className="space-y-7">
-              <h2 className="text-feed-jungle mb-4 text-5xl font-medium">
-                Freshly made meal
-                <br />
+          <div className="relative z-10 mx-auto grid items-center gap-5 md:grid-cols-2 lg:gap-10">
+            <div className="space-y-3 lg:space-y-7">
+              <h2 className="text-feed-jungle mb-4 text-3xl font-medium lg:text-5xl">
+                Freshly made meal <br className="hidden lg:block" />
                 everyday
               </h2>
-              <p className="text-lg opacity-80">
+              <p className="opacity-80 lg:text-lg">
                 At Feedme, we prioritize your health by offering freshly
                 prepared, nutritious meals every day. Our menu is carefully
                 crafted to provide balanced, wholesome options that fuel your
@@ -158,17 +159,17 @@ export default function About() {
               alt="fresh food"
               width={600}
               height={400}
-              className="rounded-xl"
+              className="rounded-xl hidden md:block"
             />
           </div>
         </div>
       </section>
 
       {/* Benefits Section */}
-      <section className="container my-20 bg-white">
+      <section className="container my-10 md:my-20 bg-white">
         <div className="mb-8 space-y-3 text-center">
-          <h2 className="text-4xl font-medium">Benefits Of Healthy Food</h2>
-          <p className="text-lg text-gray-700">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-medium">Benefits Of Healthy Food</h2>
+          <p className="md:text-lg text-gray-700">
             Discover how healthy food fuels your body, sharpens your mind, and
             supports overall
             <br />
