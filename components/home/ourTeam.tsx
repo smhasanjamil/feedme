@@ -1,6 +1,5 @@
 import { FaInstagram } from "react-icons/fa";
-import { BsPinterest } from "react-icons/bs";
-import { BiLogoTelegram } from "react-icons/bi";
+import { BsPinterest } from "react-icons/bs"; 
 import { RiTwitterXFill } from "react-icons/ri";
 import Image from "next/image";
 
@@ -16,7 +15,7 @@ const OurTeamCard: React.FC<OurTeamCardProps> = ({
   description,
 }) => {
   const socialIconStyle =
-    "text-feed-lime hover:bg-feed-black bg-feed-jungle p-1.5 text-[35px] cursor-pointer rounded-full duration-300";
+    "text-gray-100 hover:text-feed-lime hover:bg-feed-black bg-feed-black p-1.5 text-[40px] cursor-pointer rounded-full duration-300";
 
   return (
     <div className="col-span-2 rounded-full bg-gray-100 p-5 md:col-span-1">
@@ -35,7 +34,6 @@ const OurTeamCard: React.FC<OurTeamCardProps> = ({
         <div className="flex justify-center gap-2 text-xl">
           <FaInstagram className={socialIconStyle} />
           <BsPinterest className={socialIconStyle} />
-          <BiLogoTelegram className={socialIconStyle} />
           <RiTwitterXFill className={socialIconStyle} />
         </div>
       </div>
