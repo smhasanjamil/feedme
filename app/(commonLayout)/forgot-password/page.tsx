@@ -126,7 +126,7 @@ export default function ForgotPassword() {
                       id="email"
                       type="email"
                       placeholder="Enter your email"
-                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
+                      className="focus:border-feed-lime focus:ring-feed-lime/20 block h-10 w-full rounded-full border border-gray-200 bg-white px-4 py-3 text-base focus:ring-2 focus:outline-none"
                       {...register("email", {
                         required: "Email is required",
                         pattern: {
@@ -146,7 +146,7 @@ export default function ForgotPassword() {
                 <div>
                   <Button
                     type="submit"
-                    className="w-full rounded-md bg-[#FF0000] px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#CC0000] focus:ring-2 focus:ring-[#FF0000] focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70"
+                    className="bg-feed-jungle hover:!bg-feed-black focus:ring-feed-lime h-10 w-full rounded-full px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70"
                     disabled={isLoading}
                   >
                     {isLoading ? "Sending..." : "Send Reset Link"}
@@ -157,7 +157,7 @@ export default function ForgotPassword() {
           ) : (
             <div className="mt-6 flex justify-center">
               <Button
-                className="rounded-md bg-[#FF0000] px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#CC0000] focus:ring-2 focus:ring-[#FF0000] focus:ring-offset-2 focus:outline-none"
+                className="bg-feed-jungle hover:bg-feed-jungle focus:ring-feed-lime rounded-md px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none"
                 onClick={() => setRequestSent(false)}
               >
                 Send again
@@ -168,7 +168,7 @@ export default function ForgotPassword() {
           <div className="mt-6 text-center">
             <Link
               href="/login"
-              className="text-sm font-medium text-[#FF0000] hover:text-[#CC0000]"
+              className="text-feed-jungle hover:text-feed-black text-sm font-medium"
             >
               Back to login
             </Link>
