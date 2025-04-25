@@ -81,7 +81,7 @@ export default function OrderVerification() {
     <div className="container mx-auto p-4 my-10">
       <div className="animate-pulse space-y-6">
         <div className="h-8 w-64 rounded bg-gray-200"></div>
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 grid-cols-1 sm:grid-cols-1 md:grid-cols-2">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="rounded-lg border p-4">
               <div className="mb-4 h-6 w-40 rounded bg-gray-200"></div>
@@ -99,17 +99,17 @@ export default function OrderVerification() {
       </div>
     </div>
   ) : (
-    <div className="container mx-auto p-4 my-10">
-      <h1 className="mb-6 text-3xl font-bold">Order Verification</h1>
-      <div className="grid gap-6 md:grid-cols-2">
+    <div className="container mx-auto p-2 sm:p-4 my-6 sm:my-10">
+      <h1 className="mb-4 sm:mb-6 text-2xl sm:text-3xl font-bold">Order Verification</h1>
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-1 md:grid-cols-2">
         <Card>
-          <CardHeader>
-            <CardTitle>Order Details</CardTitle>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-lg sm:text-xl">Order Details</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
             <dl className="grid grid-cols-2 gap-2">
               <dt className="font-semibold">Order ID:</dt>
-              <dd>{orderData?.id}</dd>
+              <dd className="break-all">{orderData?.id}</dd>
               <dt className="font-semibold">Amount:</dt>
               <dd>
                 {orderData?.currency} {orderData?.amount?.toFixed(2)}
@@ -127,60 +127,60 @@ export default function OrderVerification() {
                 </Badge>
               </dd>
               <dt className="font-semibold">Order Date:</dt>
-              <dd>{new Date(orderData?.date_time)?.toLocaleString()}</dd>
+              <dd className="break-all">{new Date(orderData?.date_time)?.toLocaleString()}</dd>
              
             </dl>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Payment Information</CardTitle>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-lg sm:text-xl">Payment Information</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
             <dl className="grid grid-cols-2 gap-2">
               <dt className="font-semibold">Method:</dt>
-              <dd>{paymentMethod}</dd>
+              <dd className="break-all">{paymentMethod}</dd>
               <dt className="font-semibold">Transacion Status:</dt>
-              <dd>{transactionStatus}</dd>
+              <dd className="break-all">{transactionStatus}</dd>
               <dt className="font-semibold">Invoice No:</dt>
-              <dd>{orderData?.order_id}</dd>
+              <dd className="break-all">{orderData?.order_id}</dd>
               <dt className="font-semibold">SP Code:</dt>
-              <dd>{orderData?.sp_code}</dd>
+              <dd className="break-all">{orderData?.sp_code}</dd>
               <dt className="font-semibold">SP Message:</dt>
-              <dd>{orderData?.sp_message}</dd>
+              <dd className="break-all">{orderData?.sp_message}</dd>
             </dl>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Customer Information</CardTitle>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-lg sm:text-xl">Customer Information</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
             <dl className="grid grid-cols-2 gap-2">
               <dt className="font-semibold">Name:</dt>
-              <dd>{orderData?.name}</dd>
+              <dd className="break-all">{orderData?.name}</dd>
               <dt className="font-semibold">Email:</dt>
-              <dd>{orderData?.email}</dd>
+              <dd className="break-all">{orderData?.email}</dd>
               <dt className="font-semibold">Phone:</dt>
-              <dd>{phoneNumber}</dd>
+              <dd className="break-all">{phoneNumber}</dd>
               <dt className="font-semibold">Address:</dt>
-              <dd>{orderData?.address}</dd>
+              <dd className="break-all">{orderData?.address}</dd>
               <dt className="font-semibold">City:</dt>
-              <dd>{orderData?.city}</dd>
+              <dd className="break-all">{orderData?.city}</dd>
             </dl>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Track your Order</CardTitle>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-lg sm:text-xl">Track your Order</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
             <dl className="mb-4 grid grid-cols-2 gap-2">
               <dt className="font-semibold">Tracking Number:</dt>
-              <dd>{trackingNumber}</dd>
+              <dd className="break-all">{trackingNumber}</dd>
             </dl>
             <div className="flex items-center gap-2">
               {orderData?.bank_status === "Success" ? (
@@ -196,8 +196,8 @@ export default function OrderVerification() {
               )}
             </div>
           </CardContent>
-          <CardFooter>
-            <Button className="w-full" onClick={() => router.push('/dashboard/my-orders')}>Track Order</Button>
+          <CardFooter className="p-4 sm:p-6">
+            <Button className="w-full" onClick={() => router.push('/dashboard/customer/my-orders')}>Track Order</Button>
           </CardFooter>
         </Card>
       </div>

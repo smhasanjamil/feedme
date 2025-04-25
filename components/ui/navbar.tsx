@@ -24,7 +24,7 @@ import { TbLayoutDashboard } from "react-icons/tb";
 const Navbar = () => {
   const user = useAppSelector(currentUser);
   const cartItems = useAppSelector((state) => state.cart.items);
-  const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+  const cartItemCount = cartItems.length;
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);

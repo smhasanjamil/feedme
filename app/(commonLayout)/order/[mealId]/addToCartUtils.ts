@@ -54,6 +54,12 @@ export const useAddToCart = () => {
       return false;
     }
 
+    // Check if delivery slot is selected
+    if (!deliverySlot || deliverySlot.trim() === '') {
+      toast.error("Please select a delivery slot before adding to cart");
+      return false;
+    }
+
     try {
       // Normalize customization structure to ensure it matches backend expectations
       let normalizedCustomization: CustomizationOptions | undefined = undefined;

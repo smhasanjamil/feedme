@@ -17,23 +17,25 @@ import {
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 export type DashboardUserData = {
-  name: string;
   _id: string;
+  name: string;
   email: string;
-  role: "user" | "admin" | "provider" | "customer";
+  role: "user" | "admin" | "provider";
   isBlocked: boolean;
-
-  //   status: "pending" | "processing" | "success" | "failed"
+  createdAt: string
 };
 
-export const columns: ColumnDef<DashboardUserData>[] = [
-  {
-    accessorKey: "name",
-    header: "Name",
-  },
+export const getColumns = (
+  onUpdate: (user: DashboardUserData) => void,
+  onDelete: (id: string) => void
+): ColumnDef<DashboardUserData>[] =>  [
   {
     accessorKey: "_id",
     header: "User ID",
+  },
+  {
+    accessorKey: "name",
+    header: "Name",
   },
   {
     accessorKey: "email",
@@ -56,11 +58,28 @@ export const columns: ColumnDef<DashboardUserData>[] = [
   {
     accessorKey: "isBlocked",
     header: "Status",
+    cell: ({ row }) => {
+      const isBlocked = row.getValue("isBlocked") as boolean;
+      return isBlocked ? "Inactive" : "Active";
+    },
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Created On",
+    cell: ({ row }) => {
+      const rawDate = row.getValue("createdAt") as string;
+      const date = new Date(rawDate);
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    },
   },
   {
     id: "actions",
     cell: ({ row }) => {
-      const user  = row.original;
+      const user = row.original;
 
       return (
         <DropdownMenu>
@@ -78,12 +97,14 @@ export const columns: ColumnDef<DashboardUserData>[] = [
               Copy User ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Update User</DropdownMenuItem>
-            <DropdownMenuItem>Delete User</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onUpdate(user)}>Update User</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onDelete(user._id)}>Delete User</DropdownMenuItem>
+
           </DropdownMenuContent>
         </DropdownMenu>
       );
     },
     header: "Action",
   },
+ 
 ];

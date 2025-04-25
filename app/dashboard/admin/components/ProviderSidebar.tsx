@@ -2,12 +2,10 @@
 import {
   Package2,
   ShoppingCart,
-  Users,
   LogOut,
   LayoutDashboard,
   User,
   ListOrderedIcon,
-  Search,
 } from "lucide-react";
 
 import {
@@ -21,10 +19,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
 
-// Menu items for Provider
 const providerMenuItems = [
   { name: "Dashboard", path: "/dashboard/provider", icon: <LayoutDashboard /> },
   {
@@ -40,55 +35,20 @@ const providerMenuItems = [
   { name: "Profile", path: "/dashboard/provider/profile", icon: <User /> },
 ];
 
-// Menu items for Customer
-const customerMenuItems = [
-  { name: "Dashboard", path: "/dashboard/customer", icon: <LayoutDashboard /> },
-  {
-    name: "My Orders",
-    path: "/dashboard/customer/my-orders",
-    icon: <ShoppingCart />,
-  },
-  {
-    name: "Track Order",
-    path: "/dashboard/customer/track-order",
-    icon: <Search />,
-  },
-  { name: "Profile", path: "/dashboard/customer/profile", icon: <User /> },
-];
-
-// Menu items for Admin
-const adminMenuItems = [
-  { name: "Dashboard", path: "/dashboard/admin", icon: <LayoutDashboard /> },
-  { name: "Manage Users", path: "/dashboard/admin/manage-users", icon: <Users /> },
-  { name: "Profile", path: "/dashboard/admin/profile", icon: <User /> },
-];
-
-export default function DashboardSidebar() {
-  const { user } = useSelector((state: RootState) => state.auth);
-  
-  // Determine which menu items to display based on user role
-  let menuItems = customerMenuItems; // Default to customer
-  
-  if (user?.role === "provider") {
-    menuItems = providerMenuItems;
-  } else if (user?.role === "admin") {
-    menuItems = adminMenuItems;
-  }
-
+export default function ProviderSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
         <div className="flex h-[60px] items-center px-6">
           <Link href="/" className="flex items-center gap-2 font-semibold">
             <Package2 className="h-6 w-6" />
-            <span className="">Feedme</span>
+            <span className="">Feedme - Provider</span>
           </Link>
         </div>
       </SidebarHeader>
-      {/* sidebar menu items */}
       <SidebarContent>
         <SidebarMenu>
-          {menuItems.map((item, index) => (
+          {providerMenuItems.map((item, index) => (
             <SidebarMenuItem key={index}>
               <SidebarMenuButton asChild size={"lg"} key={index}>
                 <Link
@@ -104,7 +64,6 @@ export default function DashboardSidebar() {
           ))}
         </SidebarMenu>
       </SidebarContent>
-      {/* sidebar footer: for logout etc */}
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -120,4 +79,4 @@ export default function DashboardSidebar() {
       <SidebarRail />
     </Sidebar>
   );
-}
+} 

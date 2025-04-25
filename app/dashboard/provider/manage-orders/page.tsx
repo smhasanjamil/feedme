@@ -76,10 +76,24 @@ export default function ManageOrdersPage() {
     setMounted(true);
   }, []);
 
+  // Add a helper function to get the current stage from tracking updates
+  const getCurrentStage = (order: Order) => {
+    if (!order.trackingUpdates || order.trackingUpdates.length === 0) {
+      return order.status;
+    }
+    
+    // Sort updates by timestamp (newest first) and get the most recent stage
+    const sortedUpdates = [...order.trackingUpdates].sort(
+      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
+    
+    return sortedUpdates[0].stage;
+  };
+
   // Order status counts
   const statusCounts = orders?.reduce(
     (acc, order) => {
-      const status = order.status.toLowerCase();
+      const status = getCurrentStage(order).toLowerCase();
       if (status === "placed") acc.placed++;
       else if (status === "approved") acc.approved++;
       else if (status === "processed") acc.processed++;
@@ -173,6 +187,9 @@ export default function ManageOrdersPage() {
         // Show success message with highlighted styling
         setStatusMessage(`✅ Order status updated to ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`);
         
+        // Add toast notification
+        displayToast("success", "Order Updated", `Order status updated to ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`);
+        
         // Reset the update message
         setUpdateMessage("");
         setTimeout(() => setStatusMessage(""), 5000);
@@ -216,6 +233,9 @@ export default function ManageOrdersPage() {
       // Show success message with highlighted styling
       setStatusMessage(`✅ Order status updated to ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`);
       
+      // Add toast notification
+      displayToast("success", "Order Updated", `Order status updated to ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`);
+      
       // Reset the update message
       setUpdateMessage("");
       setTimeout(() => setStatusMessage(""), 5000);
@@ -253,6 +273,7 @@ export default function ManageOrdersPage() {
       
       // Show highlighted error message
       setStatusMessage(`❌ ${errorMsg}`);
+      displayToast("error", "Update Failed", errorMsg);
       setTimeout(() => setStatusMessage(""), 5000);
     }
   };
@@ -475,20 +496,6 @@ export default function ManageOrdersPage() {
     }
   };
 
-  // Add a helper function to get the current stage from tracking updates
-  const getCurrentStage = (order: Order) => {
-    if (!order.trackingUpdates || order.trackingUpdates.length === 0) {
-      return order.status;
-    }
-    
-    // Sort updates by timestamp (newest first) and get the most recent stage
-    const sortedUpdates = [...order.trackingUpdates].sort(
-      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    );
-    
-    return sortedUpdates[0].stage;
-  };
-
   // Updated modal opening with current stage check
   const handleOpenUpdateModal = (order: Order) => {
     // Get a copy of the order with the current stage set from the most recent update
@@ -680,13 +687,13 @@ export default function ManageOrdersPage() {
                     <td className="px-3 py-3">
                       <Badge
                         variant="outline"
-                        className={`text-[10px] ${getStatusColor(order.status)}`}
+                        className={`text-[10px] ${getStatusColor(getCurrentStage(order))}`}
                       >
-                        {order.status}
+                        {getCurrentStage(order)}
                       </Badge>
                     </td>
                     <td className="px-3 py-3 text-right font-medium hidden sm:table-cell">
-                      ${order.totalAmount ? parseFloat(order.totalAmount).toFixed(2) : "0.00"}
+                      ${order.totalPrice ? parseFloat(order.totalPrice.toString()).toFixed(2) : "0.00"}
                     </td>
                     <td className="px-3 py-3 text-right">
                       <DropdownMenu>
@@ -720,12 +727,12 @@ export default function ManageOrdersPage() {
                               {["placed", "approved", "processed", "shipped", "delivered"].map((status) => (
                                 <DropdownMenuItem 
                                   key={status}
-                                  className={`flex cursor-pointer items-center justify-between px-2 py-1.5 text-xs ${order.status === status ? 'bg-gray-100' : ''}`}
+                                  className={`flex cursor-pointer items-center justify-between px-2 py-1.5 text-xs ${getCurrentStage(order) === status ? 'bg-gray-100' : ''}`}
                                   onClick={() => handleStatusChange(order._id, status, "")}
                                 >
                                   {/* Capitalize first letter for display only */}
                                   {status.charAt(0).toUpperCase() + status.slice(1)}
-                                  {order.status === status && <Check className="h-3 w-3" />}
+                                  {getCurrentStage(order) === status && <Check className="h-3 w-3" />}
                                 </DropdownMenuItem>
                               ))}
                             </DropdownMenuSubContent>
@@ -794,8 +801,8 @@ export default function ManageOrdersPage() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">Status</p>
-                  <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(selectedOrder.status)}`}>
-                    {selectedOrder.status}
+                  <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(getCurrentStage(selectedOrder))}`}>
+                    {getCurrentStage(selectedOrder)}
                   </span>
                 </div>
               </div>
@@ -814,7 +821,7 @@ export default function ManageOrdersPage() {
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">Phone</p>
-                    <p className="font-medium">{selectedOrder.phoneNumber || "N/A"}</p>
+                    <p className="font-medium">{selectedOrder.phone || "N/A"}</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">Address</p>
@@ -1073,14 +1080,7 @@ export default function ManageOrdersPage() {
                 >
                   Close
                 </Button>
-                <Button 
-                  onClick={() => {
-                    setIsModalOpen(false);
-                    handleOpenUpdateModal(selectedOrder);
-                  }}
-                >
-                  Update Order
-                </Button>
+                
               </div>
             </div>
           </div>
@@ -1101,7 +1101,7 @@ export default function ManageOrdersPage() {
             <div className="mb-4 sm:mb-6">
               <h2 className="text-xl font-bold">Update Order Status</h2>
               <p className="text-sm text-gray-500">
-                Current Status: <span className={`font-medium ${getStatusColor(selectedOrder.status)}`}>{selectedOrder.status}</span>
+                Current Status: <span className={`font-medium ${getStatusColor(getCurrentStage(selectedOrder))}`}>{getCurrentStage(selectedOrder)}</span>
               </p>
             </div>
 
@@ -1111,7 +1111,7 @@ export default function ManageOrdersPage() {
                 <label className="mb-2 block text-sm font-medium">New Status</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <Button
-                    variant={selectedOrder.status === "placed" ? "default" : "outline"}
+                    variant={getCurrentStage(selectedOrder) === "placed" ? "default" : "outline"}
                     size="sm"
                     className="justify-start"
                     onClick={() => handleStatusChange(selectedOrder._id, "placed", updateMessage)}
@@ -1120,7 +1120,7 @@ export default function ManageOrdersPage() {
                     Placed
                   </Button>
                   <Button
-                    variant={selectedOrder.status === "approved" ? "default" : "outline"}
+                    variant={getCurrentStage(selectedOrder) === "approved" ? "default" : "outline"}
                     size="sm"
                     className="justify-start"
                     onClick={() => handleStatusChange(selectedOrder._id, "approved", updateMessage)}
@@ -1129,7 +1129,7 @@ export default function ManageOrdersPage() {
                     Approved
                   </Button>
                   <Button
-                    variant={selectedOrder.status === "processed" ? "default" : "outline"}
+                    variant={getCurrentStage(selectedOrder) === "processed" ? "default" : "outline"}
                     size="sm"
                     className="justify-start"
                     onClick={() => handleStatusChange(selectedOrder._id, "processed", updateMessage)}
@@ -1138,7 +1138,7 @@ export default function ManageOrdersPage() {
                     Processed
                   </Button>
                   <Button
-                    variant={selectedOrder.status === "delivered" ? "default" : "outline"}
+                    variant={getCurrentStage(selectedOrder) === "delivered" ? "default" : "outline"}
                     size="sm"
                     className="justify-start"
                     onClick={() => handleStatusChange(selectedOrder._id, "delivered", updateMessage)}
@@ -1168,12 +1168,16 @@ export default function ManageOrdersPage() {
                   Cancel
                 </Button>
                 <Button
-                  variant="destructive"
+                  variant="default"
                   className="flex gap-1"
-                  onClick={() => handleDeleteOrder(selectedOrder._id)}
+                  onClick={() => {
+                    const currentStatus = getCurrentStage(selectedOrder);
+                    handleStatusChange(selectedOrder._id, currentStatus, updateMessage);
+                    setIsUpdateModalOpen(false);
+                  }}
                 >
-                  <Trash2 className="h-4 w-4" />
-                  Delete Order
+                  <RefreshCw className="h-4 w-4" />
+                  Update
                 </Button>
               </div>
             </div>
