@@ -334,7 +334,7 @@ export default function CreateMealForm() {
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {["Breakfast", "Lunch", "Dinner", "Snack", "Dessert"].map(
+                  {["Breakfast", "Lunch", "Dinner"].map(
                     (category) => (
                       <SelectItem key={category} value={category}>
                         {category}
