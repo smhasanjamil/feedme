@@ -5,6 +5,7 @@ import {
   LogOut,
   LayoutDashboard,
   User,
+  Home,
 } from "lucide-react";
 
 import {
@@ -18,14 +19,29 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { useDispatch } from "react-redux";
+import { logout } from "@/redux/features/auth/authSlice";
+import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 const adminMenuItems = [
+  { name: "Home", path: "/", icon: <Home /> },
   { name: "Dashboard", path: "/dashboard/admin", icon: <LayoutDashboard /> },
   { name: "Manage Users", path: "/dashboard/admin/manage-users", icon: <Users /> },
   { name: "Profile", path: "/dashboard/admin/profile", icon: <User /> },
 ];
 
 export default function AdminSidebar() {
+  const dispatch = useDispatch();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    dispatch(logout());
+    localStorage.removeItem("token");
+    router.push("/login");
+    toast.success("Logged out successfully");
+  };
+
   return (
     <Sidebar>
       <SidebarHeader>
@@ -58,7 +74,10 @@ export default function AdminSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <button className="w-full text-left text-red-500 hover:text-red-600">
+              <button 
+                onClick={handleLogout}
+                className="w-full text-left text-red-500 hover:text-red-600"
+              >
                 <LogOut className="h-4 w-4" />
                 <span className="font-bold">Logout</span>
               </button>

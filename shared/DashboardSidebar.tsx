@@ -8,6 +8,7 @@ import {
   User,
   ListOrderedIcon,
   Search,
+  Home,
 } from "lucide-react";
 
 import {
@@ -21,11 +22,15 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store";
+import { logout } from "@/redux/features/auth/authSlice";
+import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 // Menu items for Provider
 const providerMenuItems = [
+  { name: "Home", path: "/", icon: <Home /> },
   { name: "Dashboard", path: "/dashboard/provider", icon: <LayoutDashboard /> },
   {
     name: "Manage Meals",
@@ -42,6 +47,7 @@ const providerMenuItems = [
 
 // Menu items for Customer
 const customerMenuItems = [
+  { name: "Home", path: "/", icon: <Home /> },
   { name: "Dashboard", path: "/dashboard/customer", icon: <LayoutDashboard /> },
   {
     name: "My Orders",
@@ -58,6 +64,7 @@ const customerMenuItems = [
 
 // Menu items for Admin
 const adminMenuItems = [
+  { name: "Home", path: "/", icon: <Home /> },
   { name: "Dashboard", path: "/dashboard/admin", icon: <LayoutDashboard /> },
   { name: "Manage Users", path: "/dashboard/admin/manage-users", icon: <Users /> },
   { name: "Profile", path: "/dashboard/admin/profile", icon: <User /> },
@@ -65,6 +72,8 @@ const adminMenuItems = [
 
 export default function DashboardSidebar() {
   const { user } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch();
+  const router = useRouter();
   
   // Determine which menu items to display based on user role
   let menuItems = customerMenuItems; // Default to customer
@@ -74,6 +83,13 @@ export default function DashboardSidebar() {
   } else if (user?.role === "admin") {
     menuItems = adminMenuItems;
   }
+
+  const handleLogout = () => {
+    dispatch(logout());
+    localStorage.removeItem("token");
+    router.push("/login");
+    toast.success("Logged out successfully");
+  };
 
   return (
     <Sidebar>
@@ -109,7 +125,10 @@ export default function DashboardSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <button className="w-full text-left text-red-500 hover:text-red-600">
+              <button 
+                className="w-full text-left text-red-500 hover:text-red-600"
+                onClick={handleLogout}
+              >
                 <LogOut className="h-4 w-4" />
                 <span className="font-bold">Logout</span>
               </button>

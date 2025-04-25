@@ -4,9 +4,10 @@ import Image from "next/image";
 
 const Header = () => {
   return (
-    <section className="container py-10">
-      <div className="flex flex-col items-center text-center">
-        <h2 className="text-6xl leading-tight font-medium">
+    <section className="py-10">
+      {/* Text */}
+      <div className="container flex flex-col items-center text-center">
+        <h2 className="text-3xl font-medium sm:text-4xl md:text-6xl md:leading-[70px] lg:text-7xl lg:leading-[80px]">
           Fresh and healthy
           <br />
           food for your{" "}
@@ -22,18 +23,18 @@ const Header = () => {
           </span>
         </h2>
 
-        <p className="mt-3 mb-4.5 text-lg text-gray-700">
+        <p className="my-3.5 text-sm text-gray-700 md:my-5 md:text-lg lg:text-xl">
           Order healthy and delicious dishes at any time,
-          <br />
+          <br className="" />
           and we&apos;ll make sure it is safely delivered to your home
         </p>
 
         <div className="flex items-center gap-4">
-          <Button className="border-feed-jungle text-feed hover:bg-feed-jungle bg-feed-lime h-11 rounded-full border-2 px-6 text-lg font-medium transition-colors hover:text-lime-400">
+          <Button className="border-feed-jungle text-feed hover:bg-feed-jungle bg-feed-lime h-11 rounded-full border-2 text-[17px] font-medium transition-colors hover:text-lime-400">
             Order now
           </Button>
           <Link
-            className="hover:text-feed-jungle border-feed-jungle text-lg font-medium text-gray-800 duration-200 ease-in-out hover:border-b-2"
+            className="hover:text-feed-jungle border-feed-jungle text-[17px] font-medium text-gray-800 duration-100 ease-in-out hover:border-b-2"
             href="/"
           >
             See the menu
@@ -41,42 +42,22 @@ const Header = () => {
         </div>
       </div>
 
-      <div className="flex gap-4 overflow-x-auto py-6">
-        <Image
-          src="/home/banner/banner1.jpg"
-          className="h-72 w-56 rounded-t-full object-cover"
-          alt="banner"
-          width={300}
-          height={300}
-        />
-        <Image
-          src="/home/banner/banner2.jpg"
-          className="h-72 w-56 object-cover [clip-path:circle(50%)]"
-          alt="banner"
-          width={300}
-          height={300}
-        />
-        <Image
-          src="/home/banner/banner3.jpg"
-          className="h-72 w-56 rounded-2xl object-cover"
-          alt="banner"
-          width={300}
-          height={300}
-        />
-        <Image
-          src="/home/banner/banner4.jpg"
-          className="h-72 w-56 rounded-[50%_50%_0_0] object-cover"
-          alt="banner"
-          width={300}
-          height={300}
-        />
-        <Image
-          src="/home/banner/banner5.jpg"
-          className="h-72 w-56 rounded-tl-[80%] rounded-br-[80%] object-cover"
-          alt="banner"
-          width={300}
-          height={300}
-        />
+      {/* Marquee */}
+      <div className="relative container mt-8 flex items-center overflow-hidden lg:mt-12">
+        <div className="absolute left-0 z-10 h-full w-10 bg-linear-to-r from-white to-transparent sm:w-20" />
+        <div className="marquee flex w-max items-center gap-7 overflow-visible">
+          {[1, 2, 3, 4, 5, 1, 2, 3, 4, 5].map((i, idx) => (
+            <Image
+              key={idx}
+              src={`/home/banner/banner${i % 5 || 5}.png`}
+              alt={`banner${i}`}
+              className="w-[200px] object-cover md:w-[250px]"
+              width={200}
+              height={200}
+            />
+          ))}
+        </div>
+        <div className="absolute right-0 z-10 h-full w-10 bg-linear-to-r from-transparent to-white sm:w-20" />
       </div>
     </section>
   );

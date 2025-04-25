@@ -33,9 +33,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useSelector } from "react-redux";
@@ -718,26 +715,6 @@ export default function ManageOrdersPage() {
                             Update Status
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger className="flex items-center gap-2 text-xs">
-                              <PackageCheck className="h-3.5 w-3.5" />
-                              Quick Status Update
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuSubContent className="w-32">
-                              {["placed", "approved", "processed", "shipped", "delivered"].map((status) => (
-                                <DropdownMenuItem 
-                                  key={status}
-                                  className={`flex cursor-pointer items-center justify-between px-2 py-1.5 text-xs ${getCurrentStage(order) === status ? 'bg-gray-100' : ''}`}
-                                  onClick={() => handleStatusChange(order._id, status, "")}
-                                >
-                                  {/* Capitalize first letter for display only */}
-                                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                                  {getCurrentStage(order) === status && <Check className="h-3 w-3" />}
-                                </DropdownMenuItem>
-                              ))}
-                            </DropdownMenuSubContent>
-                          </DropdownMenuSub>
-                          <DropdownMenuSeparator />
                           <DropdownMenuItem
                             onClick={() => {
                               if (confirm("Are you sure you want to delete this order?")) {
@@ -1151,7 +1128,7 @@ export default function ManageOrdersPage() {
 
               {/* Update message */}
               <div>
-                <label htmlFor="update-message" className="mb-2 block text-sm font-medium">Update Message (Optional)</label>
+                <label htmlFor="update-message" className="mb-2 block text-sm font-medium">Update Message</label>
                 <Input
                   id="update-message"
                   value={updateMessage}
