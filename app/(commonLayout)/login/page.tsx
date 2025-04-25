@@ -101,34 +101,34 @@ export default function SignIn() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-[90vh] items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-[900px] overflow-hidden rounded-2xl bg-white shadow-2xl">
         <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="relative hidden bg-gradient-to-br from-[#FF0000] to-[#CC0000] md:block">
+          <div className="bg-feed-lime relative hidden md:block">
             <div className="absolute inset-0 bg-black/10" />
             <div className="relative flex h-full flex-col justify-center p-12">
-              <h3 className="text-4xl font-bold text-white md:text-5xl lg:text-6xl">
+              <h3 className="text-feed-black text-4xl font-semibold md:text-5xl lg:text-6xl">
                 Welcome
                 <br />
                 Back!
               </h3>
-              <p className="mt-4 text-lg text-white/90">
+              <p className="text-feed-jungle/90 mt-4 text-lg">
                 Sign in to access your personalized meal plans and track your
                 nutrition journey.
               </p>
             </div>
           </div>
 
-          <div className="flex flex-col justify-center px-8 py-12 sm:px-12">
+          <div className="flex flex-col justify-center px-8 py-10 sm:px-12 md:py-15">
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
-              <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
+              <h2 className="text-center text-3xl font-semibold tracking-tight text-gray-900">
                 Sign in to your account
               </h2>
               <p className="mt-2 text-center text-sm text-gray-600">
                 Don&apos;t have an account?{" "}
                 <Link
                   href="/register"
-                  className="font-semibold text-[#FF0000] transition-colors hover:text-[#CC0000]"
+                  className="text-feed-jungle hover:text-feed-black font-semibold transition-colors"
                 >
                   Sign up
                 </Link>
@@ -149,7 +149,7 @@ export default function SignIn() {
                       id="email"
                       type="email"
                       placeholder="Enter your email"
-                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
+                      className="block h-10 w-full rounded-full border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
                       {...register("email", { required: "Email is required" })}
                     />
                     {errors.email && (
@@ -170,7 +170,7 @@ export default function SignIn() {
                     </label>
                     <Link
                       href="/forgot-password"
-                      className="text-sm font-medium text-[#FF0000] hover:text-[#CC0000]"
+                      className="text-feed-jungle hover:text-feed-black text-sm font-medium"
                     >
                       Forgot password?
                     </Link>
@@ -180,7 +180,7 @@ export default function SignIn() {
                       id="password"
                       type="password"
                       placeholder="Enter your password"
-                      className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
+                      className="block h-10 w-full rounded-full border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
                       {...register("password", {
                         required: "Password is required",
                       })}
@@ -196,7 +196,7 @@ export default function SignIn() {
                 <div>
                   <Button
                     type="submit"
-                    className="w-full rounded-md bg-[#FF0000] px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#CC0000] focus:ring-2 focus:ring-[#FF0000] focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70"
+                    className="text bg-feed-jungle hover:bg-feed-black focus:ring-feed-lime h-10 w-full rounded-full px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70"
                     disabled={isLoading}
                   >
                     {isLoading ? "Signing in..." : "Sign in"}
