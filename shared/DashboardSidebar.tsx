@@ -67,7 +67,11 @@ const customerMenuItems = [
 const adminMenuItems = [
   { name: "Home", path: "/", icon: <Home /> },
   { name: "Dashboard", path: "/dashboard/admin", icon: <LayoutDashboard /> },
-  { name: "Manage Users", path: "/dashboard/admin/manage-users", icon: <Users /> },
+  {
+    name: "Manage Users",
+    path: "/dashboard/admin/manage-users",
+    icon: <Users />,
+  },
   { name: "Profile", path: "/dashboard/admin/profile", icon: <User /> },
 ];
 
@@ -75,11 +79,13 @@ export default function DashboardSidebar() {
   const { user } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
   const router = useRouter();
-  
+
   // Use state to control when menu items are displayed
-  const [menuItems, setMenuItems] = useState<Array<{name: string, path: string, icon: React.ReactNode}>>([]);
+  const [menuItems, setMenuItems] = useState<
+    Array<{ name: string; path: string; icon: React.ReactNode }>
+  >([]);
   const [isClient, setIsClient] = useState(false);
-  
+
   // Only update menu items after component has mounted on client
   useEffect(() => {
     setIsClient(true);
@@ -112,9 +118,7 @@ export default function DashboardSidebar() {
           </div>
         </SidebarHeader>
         <SidebarContent>
-          <SidebarMenu>
-            {/* Empty skeleton menu during SSR */}
-          </SidebarMenu>
+          <SidebarMenu>{/* Empty skeleton menu during SSR */}</SidebarMenu>
         </SidebarContent>
         <SidebarRail />
       </Sidebar>
@@ -155,7 +159,7 @@ export default function DashboardSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <button 
+              <button
                 className="w-full text-left text-red-500 hover:text-red-600"
                 onClick={handleLogout}
               >

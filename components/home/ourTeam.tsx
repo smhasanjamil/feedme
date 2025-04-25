@@ -26,9 +26,9 @@ const OurTeamCard: React.FC<OurTeamCardProps> = ({
         height={300}
         width={250}
       />
-      <div className="pt-2 flex flex-col items-center pb-5 text-center">
+      <div className="flex flex-col items-center pt-2 pb-5 text-center">
         <h3 className="font-medium lg:text-[17px] xl:text-2xl">{name}</h3>
-        <p className="mx-auto mt-1 mb-2.5 text-center text-sm text-gray-600 lg:text-base xl:w-11/12 xl:text-[17px] flex-1">
+        <p className="mx-auto mt-1 mb-2.5 flex-1 text-center text-sm text-gray-600 lg:text-base xl:w-11/12 xl:text-[17px]">
           {description}
         </p>
         <div className="flex justify-center gap-2 text-xl">

@@ -5,7 +5,7 @@ A full-stack web application that bridges the gap between customers and meal pro
 ## 🚀 Live Demo
 
 🌐 [Live Frontend URL](https://feedme.vercel.app)  
-🔗 [Backend Deployment](https://feedme-api.onrender.com) *(if applicable)*  
+🔗 [Backend Deployment](https://feedme-api.onrender.com) _(if applicable)_  
 🎥 [Video Walkthrough](https://drive.google.com/your-demo-link)
 
 ---
@@ -13,26 +13,31 @@ A full-stack web application that bridges the gap between customers and meal pro
 ## 📌 Features
 
 ### 👤 User Authentication & Roles
+
 - Secure JWT-based login for **Customers** and **Meal Providers**
 - Password encryption using **bcrypt**
 - Role-based dashboards and access control
 
 ### 🍽 Customer Panel
+
 - Browse, customize, and schedule meals
 - Set dietary preferences (vegan, keto, gluten-free, etc.)
 - Track active and past orders
 - Edit delivery profile and preferences
 
 ### 👨‍🍳 Meal Provider Panel
+
 - Manage meal listings with ingredients, pricing, and availability
 - View, accept, or modify customer orders
 - Update cuisine specialties and delivery options
 
 ### 🔍 Search & Match
+
 - Customers can search meals based on cuisine, rating, or preferences
 - Providers can view preferences to tailor meals
 
 ### 📬 Notifications (Email)
+
 - Order status updates for customers and providers via email
 
 ---
@@ -40,6 +45,7 @@ A full-stack web application that bridges the gap between customers and meal pro
 ## 🛠 Tech Stack
 
 ### Frontend
+
 - [Next.js](https://nextjs.org/)
 - [TypeScript](https://www.typescriptlang.org/)
 - [Redux Toolkit](https://redux-toolkit.js.org/)
@@ -49,6 +55,7 @@ A full-stack web application that bridges the gap between customers and meal pro
 - [Cloudinary](https://cloudinary.com/) for media uploads
 
 ### Backend
+
 - [Node.js](https://nodejs.org/)
 - [Express.js](https://expressjs.com/)
 - [MongoDB + Mongoose](https://mongoosejs.com/)
@@ -60,6 +67,7 @@ A full-stack web application that bridges the gap between customers and meal pro
 ## 📦 Installation & Setup
 
 ### Prerequisites
+
 - Node.js (v18+)
 - MongoDB URI
 - Cloudinary credentials
@@ -115,6 +123,7 @@ Visit `http://localhost:3000` to use the app locally.
 ---
 
 ## 📹 Demo Overview (Must-Watch)
+
 - User registration/login (Customer & Provider)
 - Meal customization & scheduling
 - Provider order management & menu creation
@@ -126,7 +135,7 @@ Visit `http://localhost:3000` to use the app locally.
 ## 🧑‍💻 Contributors
 
 - **Ifajul** – [GitHub](https://github.com/ifajul89)  
-  *(Project Lead & Full Stack Developer)*
+  _(Project Lead & Full Stack Developer)_
 
 ---
 
@@ -140,3 +149,4 @@ Feel free to fork and expand!
 ```
 
 Let me know if you'd like to add badges, images, or contribution guidelines to this!
+```

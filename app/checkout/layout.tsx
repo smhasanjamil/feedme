@@ -1,5 +1,5 @@
-import { Toaster } from 'react-hot-toast';
-import Navbar from '@/components/ui/navbar';
+import { Toaster } from "react-hot-toast";
+import Navbar from "@/components/ui/navbar";
 
 export default function CheckoutLayout({
   children,
@@ -13,4 +13,4 @@ export default function CheckoutLayout({
       <Toaster position="top-right" />
     </main>
   );
-} 
+}

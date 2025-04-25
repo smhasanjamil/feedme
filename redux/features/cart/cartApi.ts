@@ -1,5 +1,5 @@
 import { baseApi } from "@/redux/api/baseApi";
-import { RootState } from '@/redux/store';
+import { RootState } from "@/redux/store";
 
 // Interface for add to cart request payload
 export interface AddToCartRequest {
@@ -75,20 +75,20 @@ export interface CartResponse {
 const createMockResponse = (email?: string): CartResponse => ({
   status: true,
   statusCode: 200,
-  message: 'Operation completed successfully (offline mode)',
+  message: "Operation completed successfully (offline mode)",
   data: {
-    _id: 'mock-cart-id',
-    userId: 'mock-user-id',
-    customerName: 'Mock User',
-    customerId: 'mock-customer-id',
+    _id: "mock-cart-id",
+    userId: "mock-user-id",
+    customerName: "Mock User",
+    customerId: "mock-customer-id",
     items: [],
     totalAmount: 0,
-    deliveryAddress: 'Mock Address',
+    deliveryAddress: "Mock Address",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     __v: 0,
-    customerEmail: email || 'mock@example.com'
-  }
+    customerEmail: email || "mock@example.com",
+  },
 });
 
 // Order from cart request interface
@@ -120,8 +120,8 @@ export interface OrderResponse {
       meals: Array<Record<string, unknown>>;
       deliveryDate: string;
       deliverySlot: string;
-    }
-  }
+    };
+  };
 }
 
 export const cartApi = baseApi.injectEndpoints({
@@ -132,159 +132,187 @@ export const cartApi = baseApi.injectEndpoints({
         try {
           // Add some basic validation
           if (!data.mealId || !data.customerEmail) {
-            console.error('Missing required fields in addToCart:', 
-              {hasMealId: !!data.mealId, hasEmail: !!data.customerEmail});
-            
+            console.error("Missing required fields in addToCart:", {
+              hasMealId: !!data.mealId,
+              hasEmail: !!data.customerEmail,
+            });
+
             return {
               error: {
                 status: 400,
                 data: {
-                  message: 'Missing required fields',
-                  status: false
-                }
-              }
+                  message: "Missing required fields",
+                  status: false,
+                },
+              },
             };
           }
-          
+
           // Validate customization object if it exists
           if (data.customization) {
             // Ensure spiceLevel is a string if provided
-            if (data.customization.spiceLevel && typeof data.customization.spiceLevel !== 'string') {
-              console.error('Invalid spiceLevel format:', data.customization.spiceLevel);
+            if (
+              data.customization.spiceLevel &&
+              typeof data.customization.spiceLevel !== "string"
+            ) {
+              console.error(
+                "Invalid spiceLevel format:",
+                data.customization.spiceLevel,
+              );
               return {
                 error: {
                   status: 400,
                   data: {
-                    message: 'Invalid spice level format',
-                    status: false
-                  }
-                }
+                    message: "Invalid spice level format",
+                    status: false,
+                  },
+                },
               };
             }
-            
+
             // Ensure removedIngredients is an array if provided
-            if (data.customization.removedIngredients && 
-                !Array.isArray(data.customization.removedIngredients)) {
-              console.error('Invalid removedIngredients format:', data.customization.removedIngredients);
+            if (
+              data.customization.removedIngredients &&
+              !Array.isArray(data.customization.removedIngredients)
+            ) {
+              console.error(
+                "Invalid removedIngredients format:",
+                data.customization.removedIngredients,
+              );
               return {
                 error: {
                   status: 400,
                   data: {
-                    message: 'Invalid removed ingredients format',
-                    status: false
-                  }
-                }
+                    message: "Invalid removed ingredients format",
+                    status: false,
+                  },
+                },
               };
             }
-            
+
             // Ensure addOns is an array with valid objects if provided
             if (data.customization.addOns) {
               if (!Array.isArray(data.customization.addOns)) {
-                console.error('Invalid addOns format:', data.customization.addOns);
+                console.error(
+                  "Invalid addOns format:",
+                  data.customization.addOns,
+                );
                 return {
                   error: {
                     status: 400,
                     data: {
-                      message: 'Invalid add-ons format',
-                      status: false
-                    }
-                  }
+                      message: "Invalid add-ons format",
+                      status: false,
+                    },
+                  },
                 };
               }
-              
+
               // Validate each add-on object
               for (const addon of data.customization.addOns) {
-                if (!addon.name || typeof addon.price !== 'number') {
-                  console.error('Invalid add-on object:', addon);
+                if (!addon.name || typeof addon.price !== "number") {
+                  console.error("Invalid add-on object:", addon);
                   return {
                     error: {
                       status: 400,
                       data: {
-                        message: 'Invalid add-on object structure',
-                        status: false
-                      }
-                    }
+                        message: "Invalid add-on object structure",
+                        status: false,
+                      },
+                    },
                   };
                 }
               }
             }
           }
-          
+
           const result = await baseQuery({
             url: `/cart`,
             method: "POST",
             body: data,
             headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            }
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
           });
-          
+
           if (!result.error) {
             return { data: result.data as CartResponse };
           }
-          
+
           // If the request fails, log it and return a mock success
-          console.log('Using offline mode for addToCart - original error:', result.error);
-          
+          console.log(
+            "Using offline mode for addToCart - original error:",
+            result.error,
+          );
+
           // Create mock addOns with _id field to match the CartItem interface
-          const mockAddOns = data.customization?.addOns?.map(addon => ({
+          const mockAddOns = data.customization?.addOns?.map((addon) => ({
             ...addon,
-            _id: 'mock-addon-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9)
+            _id:
+              "mock-addon-" +
+              Date.now() +
+              "-" +
+              Math.random().toString(36).substr(2, 9),
           }));
-          
-          return { 
+
+          return {
             data: {
               status: true,
               statusCode: 200,
-              message: 'Item added to cart (offline mode)',
+              message: "Item added to cart (offline mode)",
               data: {
-                _id: 'mock-cart-id',
-                userId: data.userId || 'mock-user-id',
-                customerName: data.customerName || 'Mock User',
-                customerId: 'mock-customer-id',
-                items: [{
-                  _id: 'mock-item-' + Date.now(),
-                  mealId: data.mealId,
-                  mealName: data.mealName,
-                  providerId: data.providerId,
-                  providerName: data.providerName,
-                  quantity: data.quantity,
-                  price: data.price,
-                  deliveryDate: data.deliveryDate,
-                  deliverySlot: data.deliverySlot,
-                  imageUrl: data.imageUrl,
-                  customization: data.customization ? {
-                    ...data.customization,
-                    addOns: mockAddOns
-                  } : undefined
-                }],
+                _id: "mock-cart-id",
+                userId: data.userId || "mock-user-id",
+                customerName: data.customerName || "Mock User",
+                customerId: "mock-customer-id",
+                items: [
+                  {
+                    _id: "mock-item-" + Date.now(),
+                    mealId: data.mealId,
+                    mealName: data.mealName,
+                    providerId: data.providerId,
+                    providerName: data.providerName,
+                    quantity: data.quantity,
+                    price: data.price,
+                    deliveryDate: data.deliveryDate,
+                    deliverySlot: data.deliverySlot,
+                    imageUrl: data.imageUrl,
+                    customization: data.customization
+                      ? {
+                          ...data.customization,
+                          addOns: mockAddOns,
+                        }
+                      : undefined,
+                  },
+                ],
                 totalAmount: data.price * data.quantity,
                 deliveryAddress: data.deliveryAddress,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
                 __v: 0,
-                customerEmail: data.customerEmail
-              }
-            }
+                customerEmail: data.customerEmail,
+              },
+            },
           };
         } catch (err) {
-          console.error('Error in addToCart:', err);
+          console.error("Error in addToCart:", err);
           // Return a structured error for better client handling
           return {
             error: {
               status: 500,
               data: {
-                message: err instanceof Error ? err.message : 'Unknown error occurred',
-                status: false
-              }
-            }
+                message:
+                  err instanceof Error ? err.message : "Unknown error occurred",
+                status: false,
+              },
+            },
           };
         }
       },
       invalidatesTags: ["User"],
     }),
-    
+
     getCart: builder.query<CartResponse, string | void>({
       query: (email) => ({
         url: email ? `/cart/by-email?email=${email}` : `/cart`,
@@ -292,154 +320,161 @@ export const cartApi = baseApi.injectEndpoints({
       }),
       providesTags: ["User"],
     }),
-    
-    removeFromCart: builder.mutation<CartResponse, { itemId: string, email?: string }>({
+
+    removeFromCart: builder.mutation<
+      CartResponse,
+      { itemId: string; email?: string }
+    >({
       queryFn: async (arg, api, _extraOptions, baseQuery) => {
         const { itemId, email } = arg;
-        
+
         // Simple approach: just try the most likely endpoint
         try {
           const result = await baseQuery({
-            url: `/cart/item/${itemId}?email=${email || ''}`,
-            method: 'DELETE',
+            url: `/cart/item/${itemId}?email=${email || ""}`,
+            method: "DELETE",
             headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            }
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
           });
-          
+
           if (!result.error) {
             return { data: result.data as CartResponse };
           }
-          
+
           // If that fails, return a mock success response
-          console.log('Using offline mode for removeFromCart');
+          console.log("Using offline mode for removeFromCart");
           return { data: createMockResponse(email) };
-          
         } catch (err) {
-          console.error('Error in removeFromCart:', err);
+          console.error("Error in removeFromCart:", err);
           // Return mock success to keep the UI working
           return { data: createMockResponse(email) };
         }
       },
       invalidatesTags: ["User"],
     }),
-    
+
     updateCartItem: builder.mutation<
-      CartResponse, 
-      { itemId: string, quantity: number, email?: string }
+      CartResponse,
+      { itemId: string; quantity: number; email?: string }
     >({
       queryFn: async (arg, api, _extraOptions, baseQuery) => {
         const { itemId, quantity, email } = arg;
-        
+
         // Validate arguments to prevent issues
         if (!itemId) {
-          console.error('Missing itemId in updateCartItem');
+          console.error("Missing itemId in updateCartItem");
           return {
             error: {
               status: 400,
               data: {
-                message: 'Missing item ID',
+                message: "Missing item ID",
                 status: 400,
                 data: null,
-                success: false
-              }
-            }
+                success: false,
+              },
+            },
           };
         }
-        
+
         if (quantity < 1) {
-          console.error('Invalid quantity in updateCartItem');
+          console.error("Invalid quantity in updateCartItem");
           return {
             error: {
               status: 400,
               data: {
-                message: 'Quantity must be at least 1',
+                message: "Quantity must be at least 1",
                 status: 400,
                 data: null,
-                success: false
-              }
-            }
+                success: false,
+              },
+            },
           };
         }
-        
+
         // Simple approach: Try the most likely endpoint with a timeout
         try {
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 3000);
-          
+
           const result = await baseQuery({
             url: `/cart/item/${itemId}`,
-            method: 'PATCH',
-            body: { 
+            method: "PATCH",
+            body: {
               quantity,
-              email: email || '' 
+              email: email || "",
             },
             headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
+              "Content-Type": "application/json",
+              Accept: "application/json",
             },
-            signal: controller.signal
+            signal: controller.signal,
           });
-          
+
           clearTimeout(timeoutId);
-          
+
           if (!result.error) {
             return { data: result.data as CartResponse };
           }
-          
+
           // Endpoint failed - return mock success response
-          console.log('Using offline mode for updateCartItem');
+          console.log("Using offline mode for updateCartItem");
           return { data: createMockResponse(email) };
-          
         } catch (err) {
-          console.error('Error in updateCartItem:', err);
+          console.error("Error in updateCartItem:", err);
           // Return mock success to keep the UI working
           return { data: createMockResponse(email) };
         }
       },
       invalidatesTags: ["User"],
     }),
-    
-    removeFromCartByEmail: builder.mutation<CartResponse, { mealId: string, email: string }>({
+
+    removeFromCartByEmail: builder.mutation<
+      CartResponse,
+      { mealId: string; email: string }
+    >({
       query: ({ mealId, email }) => {
         return {
           url: `/cart/by-email/item/${mealId}?email=${email}`,
-          method: 'DELETE',
+          method: "DELETE",
           headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
+            "Content-Type": "application/json",
+            Accept: "application/json",
           },
-          credentials: 'include',
+          credentials: "include",
         };
       },
       async onQueryStarted(arg, { queryFulfilled }) {
         try {
           await queryFulfilled;
-          console.log('Successfully removed item from cart on server');
+          console.log("Successfully removed item from cart on server");
         } catch (error) {
-          console.error('Error in server removeFromCartByEmail request:', error);
+          console.error(
+            "Error in server removeFromCartByEmail request:",
+            error,
+          );
         }
       },
       invalidatesTags: ["User"],
     }),
-    
+
     createOrderFromCart: builder.mutation<OrderResponse, OrderFromCartRequest>({
       query: (orderData) => ({
-        url: 'https://feedme-backend-zeta.vercel.app/api/orders/from-cart',
-        method: 'POST',
+        url: "https://feedme-backend-zeta.vercel.app/api/orders/from-cart",
+        method: "POST",
         body: orderData,
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
       }),
       async onQueryStarted(arg, { queryFulfilled }) {
         try {
           await queryFulfilled;
-          console.log('Successfully created order from cart');
+          console.log("Successfully created order from cart");
         } catch (error) {
-          console.error('Error creating order from cart:', error);
+          console.error("Error creating order from cart:", error);
         }
       },
       invalidatesTags: ["User"],
@@ -454,4 +489,4 @@ export const {
   useUpdateCartItemMutation,
   useRemoveFromCartByEmailMutation,
   useCreateOrderFromCartMutation,
-} = cartApi; 
+} = cartApi;

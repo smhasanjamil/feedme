@@ -10,4 +10,4 @@ export default function OrdersLayout({ children }: { children: ReactNode }) {
       <Footer />
     </div>
   );
-} 
+}

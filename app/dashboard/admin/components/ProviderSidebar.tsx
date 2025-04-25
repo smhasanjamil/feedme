@@ -83,7 +83,7 @@ export default function ProviderSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <button 
+              <button
                 onClick={handleLogout}
                 className="w-full text-left text-red-500 hover:text-red-600"
               >
@@ -97,4 +97,4 @@ export default function ProviderSidebar() {
       <SidebarRail />
     </Sidebar>
   );
-} 
+}

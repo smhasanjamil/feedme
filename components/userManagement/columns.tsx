@@ -22,13 +22,13 @@ export type DashboardUserData = {
   email: string;
   role: "user" | "admin" | "provider";
   isBlocked: boolean;
-  createdAt: string
+  createdAt: string;
 };
 
 export const getColumns = (
   onUpdate: (user: DashboardUserData) => void,
-  onDelete: (id: string) => void
-): ColumnDef<DashboardUserData>[] =>  [
+  onDelete: (id: string) => void,
+): ColumnDef<DashboardUserData>[] => [
   {
     accessorKey: "_id",
     header: "User ID",
@@ -97,14 +97,16 @@ export const getColumns = (
               Copy User ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => onUpdate(user)}>Update User</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onDelete(user._id)}>Delete User</DropdownMenuItem>
-
+            <DropdownMenuItem onClick={() => onUpdate(user)}>
+              Update User
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onDelete(user._id)}>
+              Delete User
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
     },
     header: "Action",
   },
- 
 ];

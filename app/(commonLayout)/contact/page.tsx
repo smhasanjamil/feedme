@@ -15,7 +15,7 @@ const page = () => {
 
       {/* Contact Information and Form Section */}
       <section className="container my-10 md:my-20">
-        <div className="grid w-full grid-cols-1 md:grid-cols-5 gap-7 md:gap-12">
+        <div className="grid w-full grid-cols-1 gap-7 md:grid-cols-5 md:gap-12">
           {/* Map Section (Left) */}
           <div className="col-span-1 overflow-hidden rounded-2xl md:col-span-2">
             <iframe

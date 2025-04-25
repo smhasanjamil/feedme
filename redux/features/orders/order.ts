@@ -50,8 +50,12 @@ interface MealItem {
   customization?: {
     spiceLevel?: string;
     removedIngredients?: string[];
-    addOns?: Array<{name: string; price?: number}>;
-    [key: string]: string | string[] | Array<{name: string; price?: number}> | undefined;
+    addOns?: Array<{ name: string; price?: number }>;
+    [key: string]:
+      | string
+      | string[]
+      | Array<{ name: string; price?: number }>
+      | undefined;
   };
 }
 
@@ -252,32 +256,32 @@ const orderApi = baseApi.injectEndpoints({
       query: ({ orderId, data }) => {
         // Ensure exact URL format matches the confirmed API endpoint
         const url = `https://feedme-backend-zeta.vercel.app/api/orders/${orderId}/tracking`;
-        console.log('RTK Query making request to:', url);
-        console.log('With data:', data);
-        
+        console.log("RTK Query making request to:", url);
+        console.log("With data:", data);
+
         // Get the token from the Redux store
         // Note: The baseApi already handles this in prepareHeaders, but we're being explicit
         return {
           url,
           method: "PATCH",
           body: data,
-          credentials: 'include',
+          credentials: "include",
           headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
         };
       },
       async onQueryStarted(_, { queryFulfilled }) {
         try {
           const result = await queryFulfilled;
-          console.log('Order tracking update success:', result);
+          console.log("Order tracking update success:", result);
         } catch (error) {
-          console.error('Order tracking update failed:', error);
+          console.error("Order tracking update failed:", error);
         }
       },
       transformResponse: (response: { data: ApiOrder }) => {
-        console.log('Tracking update response:', response);
+        console.log("Tracking update response:", response);
         return response?.data;
       },
     }),
@@ -291,10 +295,12 @@ const orderApi = baseApi.injectEndpoints({
         try {
           console.log(`Deleting order with id: ${orderId}`);
           await queryFulfilled;
-          console.log('Order deleted successfully');
+          console.log("Order deleted successfully");
         } catch {
           // Avoid logging the full error object which might be circular
-          console.error(`Delete operation failed, but the order might still be deleted. OrderId: ${orderId}`);
+          console.error(
+            `Delete operation failed, but the order might still be deleted. OrderId: ${orderId}`,
+          );
         }
       },
       transformResponse: (response: { success: boolean }) => {
@@ -309,8 +315,8 @@ const orderApi = baseApi.injectEndpoints({
         body: {
           rating: ratingData.rating,
           comment: ratingData.comment,
-          orderId: ratingData.orderId
-        }
+          orderId: ratingData.orderId,
+        },
       }),
       transformResponse: (response: RatingResponse) => {
         return response?.data || null;

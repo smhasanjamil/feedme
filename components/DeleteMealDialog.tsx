@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -61,7 +61,6 @@ interface IMeal {
   quantity: number;
 }
 
-
 const DeleteMealDialog = ({ meal }: { meal: IMeal }) => {
   const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
   const [deleteProduct, { isLoading: isDeleteLoading }] =
@@ -75,13 +74,13 @@ const DeleteMealDialog = ({ meal }: { meal: IMeal }) => {
           (t) => (
             <div
               className={`${
-                t.visible ? 'animate-enter' : 'animate-leave'
-              } max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
+                t.visible ? "animate-enter" : "animate-leave"
+              } ring-opacity-5 pointer-events-auto flex w-full max-w-md rounded-lg bg-white shadow-lg ring-1 ring-black`}
             >
-              <div className="flex-1 w-0 p-4">
+              <div className="w-0 flex-1 p-4">
                 <div className="flex items-start">
                   <div className="flex-shrink-0 pt-0.5">
-                    <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
                       <Check className="h-6 w-6 text-green-600" />
                     </div>
                   </div>
@@ -96,7 +95,7 @@ const DeleteMealDialog = ({ meal }: { meal: IMeal }) => {
               <div className="flex border-l border-gray-200">
                 <button
                   onClick={() => toast.dismiss(t.id)}
-                  className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-gray-400 hover:text-gray-500 focus:outline-none"
+                  className="flex w-full items-center justify-center rounded-none rounded-r-lg border border-transparent p-4 text-sm font-medium text-gray-400 hover:text-gray-500 focus:outline-none"
                 >
                   Close
                 </button>
@@ -105,8 +104,8 @@ const DeleteMealDialog = ({ meal }: { meal: IMeal }) => {
           ),
           {
             duration: 3000,
-            position: 'top-right',
-          }
+            position: "top-right",
+          },
         );
       } else {
         toast.error(res.message || "Failed to delete product");
@@ -123,7 +122,8 @@ const DeleteMealDialog = ({ meal }: { meal: IMeal }) => {
     <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
       <DialogTrigger asChild>
         <Button size="sm" variant="destructive">
-        <Trash2 size={14} />Delete
+          <Trash2 size={14} />
+          Delete
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

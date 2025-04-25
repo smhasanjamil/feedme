@@ -17,13 +17,14 @@ export function formatDate(
     year: "numeric",
     month: "long",
     day: "numeric",
-  }
+  },
 ): string {
-  const date = typeof dateString === "string" ? new Date(dateString) : dateString;
-  
+  const date =
+    typeof dateString === "string" ? new Date(dateString) : dateString;
+
   if (isNaN(date.getTime())) {
     return "Invalid date";
   }
-  
+
   return date.toLocaleDateString(undefined, options);
 }

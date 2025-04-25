@@ -1,16 +1,23 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { Card, CardContent, } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useGetAllMealsQuery } from '@/redux/meal/mealApi';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Star, Search, ChefHat,  ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Slider } from '@/components/ui/slider';
+import { useState, useEffect } from "react";
+// import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useGetAllMealsQuery } from "@/redux/meal/mealApi";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Star,
+  Search,
+  ChefHat,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import { Slider } from "@/components/ui/slider";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +25,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
+import Link from "next/link";
 
 // Define interface for meal object
 interface Meal {
@@ -36,144 +44,174 @@ interface Meal {
 }
 
 export default function FindMealsPage() {
-  const router = useRouter();
+  // const router = useRouter();
   const { data: mealData, isLoading, isError } = useGetAllMealsQuery({});
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [minRating, setMinRating] = useState(0);
   const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
   const [selectedPreferences, setSelectedPreferences] = useState<string[]>([]);
-  const [preferenceSearchTerm, setPreferenceSearchTerm] = useState('');
-  const [providerSearchTerm, setProviderSearchTerm] = useState('');
+  const [preferenceSearchTerm, setPreferenceSearchTerm] = useState("");
+  const [providerSearchTerm, setProviderSearchTerm] = useState("");
   // New pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const mealsPerPage = 9;
-  
+
   // Get all unique providers from the data
-  const providers = mealData?.data ? 
-    Array.from(new Set(mealData.data.map(meal => 
-      typeof meal.providerId === 'object' && meal.providerId?.name
-        ? meal.providerId.name
-        : (typeof meal.providerId === 'string'
-            ? meal.providerId
-            : 'Unknown Provider')
-    ))) : 
-    [];
-    
+  const providers = mealData?.data
+    ? Array.from(
+        new Set(
+          mealData.data.map((meal) =>
+            typeof meal.providerId === "object" && meal.providerId?.name
+              ? meal.providerId.name
+              : typeof meal.providerId === "string"
+                ? meal.providerId
+                : "Unknown Provider",
+          ),
+        ),
+      )
+    : [];
+
   // Common meal preferences
   const preferences = [
-    'Vegetarian', 
-    'Vegan', 
-    'Gluten-Free', 
-    'Dairy-Free', 
-    'Nut-Free', 
-    'Low-Carb', 
-    'Keto'
+    "Vegetarian",
+    "Vegan",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Nut-Free",
+    "Low-Carb",
+    "Keto",
   ];
-  
+
   // Filter preferences and providers based on search terms
-  const filteredPreferences = preferences.filter(pref => 
-    pref.toLowerCase().includes(preferenceSearchTerm.toLowerCase())
+  const filteredPreferences = preferences.filter((pref) =>
+    pref.toLowerCase().includes(preferenceSearchTerm.toLowerCase()),
   );
-  
-  const filteredProviders = providers.filter(provider => 
-    provider.toLowerCase().includes(providerSearchTerm.toLowerCase())
+
+  const filteredProviders = providers.filter((provider) =>
+    provider.toLowerCase().includes(providerSearchTerm.toLowerCase()),
   );
-  
+
   // Filter meals based on all criteria
-  const filteredMeals = mealData?.data?.filter((meal) => {
-    const matchesSearch = searchTerm === '' || 
-      meal.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      meal.description.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesCategory = !selectedCategory || meal.category === selectedCategory;
-    
-    const rating = meal.ratings?.average ?? meal.rating ?? 0;
-    const matchesRating = rating >= minRating;
-    
-    const providerName = typeof meal.providerId === 'object' && meal.providerId?.name
-      ? meal.providerId.name
-      : (typeof meal.providerId === 'string'
-          ? meal.providerId
-          : 'Unknown Provider');
-    const matchesProvider = selectedProviders.length === 0 || selectedProviders.includes(providerName);
-    
-    // This is mocked since we don't have preferences in the data model yet
-    // In a real implementation, you would check meal.preferences or similar field
-    const mealPreferences = meal.preferences || [];
-    const matchesPreferences = selectedPreferences.length === 0 || 
-      selectedPreferences.some(pref => 
-        meal.description.toLowerCase().includes(pref.toLowerCase()) || 
-        mealPreferences.includes(pref)
+  const filteredMeals =
+    mealData?.data?.filter((meal) => {
+      const matchesSearch =
+        searchTerm === "" ||
+        meal.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        meal.description.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesCategory =
+        !selectedCategory || meal.category === selectedCategory;
+
+      const rating = meal.ratings?.average ?? meal.rating ?? 0;
+      const matchesRating = rating >= minRating;
+
+      const providerName =
+        typeof meal.providerId === "object" && meal.providerId?.name
+          ? meal.providerId.name
+          : typeof meal.providerId === "string"
+            ? meal.providerId
+            : "Unknown Provider";
+      const matchesProvider =
+        selectedProviders.length === 0 ||
+        selectedProviders.includes(providerName);
+
+      // This is mocked since we don't have preferences in the data model yet
+      // In a real implementation, you would check meal.preferences or similar field
+      const mealPreferences = meal.preferences || [];
+      const matchesPreferences =
+        selectedPreferences.length === 0 ||
+        selectedPreferences.some(
+          (pref) =>
+            meal.description.toLowerCase().includes(pref.toLowerCase()) ||
+            mealPreferences.includes(pref),
+        );
+
+      return (
+        matchesSearch &&
+        matchesCategory &&
+        matchesRating &&
+        matchesProvider &&
+        matchesPreferences
       );
-    
-    return matchesSearch && matchesCategory && matchesRating && matchesProvider && matchesPreferences;
-  }) || [];
-  
+    }) || [];
+
   // Pagination calculations
   const totalPages = Math.ceil(filteredMeals.length / mealsPerPage);
   const indexOfLastMeal = currentPage * mealsPerPage;
   const indexOfFirstMeal = indexOfLastMeal - mealsPerPage;
   const currentMeals = filteredMeals.slice(indexOfFirstMeal, indexOfLastMeal);
-  
+
   // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, selectedCategory, minRating, selectedProviders, selectedPreferences]);
-  
+  }, [
+    searchTerm,
+    selectedCategory,
+    minRating,
+    selectedProviders,
+    selectedPreferences,
+  ]);
+
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
     // Scroll to top of results
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
-  
-  const handleMealSelect = (mealId: string) => {
-    router.push(`/order/${mealId}`);
-  };
-  
+
+  // const handleMealSelect = (mealId: string) => {
+  //   router.push(`/order/${mealId}`);
+  // };
+
   const handleProviderToggle = (provider: string) => {
-    setSelectedProviders(prev => 
+    setSelectedProviders((prev) =>
       prev.includes(provider)
-        ? prev.filter(p => p !== provider)
-        : [...prev, provider]
+        ? prev.filter((p) => p !== provider)
+        : [...prev, provider],
     );
   };
-  
+
   const handlePreferenceToggle = (preference: string) => {
-    setSelectedPreferences(prev => 
+    setSelectedPreferences((prev) =>
       prev.includes(preference)
-        ? prev.filter(p => p !== preference)
-        : [...prev, preference]
+        ? prev.filter((p) => p !== preference)
+        : [...prev, preference],
     );
   };
-  
+
   const resetFilters = () => {
-    setSearchTerm('');
+    setSearchTerm("");
     setSelectedCategory(null);
     setMinRating(0);
     setSelectedProviders([]);
     setSelectedPreferences([]);
     setCurrentPage(1);
   };
-  
+
   const renderRating = (meal: Meal) => {
     const rating = meal.ratings?.average ?? meal.rating ?? 0;
     const reviewCount = meal.ratings?.count ?? meal.reviewCount ?? 0;
-    
+
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-    
+
     return (
       <div className="flex items-center">
         <div className="flex">
           {[...Array(fullStars)].map((_, i) => (
-            <Star key={`full-${i}`} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+            <Star
+              key={`full-${i}`}
+              className="h-4 w-4 fill-yellow-400 text-yellow-400"
+            />
           ))}
           {hasHalfStar && (
             <div className="relative h-4 w-4">
               <Star className="absolute h-4 w-4 text-gray-300" />
-              <Star className="absolute h-4 w-4 fill-yellow-400 text-yellow-400" style={{ clipPath: 'inset(0 50% 0 0)' }} />
+              <Star
+                className="absolute h-4 w-4 fill-yellow-400 text-yellow-400"
+                style={{ clipPath: "inset(0 50% 0 0)" }}
+              />
             </div>
           )}
           {[...Array(emptyStars)].map((_, i) => (
@@ -184,28 +222,28 @@ export default function FindMealsPage() {
       </div>
     );
   };
-  
+
   // Pagination UI component
   const renderPagination = () => {
     if (totalPages <= 1) return null;
-    
+
     const pageNumbers = [];
-    
+
     // Show at most 5 page numbers with current page in the middle when possible
     let startPage = Math.max(1, currentPage - 2);
     const endPage = Math.min(totalPages, startPage + 4);
-    
+
     // Adjust startPage if endPage is at the maximum
     if (endPage === totalPages) {
       startPage = Math.max(1, endPage - 4);
     }
-    
+
     for (let i = startPage; i <= endPage; i++) {
       pageNumbers.push(i);
     }
-    
+
     return (
-      <div className="flex justify-center mt-8 items-center gap-1">
+      <div className="mt-8 flex items-center justify-center gap-1">
         <Button
           variant="outline"
           size="icon"
@@ -215,7 +253,7 @@ export default function FindMealsPage() {
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        
+
         {startPage > 1 && (
           <>
             <Button
@@ -229,8 +267,8 @@ export default function FindMealsPage() {
             {startPage > 2 && <span className="mx-1">...</span>}
           </>
         )}
-        
-        {pageNumbers.map(number => (
+
+        {pageNumbers.map((number) => (
           <Button
             key={number}
             variant={currentPage === number ? "default" : "outline"}
@@ -241,7 +279,7 @@ export default function FindMealsPage() {
             {number}
           </Button>
         ))}
-        
+
         {endPage < totalPages && (
           <>
             {endPage < totalPages - 1 && <span className="mx-1">...</span>}
@@ -255,7 +293,7 @@ export default function FindMealsPage() {
             </Button>
           </>
         )}
-        
+
         <Button
           variant="outline"
           size="icon"
@@ -268,19 +306,19 @@ export default function FindMealsPage() {
       </div>
     );
   };
-  
+
   if (isLoading) {
     return (
-      <div className="container mx-auto py-8 px-4">
-        <h1 className="text-3xl font-bold mb-8">Find Meals</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="mb-8 text-3xl font-bold">Find Meals</h1>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <Card key={i} className="overflow-hidden">
               <Skeleton className="h-48 w-full" />
               <CardContent className="p-4">
-                <Skeleton className="h-6 w-3/4 mb-2" />
-                <Skeleton className="h-4 w-full mb-2" />
-                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="mb-2 h-6 w-3/4" />
+                <Skeleton className="mb-2 h-4 w-full" />
+                <Skeleton className="mb-2 h-4 w-full" />
                 <Skeleton className="h-4 w-2/3" />
               </CardContent>
             </Card>
@@ -289,24 +327,27 @@ export default function FindMealsPage() {
       </div>
     );
   }
-  
+
   if (isError) {
     return (
-      <div className="container mx-auto py-8 px-4 text-center">
-        <h1 className="text-3xl font-bold mb-4">Error Loading Meals</h1>
-        <p className="text-gray-600 mb-6">We are having trouble loading the available meals. Please try again later.</p>
+      <div className="container mx-auto px-4 py-8 text-center">
+        <h1 className="mb-4 text-3xl font-bold">Error Loading Meals</h1>
+        <p className="mb-6 text-gray-600">
+          We are having trouble loading the available meals. Please try again
+          later.
+        </p>
         <Button onClick={() => window.location.reload()}>Retry</Button>
       </div>
     );
   }
-  
+
   return (
-    <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-8">Find Meals</h1>
-      
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="mb-8 text-3xl font-bold">Find Meals</h1>
+
       {/* Search input */}
-      <div className="mb-6 relative">
-        <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+      <div className="relative mb-6">
+        <Search className="absolute top-3 left-3 h-4 w-4 text-gray-400" />
         <Input
           type="text"
           placeholder="Search meals by name or description..."
@@ -315,19 +356,19 @@ export default function FindMealsPage() {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
-      
+
       {/* Responsive Filtering Section */}
-      <div className="mb-6 border border-gray-200 rounded-md p-4 bg-white">
+      <div className="mb-6 rounded-md border border-gray-200 bg-white p-4">
         {/* Section Title - Mobile Only */}
-        <h3 className="text-base font-semibold mb-4 md:hidden">Filtering</h3>
-        
+        <h3 className="mb-4 text-base font-semibold md:hidden">Filtering</h3>
+
         {/* Desktop View - Horizontal layout */}
         <div className="hidden md:flex md:flex-wrap md:items-center md:gap-0">
           {/* Section Title - Desktop */}
-          <h3 className="text-base font-semibold mr-3">Filtering</h3>
-          
+          <h3 className="mr-3 text-base font-semibold">Filtering</h3>
+
           {/* Category Pills */}
-          <div className="inline-flex items-center border rounded-md overflow-hidden mr-3">
+          <div className="mr-3 inline-flex items-center overflow-hidden rounded-md border">
             <Button
               variant={selectedCategory === null ? "default" : "ghost"}
               size="sm"
@@ -361,11 +402,11 @@ export default function FindMealsPage() {
               Dinner
             </Button>
           </div>
-          
+
           {/* Minimum Rating */}
-          <div className="flex items-center mr-3">
-            <span className="text-sm font-medium mr-2">Minimum Rating</span>
-            <div className="relative w-[150px] flex items-center">
+          <div className="mr-3 flex items-center">
+            <span className="mr-2 text-sm font-medium">Minimum Rating</span>
+            <div className="relative flex w-[150px] items-center">
               <Slider
                 value={[minRating]}
                 min={0}
@@ -374,44 +415,57 @@ export default function FindMealsPage() {
                 onValueChange={(values) => setMinRating(values[0])}
                 className="w-full"
               />
-              <div className="absolute -top-3 left-0 right-0 flex justify-between">
-                {[0, 1, 2, 3, 4, 5].map(value => (
-                  <div 
-                    key={value} 
-                    className={`${minRating >= value ? 'bg-black' : 'bg-gray-200'}`}
-                    style={{ 
-                      height: value === 0 || value === 5 ? '10px' : value % 2 === 0 ? '8px' : '6px',
-                      width: value === 0 || value === 5 ? '2px' : '1px'
+              <div className="absolute -top-3 right-0 left-0 flex justify-between">
+                {[0, 1, 2, 3, 4, 5].map((value) => (
+                  <div
+                    key={value}
+                    className={`${minRating >= value ? "bg-black" : "bg-gray-200"}`}
+                    style={{
+                      height:
+                        value === 0 || value === 5
+                          ? "10px"
+                          : value % 2 === 0
+                            ? "8px"
+                            : "6px",
+                      width: value === 0 || value === 5 ? "2px" : "1px",
                     }}
                   />
                 ))}
               </div>
             </div>
-            <div className="flex items-center gap-1 ml-2">
+            <div className="ml-2 flex items-center gap-1">
               <span className="text-sm font-medium">{minRating}</span>
               <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
             </div>
           </div>
-          
+
           {/* Dietary Preferences Dropdown */}
-          <div className="flex items-center mr-3">
-            <span className="text-sm font-medium mr-2">Dietary Preferences</span>
+          <div className="mr-3 flex items-center">
+            <span className="mr-2 text-sm font-medium">
+              Dietary Preferences
+            </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="flex items-center gap-1 h-9 px-3 w-[130px]">
-                  {selectedPreferences.length > 0 ? `${selectedPreferences.length} selected` : 'Select'}
-                  <ChevronDown className="h-4 w-4 ml-auto" />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex h-9 w-[130px] items-center gap-1 px-3"
+                >
+                  {selectedPreferences.length > 0
+                    ? `${selectedPreferences.length} selected`
+                    : "Select"}
+                  <ChevronDown className="ml-auto h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-[240px]">
                 <DropdownMenuLabel>Dietary Preferences</DropdownMenuLabel>
                 <div className="px-2 py-1.5">
                   <div className="relative">
-                    <Search className="absolute left-2 top-2.5 h-3.5 w-3.5 text-gray-500" />
+                    <Search className="absolute top-2.5 left-2 h-3.5 w-3.5 text-gray-500" />
                     <Input
                       type="text"
                       placeholder="Search preferences..."
-                      className="pl-7 h-8 text-sm"
+                      className="h-8 pl-7 text-sm"
                       value={preferenceSearchTerm}
                       onChange={(e) => setPreferenceSearchTerm(e.target.value)}
                     />
@@ -424,13 +478,15 @@ export default function FindMealsPage() {
                       <DropdownMenuCheckboxItem
                         key={preference}
                         checked={selectedPreferences.includes(preference)}
-                        onCheckedChange={() => handlePreferenceToggle(preference)}
+                        onCheckedChange={() =>
+                          handlePreferenceToggle(preference)
+                        }
                       >
                         {preference}
                       </DropdownMenuCheckboxItem>
                     ))
                   ) : (
-                    <div className="px-2 py-1.5 text-sm text-gray-500 text-center">
+                    <div className="px-2 py-1.5 text-center text-sm text-gray-500">
                       No preferences found
                     </div>
                   )}
@@ -438,26 +494,32 @@ export default function FindMealsPage() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          
+
           {/* Meal Providers Dropdown */}
-          <div className="flex items-center mr-3">
-            <span className="text-sm font-medium mr-2">Meal Providers</span>
+          <div className="mr-3 flex items-center">
+            <span className="mr-2 text-sm font-medium">Meal Providers</span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="flex items-center gap-1 h-9 px-3 w-[130px]">
-                  {selectedProviders.length > 0 ? `${selectedProviders.length} selected` : 'Select'}
-                  <ChevronDown className="h-4 w-4 ml-auto" />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex h-9 w-[130px] items-center gap-1 px-3"
+                >
+                  {selectedProviders.length > 0
+                    ? `${selectedProviders.length} selected`
+                    : "Select"}
+                  <ChevronDown className="ml-auto h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-[240px]">
                 <DropdownMenuLabel>Meal Providers</DropdownMenuLabel>
                 <div className="px-2 py-1.5">
                   <div className="relative">
-                    <Search className="absolute left-2 top-2.5 h-3.5 w-3.5 text-gray-500" />
+                    <Search className="absolute top-2.5 left-2 h-3.5 w-3.5 text-gray-500" />
                     <Input
                       type="text"
                       placeholder="Search providers..."
-                      className="pl-7 h-8 text-sm"
+                      className="h-8 pl-7 text-sm"
                       value={providerSearchTerm}
                       onChange={(e) => setProviderSearchTerm(e.target.value)}
                     />
@@ -476,7 +538,7 @@ export default function FindMealsPage() {
                       </DropdownMenuCheckboxItem>
                     ))
                   ) : (
-                    <div className="px-2 py-1.5 text-sm text-gray-500 text-center">
+                    <div className="px-2 py-1.5 text-center text-sm text-gray-500">
                       No providers found
                     </div>
                   )}
@@ -484,26 +546,26 @@ export default function FindMealsPage() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          
+
           {/* Spacer */}
           <div className="flex-grow"></div>
-          
+
           {/* Reset Button */}
-          <Button 
-            variant="default" 
-            size="sm" 
-            onClick={resetFilters} 
-            className="bg-primary text-white hover:bg-primary/90"
+          <Button
+            variant="default"
+            size="sm"
+            onClick={resetFilters}
+            className="bg-primary hover:bg-primary/90 text-white"
           >
             Reset
           </Button>
         </div>
-        
+
         {/* Mobile View - Vertical layout */}
         <div className="flex flex-col space-y-4 md:hidden">
           {/* Category Pills */}
           <div className="w-full">
-            <div className="inline-flex items-center border rounded-md overflow-hidden">
+            <div className="inline-flex items-center overflow-hidden rounded-md border">
               <Button
                 variant={selectedCategory === null ? "default" : "ghost"}
                 size="sm"
@@ -538,12 +600,12 @@ export default function FindMealsPage() {
               </Button>
             </div>
           </div>
-          
+
           {/* Minimum Rating */}
-          <div className="flex items-center justify-between w-full">
-            <span className="text-sm font-medium mr-8">Minimum Rating</span>
+          <div className="flex w-full items-center justify-between">
+            <span className="mr-8 text-sm font-medium">Minimum Rating</span>
             <div className="flex items-center gap-5">
-              <div className="relative w-[180px] flex items-center">
+              <div className="relative flex w-[180px] items-center">
                 <Slider
                   value={[minRating]}
                   min={0}
@@ -552,14 +614,19 @@ export default function FindMealsPage() {
                   onValueChange={(values) => setMinRating(values[0])}
                   className="w-full"
                 />
-                <div className="absolute -top-3 left-0 right-0 flex justify-between">
-                  {[0, 1, 2, 3, 4, 5].map(value => (
-                    <div 
-                      key={value} 
-                      className={`${minRating >= value ? 'bg-black' : 'bg-gray-200'}`}
-                      style={{ 
-                        height: value === 0 || value === 5 ? '10px' : value % 2 === 0 ? '8px' : '6px',
-                        width: value === 0 || value === 5 ? '2px' : '1px'
+                <div className="absolute -top-3 right-0 left-0 flex justify-between">
+                  {[0, 1, 2, 3, 4, 5].map((value) => (
+                    <div
+                      key={value}
+                      className={`${minRating >= value ? "bg-black" : "bg-gray-200"}`}
+                      style={{
+                        height:
+                          value === 0 || value === 5
+                            ? "10px"
+                            : value % 2 === 0
+                              ? "8px"
+                              : "6px",
+                        width: value === 0 || value === 5 ? "2px" : "1px",
                       }}
                     />
                   ))}
@@ -571,26 +638,32 @@ export default function FindMealsPage() {
               </div>
             </div>
           </div>
-          
+
           {/* Dietary Preferences Dropdown */}
-          <div className="flex items-center justify-between w-full">
+          <div className="flex w-full items-center justify-between">
             <span className="text-sm font-medium">Dietary Preferences</span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="flex items-center gap-1 h-9 px-3 w-[180px]">
-                  {selectedPreferences.length > 0 ? `${selectedPreferences.length} selected` : 'Select'}
-                  <ChevronDown className="h-4 w-4 ml-auto" />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex h-9 w-[180px] items-center gap-1 px-3"
+                >
+                  {selectedPreferences.length > 0
+                    ? `${selectedPreferences.length} selected`
+                    : "Select"}
+                  <ChevronDown className="ml-auto h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[240px]">
                 <DropdownMenuLabel>Dietary Preferences</DropdownMenuLabel>
                 <div className="px-2 py-1.5">
                   <div className="relative">
-                    <Search className="absolute left-2 top-2.5 h-3.5 w-3.5 text-gray-500" />
+                    <Search className="absolute top-2.5 left-2 h-3.5 w-3.5 text-gray-500" />
                     <Input
                       type="text"
                       placeholder="Search preferences..."
-                      className="pl-7 h-8 text-sm"
+                      className="h-8 pl-7 text-sm"
                       value={preferenceSearchTerm}
                       onChange={(e) => setPreferenceSearchTerm(e.target.value)}
                     />
@@ -603,13 +676,15 @@ export default function FindMealsPage() {
                       <DropdownMenuCheckboxItem
                         key={preference}
                         checked={selectedPreferences.includes(preference)}
-                        onCheckedChange={() => handlePreferenceToggle(preference)}
+                        onCheckedChange={() =>
+                          handlePreferenceToggle(preference)
+                        }
                       >
                         {preference}
                       </DropdownMenuCheckboxItem>
                     ))
                   ) : (
-                    <div className="px-2 py-1.5 text-sm text-gray-500 text-center">
+                    <div className="px-2 py-1.5 text-center text-sm text-gray-500">
                       No preferences found
                     </div>
                   )}
@@ -617,26 +692,32 @@ export default function FindMealsPage() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          
+
           {/* Meal Providers Dropdown */}
-          <div className="flex items-center justify-between w-full">
+          <div className="flex w-full items-center justify-between">
             <span className="text-sm font-medium">Meal Providers</span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="flex items-center gap-1 h-9 px-3 w-[180px]">
-                  {selectedProviders.length > 0 ? `${selectedProviders.length} selected` : 'Select'}
-                  <ChevronDown className="h-4 w-4 ml-auto" />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex h-9 w-[180px] items-center gap-1 px-3"
+                >
+                  {selectedProviders.length > 0
+                    ? `${selectedProviders.length} selected`
+                    : "Select"}
+                  <ChevronDown className="ml-auto h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[240px]">
                 <DropdownMenuLabel>Meal Providers</DropdownMenuLabel>
                 <div className="px-2 py-1.5">
                   <div className="relative">
-                    <Search className="absolute left-2 top-2.5 h-3.5 w-3.5 text-gray-500" />
+                    <Search className="absolute top-2.5 left-2 h-3.5 w-3.5 text-gray-500" />
                     <Input
                       type="text"
                       placeholder="Search providers..."
-                      className="pl-7 h-8 text-sm"
+                      className="h-8 pl-7 text-sm"
                       value={providerSearchTerm}
                       onChange={(e) => setProviderSearchTerm(e.target.value)}
                     />
@@ -655,7 +736,7 @@ export default function FindMealsPage() {
                       </DropdownMenuCheckboxItem>
                     ))
                   ) : (
-                    <div className="px-2 py-1.5 text-sm text-gray-500 text-center">
+                    <div className="px-2 py-1.5 text-center text-sm text-gray-500">
                       No providers found
                     </div>
                   )}
@@ -663,92 +744,103 @@ export default function FindMealsPage() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          
+
           {/* Reset Button */}
           <div className="w-full">
-            <Button 
-              variant="default" 
-              size="sm" 
-              onClick={resetFilters} 
-              className="bg-primary text-white hover:bg-primary/90 w-[180px] float-right"
+            <Button
+              variant="default"
+              size="sm"
+              onClick={resetFilters}
+              className="bg-primary hover:bg-primary/90 float-right w-[180px] text-white"
             >
               Reset
             </Button>
           </div>
         </div>
       </div>
-      
+
       {/* Results count */}
       <div className="mb-4">
         <p className="text-sm text-gray-500">
-          {filteredMeals.length} {filteredMeals.length === 1 ? 'meal' : 'meals'} found
-          {filteredMeals.length > 0 ? ` (showing ${indexOfFirstMeal + 1}-${Math.min(indexOfLastMeal, filteredMeals.length)} of ${filteredMeals.length})` : ''}
+          {filteredMeals.length} {filteredMeals.length === 1 ? "meal" : "meals"}{" "}
+          found
+          {filteredMeals.length > 0
+            ? ` (showing ${indexOfFirstMeal + 1}-${Math.min(indexOfLastMeal, filteredMeals.length)} of ${filteredMeals.length})`
+            : ""}
         </p>
       </div>
-      
+
       {/* Meals grid */}
       {filteredMeals.length === 0 ? (
-        <div className="text-center py-12">
-          <h2 className="text-xl font-medium mb-4">No meals found</h2>
-          <p className="text-gray-500 mb-6">Try adjusting your search or filters</p>
-          <Button onClick={resetFilters}>
-            Show All Meals
-          </Button>
+        <div className="py-12 text-center">
+          <h2 className="mb-4 text-xl font-medium">No meals found</h2>
+          <p className="mb-6 text-gray-500">
+            Try adjusting your search or filters
+          </p>
+          <Button onClick={resetFilters}>Show All Meals</Button>
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {currentMeals.map((meal) => (
-              <Card 
-                key={meal._id} 
-                className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
-                onClick={() => handleMealSelect(meal._id)}
+              <Link
+                href={`/order/${meal._id}`}
+                key={meal._id}
+                className="hover:shadow-feed-jungle/20 cursor-pointer overflow-hidden rounded-2xl bg-white p-4 shadow-lg transition-shadow duration-300"
+                // onClick={() => handleMealSelect(meal._id)}
               >
-                <div className="aspect-video relative">
+                <div className="relative aspect-video">
                   <Image
                     src={meal.image}
                     alt={meal.name}
                     fill
-                    className="object-cover"
+                    className="rounded-lg object-cover"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
-                  <Badge 
-                    className="absolute top-2 right-2 bg-white text-black hover:bg-white"
+                  <Badge
+                    className="bg-feed-lime absolute top-2 right-2 h-6 rounded-full text-base text-black"
                     variant="secondary"
                   >
                     {meal.category}
                   </Badge>
                 </div>
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-semibold text-lg">{meal.name}</h3>
-                    <span className="text-red-500 font-semibold">৳{meal.price.toFixed(2)}</span>
+                <div className="py-4">
+                  <div className="mb-2 flex items-center justify-between">
+                    <h3 className="truncate text-lg font-semibold">
+                      {meal.name}
+                    </h3>
+                    <span className="text-feed-jungle/70 text-lg font-semibold">
+                      ৳{meal.price.toFixed(2)}
+                    </span>
                   </div>
-                  
-                  <p className="text-gray-600 text-sm line-clamp-2 mb-2">{meal.description}</p>
-                  
-                  <div className="flex justify-between items-center">
+
+                  <p className="mb-2 line-clamp-2 text-sm text-gray-600">
+                    {meal.description}
+                  </p>
+
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm text-gray-500">
                       <ChefHat className="h-4 w-4" />
                       <span>
-                        {typeof meal.providerId === 'object' && meal.providerId?.name
+                        {typeof meal.providerId === "object" &&
+                        meal.providerId?.name
                           ? meal.providerId.name
-                          : (typeof meal.providerId === 'string'
-                              ? meal.providerId
-                              : 'Unknown Provider')}
+                          : typeof meal.providerId === "string"
+                            ? meal.providerId
+                            : "Unknown Provider"}
                       </span>
                     </div>
                     {renderRating(meal)}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </Link>
             ))}
           </div>
-          
+
           {/* Pagination controls */}
           {renderPagination()}
         </>
       )}
     </div>
   );
-} 
+}

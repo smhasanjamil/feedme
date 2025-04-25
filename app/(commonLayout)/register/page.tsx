@@ -8,12 +8,12 @@ import { toast } from "react-hot-toast";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue 
+  SelectValue,
 } from "@/components/ui/select";
 
 type FormData = {
@@ -44,12 +44,12 @@ export default function SignUp() {
     setValue,
   } = useForm<FormData>({
     defaultValues: {
-      role: "customer"
-    }
+      role: "customer",
+    },
   });
   const [SignUp] = useSignUpMutation();
   const router = useRouter();
-  
+
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
 
@@ -69,14 +69,16 @@ export default function SignUp() {
         const errorResponse = response.error;
         if (errorResponse && "data" in errorResponse && errorResponse.data) {
           const errorData = errorResponse.data as BackendErrorResponse;
-          
+
           // Check for error message in errorSources array (for duplicate email etc.)
-          if (errorData.errorSources && 
-              Array.isArray(errorData.errorSources) && 
-              errorData.errorSources.length > 0 && 
-              errorData.errorSources[0].message) {
+          if (
+            errorData.errorSources &&
+            Array.isArray(errorData.errorSources) &&
+            errorData.errorSources.length > 0 &&
+            errorData.errorSources[0].message
+          ) {
             toast.error(errorData.errorSources[0].message);
-          } 
+          }
           // Fallback to general message if available
           else if (errorData.message) {
             toast.error(errorData.message);
@@ -98,7 +100,7 @@ export default function SignUp() {
     } catch (error) {
       console.error("Registration error:", error);
       // No toast for unexpected errors unless there's a message from the backend
-      if (error && typeof error === 'object' && 'message' in error) {
+      if (error && typeof error === "object" && "message" in error) {
         const errorMessage = (error as { message: string }).message;
         toast.error(errorMessage);
       }
@@ -238,7 +240,9 @@ export default function SignUp() {
                       type="tel"
                       placeholder="Enter your phone number"
                       className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
-                      {...register("phone", { required: "Phone number is required" })}
+                      {...register("phone", {
+                        required: "Phone number is required",
+                      })}
                     />
                     {errors.phone && (
                       <p className="mt-1 text-sm text-red-600">
@@ -261,7 +265,9 @@ export default function SignUp() {
                       type="text"
                       placeholder="Enter your address"
                       className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
-                      {...register("address", { required: "Address is required" })}
+                      {...register("address", {
+                        required: "Address is required",
+                      })}
                     />
                     {errors.address && (
                       <p className="mt-1 text-sm text-red-600">

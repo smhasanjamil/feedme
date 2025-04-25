@@ -25,20 +25,19 @@ interface Meal {
 }
 
 const Page = () => {
- 
   const { data: meals, isLoading, isError, error } = useGetAllMealsQuery({});
-  
+
   // Debug log to check the API response structure
-  
+
   useEffect(() => {
     if (meals) {
-      console.log('Meals API Response:', meals);
-      console.log('Meals data type:', typeof meals);
-      console.log('Has data property:', meals.hasOwnProperty('data'));
+      console.log("Meals API Response:", meals);
+      console.log("Meals data type:", typeof meals);
+      console.log("Has data property:", meals.hasOwnProperty("data"));
       if (meals.data) {
-        console.log('Data type:', typeof meals.data);
-        console.log('Data is array:', Array.isArray(meals.data));
-        console.log('Data length:', meals.data.length);
+        console.log("Data type:", typeof meals.data);
+        console.log("Data is array:", Array.isArray(meals.data));
+        console.log("Data length:", meals.data.length);
       }
     }
   }, [meals]);
@@ -50,8 +49,10 @@ const Page = () => {
   if (isError) {
     return (
       <div className="p-8">
-        <div className="text-red-500 mb-4">Failed to fetch meals. Please try again later.</div>
-        <div className="text-sm bg-gray-100 p-4 rounded">
+        <div className="mb-4 text-red-500">
+          Failed to fetch meals. Please try again later.
+        </div>
+        <div className="rounded bg-gray-100 p-4 text-sm">
           Error: {JSON.stringify(error, null, 2)}
         </div>
       </div>
@@ -60,13 +61,19 @@ const Page = () => {
 
   if (!meals || !meals.data) {
     // Using the mock data as fallback for demonstration
-    
+
     const mockMeals: Meal[] = [
       {
         _id: "1",
         name: "Grilled Chicken Salad",
         providerId: "provider01",
-        ingredients: ["Chicken Breast", "Lettuce", "Tomatoes", "Cucumber", "Olive Oil"],
+        ingredients: [
+          "Chicken Breast",
+          "Lettuce",
+          "Tomatoes",
+          "Cucumber",
+          "Olive Oil",
+        ],
         portionSize: "Large",
         price: 10.99,
         image: "https://source.unsplash.com/featured/?chicken,salad",
@@ -82,12 +89,16 @@ const Page = () => {
         },
       },
     ];
-    
+
     return (
       <div>
-        <div className="bg-yellow-100 p-4 mb-4 rounded-md">
-          <p className="text-yellow-700">Using sample data. API data not available.</p>
-          <p className="text-sm text-yellow-600 mt-2">Response: {JSON.stringify(meals)}</p>
+        <div className="mb-4 rounded-md bg-yellow-100 p-4">
+          <p className="text-yellow-700">
+            Using sample data. API data not available.
+          </p>
+          <p className="mt-2 text-sm text-yellow-600">
+            Response: {JSON.stringify(meals)}
+          </p>
         </div>
         <FoodDetailsCard
           meals={mockMeals}
@@ -97,7 +108,7 @@ const Page = () => {
       </div>
     );
   }
-  
+
   return (
     <FoodDetailsCard
       meals={meals.data}

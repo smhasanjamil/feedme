@@ -37,12 +37,16 @@ const FoodDetailsCard: React.FC<Props> = ({ meals, onEdit, onDelete }) => {
   if (!meals || meals.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center">
-        <p className="text-lg font-medium text-gray-600 mb-4">No meals available</p>
-        <p className="text-sm text-gray-500">Please add meals to your menu or check your connection.</p>
+        <p className="mb-4 text-lg font-medium text-gray-600">
+          No meals available
+        </p>
+        <p className="text-sm text-gray-500">
+          Please add meals to your menu or check your connection.
+        </p>
       </div>
     );
   }
-  
+
   return (
     <div className="grid grid-cols-1 gap-6 p-4 sm:grid-cols-2 lg:grid-cols-3">
       {meals.map((meal) => {
@@ -50,17 +54,18 @@ const FoodDetailsCard: React.FC<Props> = ({ meals, onEdit, onDelete }) => {
         if (!meal || !meal._id || !meal.name) {
           return null;
         }
-        
+
         return (
           <Card key={meal._id} className="overflow-hidden">
             {meal.image && (
               <img
                 src={meal.image}
                 alt={meal.name}
-                className="w-full h-48 object-cover"
+                className="h-48 w-full object-cover"
                 onError={(e) => {
                   // Handle image loading errors
-                  e.currentTarget.src = "https://placehold.co/600x400?text=Meal+Image";
+                  e.currentTarget.src =
+                    "https://placehold.co/600x400?text=Meal+Image";
                 }}
               />
             )}
@@ -76,7 +81,10 @@ const FoodDetailsCard: React.FC<Props> = ({ meals, onEdit, onDelete }) => {
 
               <div className="space-y-1 text-sm text-gray-500">
                 <p>
-                  <strong>Price:</strong> ${typeof meal.price === 'number' ? meal.price.toFixed(2) : '0.00'}
+                  <strong>Price:</strong> $
+                  {typeof meal.price === "number"
+                    ? meal.price.toFixed(2)
+                    : "0.00"}
                 </p>
                 <p>
                   <strong>Portion:</strong> {meal.portionSize || "Standard"}

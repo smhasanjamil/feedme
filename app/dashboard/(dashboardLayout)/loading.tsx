@@ -14,7 +14,7 @@ export default function DashboardLoading() {
           <Skeleton className="h-4 w-2/3" />
         </CardContent>
       </Card>
-      
+
       {/* Health tip card skeleton */}
       <Card className="rounded-2xl bg-gradient-to-br from-gray-50 to-white p-4 shadow">
         <CardContent className="space-y-3">
@@ -31,4 +31,4 @@ export default function DashboardLoading() {
       </Card>
     </div>
   );
-} 
+}

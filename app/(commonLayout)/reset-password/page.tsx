@@ -31,13 +31,13 @@ type BackendErrorResponse = {
 function ResetPasswordLoading() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
-      <div className="w-full max-w-[500px] overflow-hidden rounded-2xl bg-white shadow-2xl p-8">
+      <div className="w-full max-w-[500px] overflow-hidden rounded-2xl bg-white p-8 shadow-2xl">
         <div className="text-center">
-          <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900 mb-4">
+          <h2 className="mb-4 text-center text-3xl font-bold tracking-tight text-gray-900">
             Loading...
           </h2>
           <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
+            <div className="h-12 w-12 animate-spin rounded-full border-t-2 border-b-2 border-red-500"></div>
           </div>
         </div>
       </div>
@@ -54,7 +54,7 @@ function ResetPasswordContent() {
   const email = searchParams.get("email");
   const token = searchParams.get("token");
   const [resetPassword] = useResetPasswordMutation();
-  
+
   const {
     register,
     handleSubmit,
@@ -71,23 +71,23 @@ function ResetPasswordContent() {
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     setIsLoading(true);
-    
+
     if (!token) {
       toast.error("Reset token is missing");
       setIsLoading(false);
       return;
     }
-    
+
     console.log("Resetting password for email:", data.email);
     console.log("With token:", token);
-    
+
     try {
       const resetData = {
         email: data.email,
         password: data.password,
-        token: token
+        token: token,
       };
-      
+
       console.log("Sending reset data:", resetData);
       const response = await resetPassword(resetData);
       console.log("Reset password response:", response);
@@ -95,17 +95,19 @@ function ResetPasswordContent() {
       if ("error" in response) {
         const errorResponse = response.error;
         console.error("Reset password error response:", errorResponse);
-        
+
         if (errorResponse && "data" in errorResponse && errorResponse.data) {
           const errorData = errorResponse.data as BackendErrorResponse;
-          
+
           // Check for error message in errorSources array
-          if (errorData.errorSources && 
-              Array.isArray(errorData.errorSources) && 
-              errorData.errorSources.length > 0 && 
-              errorData.errorSources[0].message) {
+          if (
+            errorData.errorSources &&
+            Array.isArray(errorData.errorSources) &&
+            errorData.errorSources.length > 0 &&
+            errorData.errorSources[0].message
+          ) {
             toast.error(errorData.errorSources[0].message);
-          } 
+          }
           // Fallback to general message if available
           else if (errorData.message) {
             toast.error(errorData.message);
@@ -124,7 +126,9 @@ function ResetPasswordContent() {
       if (response.data) {
         console.log("Reset password success response:", response.data);
         if (response.data.status) {
-          toast.success(response.data.message || "Password has been reset successfully");
+          toast.success(
+            response.data.message || "Password has been reset successfully",
+          );
           setResetComplete(true);
         } else if (response.data.message) {
           toast.error(response.data.message);
@@ -132,7 +136,7 @@ function ResetPasswordContent() {
       }
     } catch (error) {
       console.error("Reset password error:", error);
-      if (error && typeof error === 'object' && 'message' in error) {
+      if (error && typeof error === "object" && "message" in error) {
         const errorMessage = (error as { message: string }).message;
         toast.error(errorMessage);
       } else {
@@ -149,7 +153,7 @@ function ResetPasswordContent() {
       const redirectTimer = setTimeout(() => {
         router.push("/login");
       }, 3000);
-      
+
       return () => clearTimeout(redirectTimer);
     }
   }, [resetComplete, router]);
@@ -158,12 +162,12 @@ function ResetPasswordContent() {
   if (!token || !email) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
-        <div className="w-full max-w-[500px] overflow-hidden rounded-2xl bg-white shadow-2xl p-8">
+        <div className="w-full max-w-[500px] overflow-hidden rounded-2xl bg-white p-8 shadow-2xl">
           <div className="text-center">
-            <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900 mb-4">
+            <h2 className="mb-4 text-center text-3xl font-bold tracking-tight text-gray-900">
               Invalid Reset Link
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="mb-6 text-gray-600">
               The password reset link is invalid or has expired.
             </p>
             <Link
@@ -184,11 +188,13 @@ function ResetPasswordContent() {
         <div className="p-8">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
             <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
-              {resetComplete ? "Password Reset Complete" : "Reset Your Password"}
+              {resetComplete
+                ? "Password Reset Complete"
+                : "Reset Your Password"}
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
-              {resetComplete 
-                ? "You'll be redirected to the login page shortly" 
+              {resetComplete
+                ? "You'll be redirected to the login page shortly"
                 : "Enter your new password below"}
             </p>
           </div>
@@ -258,8 +264,9 @@ function ResetPasswordContent() {
                       className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
                       {...register("confirmPassword", {
                         required: "Please confirm your password",
-                        validate: (value) => 
-                          value === watch("password") || "Passwords do not match"
+                        validate: (value) =>
+                          value === watch("password") ||
+                          "Passwords do not match",
                       })}
                     />
                     {errors.confirmPassword && (
@@ -274,7 +281,7 @@ function ResetPasswordContent() {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="flex w-full justify-center rounded-md bg-[#FF0000] px-4 py-3 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#CC0000] focus:ring-2 focus:ring-[#FF0000] focus:ring-offset-2 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex w-full justify-center rounded-md bg-[#FF0000] px-4 py-3 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#CC0000] focus:ring-2 focus:ring-[#FF0000] focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isLoading ? "Processing..." : "Reset Password"}
                   </Button>
@@ -282,12 +289,13 @@ function ResetPasswordContent() {
               </form>
             </div>
           ) : (
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md text-center">
-              <div className="flex justify-center mb-4">
+            <div className="mt-8 text-center sm:mx-auto sm:w-full sm:max-w-md">
+              <div className="mb-4 flex justify-center">
                 <CheckCircle className="h-16 w-16 text-green-500" />
               </div>
-              <p className="text-gray-600 mb-6">
-                Your password has been reset successfully. You will be redirected to the login page.
+              <p className="mb-6 text-gray-600">
+                Your password has been reset successfully. You will be
+                redirected to the login page.
               </p>
               <Link
                 href="/login"
@@ -310,4 +318,4 @@ export default function ResetPassword() {
       <ResetPasswordContent />
     </Suspense>
   );
-} 
+}

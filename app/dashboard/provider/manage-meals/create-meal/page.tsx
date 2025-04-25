@@ -168,7 +168,7 @@ export default function CreateMealForm() {
       setMealData(initialMealData);
     } catch (err: unknown) {
       console.error("Failed to create meal:", err);
-      
+
       // Handle different error types
       if (err instanceof Error) {
         toast.error(err.message || "Failed to create meal");
@@ -176,11 +176,21 @@ export default function CreateMealForm() {
         // Handle RTK query error response
         if ("message" in err && typeof err.message === "string") {
           toast.error(err.message);
-        } else if ("data" in err && typeof err.data === "object" && err.data && "message" in err.data) {
-          const errorMessage = typeof err.data.message === 'string' ? err.data.message : "Failed to create meal";
+        } else if (
+          "data" in err &&
+          typeof err.data === "object" &&
+          err.data &&
+          "message" in err.data
+        ) {
+          const errorMessage =
+            typeof err.data.message === "string"
+              ? err.data.message
+              : "Failed to create meal";
           toast.error(errorMessage);
         } else if (Object.keys(err).length === 0) {
-          toast.error("Failed to create meal. Please check your form inputs and try again.");
+          toast.error(
+            "Failed to create meal. Please check your form inputs and try again.",
+          );
         } else {
           toast.error("Failed to create meal. Server error occurred.");
         }
@@ -341,13 +351,11 @@ export default function CreateMealForm() {
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {["Breakfast", "Lunch", "Dinner"].map(
-                    (category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ),
-                  )}
+                  {["Breakfast", "Lunch", "Dinner"].map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

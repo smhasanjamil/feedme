@@ -56,13 +56,15 @@ export default function About() {
   return (
     <div className="">
       {/* Hero Section */}
-      <section className="flex flex-col items-center bg-gray-100/60 px-4 py-10 md:py-16 text-center">
-        <h1 className="mb-4 text-2xl md:text-3xl lg:text-5xl font-semibold">About Us</h1>
-        <div className="bg-feed-lime h-1 md:h-2 w-20 rounded-full" />
+      <section className="flex flex-col items-center bg-gray-100/60 px-4 py-10 text-center md:py-16">
+        <h1 className="mb-4 text-2xl font-semibold md:text-3xl lg:text-5xl">
+          About Us
+        </h1>
+        <div className="bg-feed-lime h-1 w-20 rounded-full md:h-2" />
       </section>
 
       {/* Home Sweet Bakery Section */}
-      <section className="relative container mx-auto my-10 md:my-20 grid max-w-[1050px] flex-col gap-5 md:grid-cols-2 md:flex-row">
+      <section className="relative container mx-auto my-10 grid max-w-[1050px] flex-col gap-5 md:my-20 md:grid-cols-2 md:flex-row">
         <Image
           src="/about/chef.jpg"
           alt="Bakery Man"
@@ -129,7 +131,7 @@ export default function About() {
       </section>
 
       {/* Freshly Baked Section */}
-      <section className="my-10 md:my-20 bg-gray-100/60 p-3 sm:p-5 md:p-0">
+      <section className="my-10 bg-gray-100/60 p-3 sm:p-5 md:my-20 md:p-0">
         <div className="relative container">
           {/* Half circle left side */}
           <div className="bg-feed-lime shadow-feed-lime absolute top-[-50px] left-[-50px] z-0 size-25 rounded-full opacity-100 shadow-2xl blur-lg" />
@@ -159,17 +161,19 @@ export default function About() {
               alt="fresh food"
               width={600}
               height={400}
-              className="rounded-xl hidden md:block"
+              className="hidden rounded-xl md:block"
             />
           </div>
         </div>
       </section>
 
       {/* Benefits Section */}
-      <section className="container my-10 md:my-20 bg-white">
+      <section className="container my-10 bg-white md:my-20">
         <div className="mb-8 space-y-3 text-center">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-medium">Benefits Of Healthy Food</h2>
-          <p className="md:text-lg text-gray-700">
+          <h2 className="text-2xl font-medium md:text-3xl lg:text-4xl">
+            Benefits Of Healthy Food
+          </h2>
+          <p className="text-gray-700 md:text-lg">
             Discover how healthy food fuels your body, sharpens your mind, and
             supports overall
             <br />

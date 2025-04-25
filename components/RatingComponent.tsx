@@ -2,14 +2,26 @@ import { useState } from "react";
 import { Star, StarIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "./ui/dialog";
 import toast from "react-hot-toast";
 
 interface RatingComponentProps {
   orderId: string;
   mealId: string;
   mealName: string;
-  onRatingSubmit: (rating: number, comment: string, mealId: string, orderId: string) => Promise<void>;
+  onRatingSubmit: (
+    rating: number,
+    comment: string,
+    mealId: string,
+    orderId: string,
+  ) => Promise<void>;
   isDelivered: boolean;
 }
 
@@ -47,7 +59,7 @@ export default function RatingComponent({
       setIsOpen(false);
       setRating(0);
       setComment("");
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_error) {
       toast.error("Failed to submit rating. Please try again.");
     } finally {
@@ -62,7 +74,7 @@ export default function RatingComponent({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="text-[10px] h-6">
+        <Button variant="outline" size="sm" className="h-6 text-[10px]">
           Rate Meal
         </Button>
       </DialogTrigger>
@@ -72,7 +84,7 @@ export default function RatingComponent({
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div>
-            <h3 className="text-sm font-medium mb-1">{mealName}</h3>
+            <h3 className="mb-1 text-sm font-medium">{mealName}</h3>
             <div className="flex items-center space-x-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -90,7 +102,7 @@ export default function RatingComponent({
                   )}
                 </button>
               ))}
-              <span className="text-sm ml-2">
+              <span className="ml-2 text-sm">
                 {rating > 0 ? `${rating}/5` : "Select rating"}
               </span>
             </div>
@@ -121,4 +133,4 @@ export default function RatingComponent({
       </DialogContent>
     </Dialog>
   );
-} 
+}

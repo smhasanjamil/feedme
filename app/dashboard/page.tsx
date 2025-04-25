@@ -31,10 +31,10 @@ export default function Dashboard() {
   }, [user, router]);
 
   return (
-    <div className="flex flex-col justify-center items-center h-full w-full p-8 space-y-4">
+    <div className="flex h-full w-full flex-col items-center justify-center space-y-4 p-8">
       <Skeleton className="h-12 w-3/4 max-w-md" />
       <Skeleton className="h-24 w-3/4 max-w-md" />
       <Skeleton className="h-32 w-3/4 max-w-md" />
     </div>
   );
-} 
+}

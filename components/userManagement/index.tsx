@@ -64,7 +64,6 @@ export default function UserManagementTable() {
       "user",
       "admin",
       "provider",
- 
     ];
     const isValidRole = validRoles.includes(role as DashboardUserData["role"]);
     if (!isValidRole) {
@@ -102,9 +101,14 @@ export default function UserManagementTable() {
       }
     } catch (error: unknown) {
       // Log the error object in detail but suppress Next.js default error logging
-      const errorData = error as { data?: { message?: string }, message?: string };
+      const errorData = error as {
+        data?: { message?: string };
+        message?: string;
+      };
       toast.error(
-        errorData?.data?.message || errorData?.message || "Something went wrong",
+        errorData?.data?.message ||
+          errorData?.message ||
+          "Something went wrong",
       );
     }
   };
@@ -115,7 +119,8 @@ export default function UserManagementTable() {
       const result = await deleteUser(id).unwrap(); // Use delete mutation
       toast.success(result.message); // Show success toast
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
       toast.error(errorMessage); // Show error toast
     }
   };
@@ -156,14 +161,13 @@ export default function UserManagementTable() {
                     Email
                   </Label>
                   <Input
-                  type="email"
+                    type="email"
                     id="email"
                     defaultValue={selectedUser.email}
                     className="col-span-3"
                   />
                 </div>
 
-                
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="role" className="text-right">
                     Role
@@ -181,19 +185,21 @@ export default function UserManagementTable() {
                 </div>
 
                 <div className="grid grid-cols-4 items-center gap-4">
-  <Label htmlFor="isBlocked" className="text-right">
-    Status
-  </Label>
-  <select
-    id="isBlocked"
-    name="isBlocked"
-    defaultValue={selectedUser.isBlocked ? "inactive" : "active"}
-    className="col-span-3 rounded border px-2 py-1"
-  >
-    <option value="active">Active</option>
-    <option value="inactive">Inactive</option>
-  </select>
-</div>
+                  <Label htmlFor="isBlocked" className="text-right">
+                    Status
+                  </Label>
+                  <select
+                    id="isBlocked"
+                    name="isBlocked"
+                    defaultValue={
+                      selectedUser.isBlocked ? "inactive" : "active"
+                    }
+                    className="col-span-3 rounded border px-2 py-1"
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
               </div>
               <DialogFooter>
                 <Button type="submit">Save changes</Button>

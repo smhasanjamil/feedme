@@ -9,8 +9,6 @@ type UpdateUserResponse = {
   data: DashboardUserData;
 };
 
-
-
 type DeleteUserResponse = {
   status: boolean;
   statusCode: number;
@@ -28,8 +26,7 @@ export type SingleUser = {
   createdAt: string;
   updatedAt: string;
   password: string;
-}
-
+};
 
 const userApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -48,18 +45,19 @@ const userApi = baseApi.injectEndpoints({
       transformResponse: (response: { data: SingleUser }) => response.data,
     }),
 
-    updateSingleUser: builder.mutation<UpdateUserResponse, Partial<SingleUser>>({
-      query: (updatedUser) => ({
-        url: `user/update/${updatedUser._id}`,  // Full endpoint with dynamic ID
-        method: 'PATCH',
-        body: updatedUser,
-      }),
-    }),
+    updateSingleUser: builder.mutation<UpdateUserResponse, Partial<SingleUser>>(
+      {
+        query: (updatedUser) => ({
+          url: `user/update/${updatedUser._id}`, // Full endpoint with dynamic ID
+          method: "PATCH",
+          body: updatedUser,
+        }),
+      },
+    ),
 
     // Dashboard user update
     updateUser: builder.mutation<
-    
-      UpdateUserResponse, 
+      UpdateUserResponse,
       { id: string; data: Partial<DashboardUserData> }
     >({
       query: ({ id, data }) => ({
@@ -102,5 +100,5 @@ export const {
   useDeleteUserMutation,
   useGetUserByIdQuery,
   useUpdateSingleUserMutation,
-  useChangePasswordMutation
+  useChangePasswordMutation,
 } = userApi;

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Fredoka } from "next/font/google";
 import "./globals.css";
 import ReduxProvider from "@/provider/ReduxProvider";
-import { Toaster } from 'react-hot-toast'
+import { Toaster } from "react-hot-toast";
 import { Providers } from "./providers";
 
 const fredoka = Fredoka({
@@ -27,7 +27,7 @@ export default function RootLayout({
       cloudName: "dciqyeuyp"
     };
   `;
-  
+
   return (
     <html lang="en">
       <head>

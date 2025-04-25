@@ -2,7 +2,9 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../store";
 
 // Define a fallback API URL in case environment variable is not set
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://feedme-backend-zeta.vercel.app/api";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://feedme-backend-zeta.vercel.app/api";
 
 export const baseApi = createApi({
   reducerPath: "baseApi",
@@ -21,7 +23,7 @@ export const baseApi = createApi({
     fetchFn: async (...args) => {
       try {
         const response = await fetch(...args);
-        
+
         // Check for successful HTTP status
         if (!response.ok) {
           // Try to parse error response
@@ -36,29 +38,33 @@ export const baseApi = createApi({
               errorData = { message: `HTTP error ${response.status}` };
             }
           }
-          
+
           // Add error data to response for RTK Query to handle
           (response as any).errorData = errorData;
         }
-        
+
         return response;
       } catch (error) {
         console.error("Network error in API call:", error);
         // Create a Response object that includes the network error information
-        const errorResponse = new Response(JSON.stringify({ 
-          message: "Network connection error. Please check your internet connection." 
-        }), {
-          status: 500,
-          statusText: "Network Error",
-          headers: { 'Content-Type': 'application/json' }
-        });
-        
+        const errorResponse = new Response(
+          JSON.stringify({
+            message:
+              "Network connection error. Please check your internet connection.",
+          }),
+          {
+            status: 500,
+            statusText: "Network Error",
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+
         // Add the original error for debugging
         (errorResponse as any).originalError = error;
-        
+
         return errorResponse;
       }
-    }
+    },
   }),
   endpoints: () => ({}),
 });

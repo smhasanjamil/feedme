@@ -203,14 +203,14 @@ const Navbar = () => {
           <div className="space-y-1 px-2 pt-2 pb-3 sm:px-3">
             <Link
               href="/find-meals"
-              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-feed-lime"
+              className="hover:text-feed-lime block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50"
               onClick={() => setIsMenuOpen(false)}
             >
               Find Meals
             </Link>
             <Link
               href="/about"
-              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-feed-lime"
+              className="hover:text-feed-lime block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50"
               onClick={() => setIsMenuOpen(false)}
             >
               About
@@ -218,7 +218,7 @@ const Navbar = () => {
 
             <Link
               href="/contact"
-              className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-feed-lime"
+              className="hover:text-feed-lime block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50"
               onClick={() => setIsMenuOpen(false)}
             >
               Contact Us
@@ -227,14 +227,14 @@ const Navbar = () => {
               <>
                 <Link
                   href="/dashboard"
-                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-feed-lime"
+                  className="hover:text-feed-lime block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Dashboard
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="w-full rounded-md px-3 py-2 text-left text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-feed-lime"
+                  className="hover:text-feed-lime w-full rounded-md px-3 py-2 text-left text-base font-medium text-gray-700 hover:bg-gray-50"
                 >
                   Sign Out
                 </button>
@@ -243,14 +243,14 @@ const Navbar = () => {
               <>
                 <Link
                   href="/login"
-                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-feed-lime"
+                  className="hover:text-feed-lime block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/register"
-                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-feed-lime"
+                  className="hover:text-feed-lime block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Sign Up

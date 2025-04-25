@@ -27,7 +27,11 @@ import { toast } from "react-hot-toast";
 const adminMenuItems = [
   { name: "Home", path: "/", icon: <Home /> },
   { name: "Dashboard", path: "/dashboard/admin", icon: <LayoutDashboard /> },
-  { name: "Manage Users", path: "/dashboard/admin/manage-users", icon: <Users /> },
+  {
+    name: "Manage Users",
+    path: "/dashboard/admin/manage-users",
+    icon: <Users />,
+  },
   { name: "Profile", path: "/dashboard/admin/profile", icon: <User /> },
 ];
 
@@ -74,7 +78,7 @@ export default function AdminSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <button 
+              <button
                 onClick={handleLogout}
                 className="w-full text-left text-red-500 hover:text-red-600"
               >
@@ -88,4 +92,4 @@ export default function AdminSidebar() {
       <SidebarRail />
     </Sidebar>
   );
-} 
+}

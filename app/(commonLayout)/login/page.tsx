@@ -50,14 +50,16 @@ export default function SignIn() {
         const errorResponse = response.error;
         if (errorResponse && "data" in errorResponse && errorResponse.data) {
           const errorData = errorResponse.data as BackendErrorResponse;
-          
+
           // Check for error message in errorSources array
-          if (errorData.errorSources && 
-              Array.isArray(errorData.errorSources) && 
-              errorData.errorSources.length > 0 && 
-              errorData.errorSources[0].message) {
+          if (
+            errorData.errorSources &&
+            Array.isArray(errorData.errorSources) &&
+            errorData.errorSources.length > 0 &&
+            errorData.errorSources[0].message
+          ) {
             toast.error(errorData.errorSources[0].message);
-          } 
+          }
           // Fallback to general message if available
           else if (errorData.message) {
             toast.error(errorData.message);
@@ -90,7 +92,7 @@ export default function SignIn() {
     } catch (error) {
       console.error("Login error:", error);
       // No toast for unexpected errors unless there's a message from the backend
-      if (error && typeof error === 'object' && 'message' in error) {
+      if (error && typeof error === "object" && "message" in error) {
         const errorMessage = (error as { message: string }).message;
         toast.error(errorMessage);
       }

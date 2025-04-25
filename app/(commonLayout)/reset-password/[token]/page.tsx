@@ -34,31 +34,31 @@ export default function ResetPasswordWithToken() {
   const [resetComplete, setResetComplete] = useState(false);
   const router = useRouter();
   const [resetPassword] = useResetPasswordMutation();
-  
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-    watch
+    watch,
   } = useForm<ResetPasswordFormData>();
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     setIsLoading(true);
-    
+
     if (!token) {
       toast.error("Reset token is missing");
       setIsLoading(false);
       return;
     }
-    
+
     console.log("With token:", token);
-    
+
     try {
       const resetData = {
         password: data.password,
-        token: token
+        token: token,
       };
-      
+
       console.log("Sending reset data:", resetData);
       const response = await resetPassword(resetData);
       console.log("Reset password response:", response);
@@ -66,17 +66,19 @@ export default function ResetPasswordWithToken() {
       if ("error" in response) {
         const errorResponse = response.error;
         console.error("Reset password error response:", errorResponse);
-        
+
         if (errorResponse && "data" in errorResponse && errorResponse.data) {
           const errorData = errorResponse.data as BackendErrorResponse;
-          
+
           // Check for error message in errorSources array
-          if (errorData.errorSources && 
-              Array.isArray(errorData.errorSources) && 
-              errorData.errorSources.length > 0 && 
-              errorData.errorSources[0].message) {
+          if (
+            errorData.errorSources &&
+            Array.isArray(errorData.errorSources) &&
+            errorData.errorSources.length > 0 &&
+            errorData.errorSources[0].message
+          ) {
             toast.error(errorData.errorSources[0].message);
-          } 
+          }
           // Fallback to general message if available
           else if (errorData.message) {
             toast.error(errorData.message);
@@ -95,7 +97,9 @@ export default function ResetPasswordWithToken() {
       if (response.data) {
         console.log("Reset password success response:", response.data);
         if (response.data.status) {
-          toast.success(response.data.message || "Password has been reset successfully");
+          toast.success(
+            response.data.message || "Password has been reset successfully",
+          );
           setResetComplete(true);
         } else if (response.data.message) {
           toast.error(response.data.message);
@@ -103,7 +107,7 @@ export default function ResetPasswordWithToken() {
       }
     } catch (error) {
       console.error("Reset password error:", error);
-      if (error && typeof error === 'object' && 'message' in error) {
+      if (error && typeof error === "object" && "message" in error) {
         const errorMessage = (error as { message: string }).message;
         toast.error(errorMessage);
       } else {
@@ -120,7 +124,7 @@ export default function ResetPasswordWithToken() {
       const redirectTimer = setTimeout(() => {
         router.push("/login");
       }, 3000);
-      
+
       return () => clearTimeout(redirectTimer);
     }
   }, [resetComplete, router]);
@@ -131,11 +135,13 @@ export default function ResetPasswordWithToken() {
         <div className="p-8">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
             <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
-              {resetComplete ? "Password Reset Complete" : "Reset Your Password"}
+              {resetComplete
+                ? "Password Reset Complete"
+                : "Reset Your Password"}
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
-              {resetComplete 
-                ? "You'll be redirected to the login page shortly" 
+              {resetComplete
+                ? "You'll be redirected to the login page shortly"
                 : "Enter your new password below"}
             </p>
           </div>
@@ -187,8 +193,9 @@ export default function ResetPasswordWithToken() {
                       className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
                       {...register("confirmPassword", {
                         required: "Please confirm your password",
-                        validate: (value) => 
-                          value === watch("password") || "Passwords do not match"
+                        validate: (value) =>
+                          value === watch("password") ||
+                          "Passwords do not match",
                       })}
                     />
                     {errors.confirmPassword && (
@@ -224,4 +231,4 @@ export default function ResetPasswordWithToken() {
       </div>
     </div>
   );
-} 
+}

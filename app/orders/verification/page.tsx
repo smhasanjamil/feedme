@@ -50,10 +50,10 @@ interface OrderData {
 // Loading component for Suspense
 function OrderVerificationLoading() {
   return (
-    <div className="container mx-auto p-4 my-10">
+    <div className="container mx-auto my-10 p-4">
       <div className="animate-pulse space-y-6">
         <div className="h-8 w-64 rounded bg-gray-200"></div>
-        <div className="grid gap-6 grid-cols-1 sm:grid-cols-1 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-1 md:grid-cols-2">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="rounded-lg border p-4">
               <div className="mb-4 h-6 w-40 rounded bg-gray-200"></div>
@@ -80,38 +80,38 @@ function OrderVerificationContent() {
   const dispatch = useAppDispatch();
   const orderId = searchParams.get("order_id");
 
-  const { isLoading, data } = useVerifyOrderQuery(
-    orderId,
-    {
-      refetchOnMountOrArgChange: true,
-    }
-  );
+  const { isLoading, data } = useVerifyOrderQuery(orderId, {
+    refetchOnMountOrArgChange: true,
+  });
 
   // Show toast notification when component mounts and clear cart
   useEffect(() => {
     // Clear the cart immediately after successful payment verification
     dispatch(clearCart());
-    
+
     toast.success("Please check your email for order confirmation details", {
       duration: 5000,
       position: "top-center",
       icon: "📧",
     });
-    
+
     console.log("==== COMPONENT MOUNTED ====");
     console.log("API Response:", data);
     console.log("Cart cleared after payment verification");
   }, [dispatch, data]); // Add data to dependencies
 
   const orderData: OrderData = data?.data?.[0];
-  
+
   // Create a delivery date (7 days from now)
   const deliveryDate = new Date();
   deliveryDate.setDate(deliveryDate.getDate() + 7);
-  
+
   // Use the tracking number from the API response
-  const trackingNumber = orderData?.tracking_number || 
-    (orderData?.order_id ? `TRK-${orderData.order_id.substring(0, 8)}` : "Not available");
+  const trackingNumber =
+    orderData?.tracking_number ||
+    (orderData?.order_id
+      ? `TRK-${orderData.order_id.substring(0, 8)}`
+      : "Not available");
 
   // Ensure we have default values for missing fields
   const paymentMethod = orderData?.method || "Visa/Mastercard/Other Card";
@@ -121,14 +121,16 @@ function OrderVerificationContent() {
   return isLoading ? (
     <OrderVerificationLoading />
   ) : (
-    <div className="container mx-auto p-2 sm:p-4 my-6 sm:my-10">
-      <h1 className="mb-4 sm:mb-6 text-2xl sm:text-3xl font-bold">Order Verification</h1>
-      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-1 md:grid-cols-2">
+    <div className="container mx-auto my-6 p-2 sm:my-10 sm:p-4">
+      <h1 className="mb-4 text-2xl font-bold sm:mb-6 sm:text-3xl">
+        Order Verification
+      </h1>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-1 sm:gap-6 md:grid-cols-2">
         <Card>
           <CardHeader className="p-4 sm:p-6">
             <CardTitle className="text-lg sm:text-xl">Order Details</CardTitle>
           </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
+          <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
             <dl className="grid grid-cols-2 gap-2">
               <dt className="font-semibold">Order ID:</dt>
               <dd className="break-all">{orderData?.id}</dd>
@@ -149,17 +151,20 @@ function OrderVerificationContent() {
                 </Badge>
               </dd>
               <dt className="font-semibold">Order Date:</dt>
-              <dd className="break-all">{new Date(orderData?.date_time)?.toLocaleString()}</dd>
-             
+              <dd className="break-all">
+                {new Date(orderData?.date_time)?.toLocaleString()}
+              </dd>
             </dl>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-lg sm:text-xl">Payment Information</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">
+              Payment Information
+            </CardTitle>
           </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
+          <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
             <dl className="grid grid-cols-2 gap-2">
               <dt className="font-semibold">Method:</dt>
               <dd className="break-all">{paymentMethod}</dd>
@@ -177,9 +182,11 @@ function OrderVerificationContent() {
 
         <Card>
           <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-lg sm:text-xl">Customer Information</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">
+              Customer Information
+            </CardTitle>
           </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
+          <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
             <dl className="grid grid-cols-2 gap-2">
               <dt className="font-semibold">Name:</dt>
               <dd className="break-all">{orderData?.name}</dd>
@@ -197,9 +204,11 @@ function OrderVerificationContent() {
 
         <Card>
           <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-lg sm:text-xl">Track your Order</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">
+              Track your Order
+            </CardTitle>
           </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
+          <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
             <dl className="mb-4 grid grid-cols-2 gap-2">
               <dt className="font-semibold">Tracking Number:</dt>
               <dd className="break-all">{trackingNumber}</dd>
@@ -219,7 +228,12 @@ function OrderVerificationContent() {
             </div>
           </CardContent>
           <CardFooter className="p-4 sm:p-6">
-            <Button className="w-full" onClick={() => router.push('/dashboard/customer/my-orders')}>Track Order</Button>
+            <Button
+              className="w-full"
+              onClick={() => router.push("/dashboard/customer/my-orders")}
+            >
+              Track Order
+            </Button>
           </CardFooter>
         </Card>
       </div>

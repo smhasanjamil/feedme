@@ -27,7 +27,7 @@ export default function ForgotPassword() {
   const [isLoading, setIsLoading] = useState(false);
   const [requestSent, setRequestSent] = useState(false);
   const [forgotPassword] = useForgotPasswordMutation();
-  
+
   const {
     register,
     handleSubmit,
@@ -36,10 +36,10 @@ export default function ForgotPassword() {
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
     setIsLoading(true);
-    
+
     try {
       console.log("Sending password reset request with email:", data.email);
-      
+
       const response = await forgotPassword(data.email);
       console.log("Response:", response);
 
@@ -47,14 +47,16 @@ export default function ForgotPassword() {
         const errorResponse = response.error;
         if (errorResponse && "data" in errorResponse && errorResponse.data) {
           const errorData = errorResponse.data as BackendErrorResponse;
-          
+
           // Check for error message in errorSources array
-          if (errorData.errorSources && 
-              Array.isArray(errorData.errorSources) && 
-              errorData.errorSources.length > 0 && 
-              errorData.errorSources[0].message) {
+          if (
+            errorData.errorSources &&
+            Array.isArray(errorData.errorSources) &&
+            errorData.errorSources.length > 0 &&
+            errorData.errorSources[0].message
+          ) {
             toast.error(errorData.errorSources[0].message);
-          } 
+          }
           // Fallback to general message if available
           else if (errorData.message) {
             toast.error(errorData.message);
@@ -72,7 +74,10 @@ export default function ForgotPassword() {
 
       if (response.data) {
         if (response.data.status) {
-          toast.success(response.data.message || "Reset password link has been sent to your email");
+          toast.success(
+            response.data.message ||
+              "Reset password link has been sent to your email",
+          );
           setRequestSent(true);
         } else if (response.data.message) {
           toast.error(response.data.message);
@@ -80,7 +85,7 @@ export default function ForgotPassword() {
       }
     } catch (error) {
       console.error("Forgot password error:", error);
-      if (error && typeof error === 'object' && 'message' in error) {
+      if (error && typeof error === "object" && "message" in error) {
         const errorMessage = (error as { message: string }).message;
         toast.error(errorMessage);
       } else {
@@ -100,8 +105,8 @@ export default function ForgotPassword() {
               {requestSent ? "Check your email" : "Forgot Password"}
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
-              {requestSent 
-                ? "We've sent a password reset link to your email" 
+              {requestSent
+                ? "We've sent a password reset link to your email"
                 : "Enter your email address and we'll send you a link to reset your password"}
             </p>
           </div>
@@ -122,12 +127,12 @@ export default function ForgotPassword() {
                       type="email"
                       placeholder="Enter your email"
                       className="block w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-base focus:border-[#FF0000] focus:ring-2 focus:ring-[#FF0000]/20 focus:outline-none"
-                      {...register("email", { 
+                      {...register("email", {
                         required: "Email is required",
                         pattern: {
                           value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                           message: "Invalid email address",
-                        }
+                        },
                       })}
                     />
                     {errors.email && (
@@ -159,7 +164,7 @@ export default function ForgotPassword() {
               </Button>
             </div>
           )}
-          
+
           <div className="mt-6 text-center">
             <Link
               href="/login"
@@ -172,4 +177,4 @@ export default function ForgotPassword() {
       </div>
     </div>
   );
-} 
+}

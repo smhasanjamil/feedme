@@ -211,9 +211,15 @@ export default function EditMealPage() {
                   uploadPreset="feedme"
                   onSuccess={(result) => {
                     const cloudinaryResult = result as CloudinaryResult;
-                    if (cloudinaryResult && cloudinaryResult.info && cloudinaryResult.info.secure_url) {
+                    if (
+                      cloudinaryResult &&
+                      cloudinaryResult.info &&
+                      cloudinaryResult.info.secure_url
+                    ) {
                       setMealData((prev) =>
-                        prev ? { ...prev, image: cloudinaryResult.info.secure_url } : null
+                        prev
+                          ? { ...prev, image: cloudinaryResult.info.secure_url }
+                          : null,
                       );
                     }
                   }}
@@ -294,13 +300,11 @@ export default function EditMealPage() {
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {["Breakfast", "Lunch", "Dinner"].map(
-                    (category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ),
-                  )}
+                  {["Breakfast", "Lunch", "Dinner"].map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

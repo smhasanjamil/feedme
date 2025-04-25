@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { MealDetails, CustomizationOptions, useAddToCart } from './addToCartUtils';
-import { Loader2 } from 'lucide-react';
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  MealDetails,
+  CustomizationOptions,
+  useAddToCart,
+} from "./addToCartUtils";
+import { Loader2 } from "lucide-react";
 
 interface AddToCartButtonProps {
   meal: MealDetails;
@@ -20,7 +24,7 @@ const AddToCartButton = ({
   deliverySlot,
   customization,
   deliveryAddress = "Default Address",
-  onSuccess
+  onSuccess,
 }: AddToCartButtonProps) => {
   const { addToCart, isLoading } = useAddToCart();
   const [adding, setAdding] = useState(false);
@@ -34,9 +38,9 @@ const AddToCartButton = ({
         deliveryDate,
         deliverySlot,
         customization,
-        deliveryAddress
+        deliveryAddress,
       );
-      
+
       if (success && onSuccess) {
         onSuccess();
       }
@@ -46,21 +50,21 @@ const AddToCartButton = ({
   };
 
   return (
-    <Button 
-      onClick={handleAddToCart} 
-      disabled={isLoading || adding} 
-      className="w-full bg-primary hover:bg-primary/90 text-white py-2 rounded-md"
+    <Button
+      onClick={handleAddToCart}
+      disabled={isLoading || adding}
+      className="bg-primary hover:bg-primary/90 w-full rounded-md py-2 text-white"
     >
-      {(isLoading || adding) ? (
+      {isLoading || adding ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           Adding to Cart...
         </>
       ) : (
-        'Add to Cart'
+        "Add to Cart"
       )}
     </Button>
   );
 };
 
-export default AddToCartButton; 
+export default AddToCartButton;

@@ -141,7 +141,7 @@ export default function CreateMealForm() {
 
     return () => observer.disconnect();
   }, []);
-  
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     console.log(mealData);
@@ -221,7 +221,7 @@ export default function CreateMealForm() {
                       />
                     </div>
                   ) : (
-                    <div className="relative h-[200px] w-[200px] rounded-md bg-gray-100 flex items-center justify-center">
+                    <div className="relative flex h-[200px] w-[200px] items-center justify-center rounded-md bg-gray-100">
                       <p className="text-gray-500">No image uploaded</p>
                     </div>
                   )}
@@ -230,18 +230,18 @@ export default function CreateMealForm() {
                     options={{
                       maxFiles: 1,
                       resourceType: "image",
-                      cloudName: "dciqyeuyp"
+                      cloudName: "dciqyeuyp",
                     }}
                     onSuccess={(result, { widget }) => {
                       if (
-                        result?.info && 
-                        typeof result.info === 'object' && 
-                        'secure_url' in result.info
+                        result?.info &&
+                        typeof result.info === "object" &&
+                        "secure_url" in result.info
                       ) {
                         const secureUrl = result.info.secure_url as string;
                         setMealData((prev) => ({
                           ...prev,
-                          image: secureUrl
+                          image: secureUrl,
                         }));
                       }
                       widget.close();
@@ -274,13 +274,11 @@ export default function CreateMealForm() {
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {["Breakfast", "Lunch", "Dinner"].map(
-                    (category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ),
-                  )}
+                  {["Breakfast", "Lunch", "Dinner"].map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

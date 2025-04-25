@@ -9,22 +9,22 @@ export default function CustomerDashboard() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Customer Dashboard</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <h1 className="mb-6 text-2xl font-bold">Customer Dashboard</h1>
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">My Orders</CardTitle>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+            <ShoppingCart className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">Orders</div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               View your order history and status
             </p>
-            <button 
+            <button
               onClick={() => router.push("/dashboard/customer/my-orders")}
-              className="mt-4 bg-primary text-white px-4 py-2 rounded-md text-sm"
+              className="bg-primary mt-4 rounded-md px-4 py-2 text-sm text-white"
             >
               View Orders
             </button>
@@ -34,16 +34,16 @@ export default function CustomerDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Track Order</CardTitle>
-            <Search className="h-4 w-4 text-muted-foreground" />
+            <Search className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">Order Tracking</div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Track the status of your current orders
             </p>
-            <button 
+            <button
               onClick={() => router.push("/dashboard/customer/track-order")}
-              className="mt-4 bg-primary text-white px-4 py-2 rounded-md text-sm"
+              className="bg-primary mt-4 rounded-md px-4 py-2 text-sm text-white"
             >
               Track Order
             </button>
@@ -53,16 +53,14 @@ export default function CustomerDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Select Meal</CardTitle>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+            <ShoppingCart className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">Select Meal</div>
-            <p className="text-xs text-muted-foreground">
-              Select Your Meals
-            </p>
-            <button 
+            <p className="text-muted-foreground text-xs">Select Your Meals</p>
+            <button
               onClick={() => router.push("/find-meals")}
-              className="mt-4 bg-primary text-white px-4 py-2 rounded-md text-sm"
+              className="bg-primary mt-4 rounded-md px-4 py-2 text-sm text-white"
             >
               Select Meal
             </button>
@@ -71,4 +69,4 @@ export default function CustomerDashboard() {
       </div>
     </div>
   );
-} 
+}
