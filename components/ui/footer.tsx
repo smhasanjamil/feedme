@@ -4,16 +4,11 @@ import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <footer className="bg-feed-black text-feed-lime py-5 pt-10">
-      <div className="container mx-auto grid grid-cols-1 items-start gap-8 px-4 sm:grid-cols-2 sm:px-6 md:grid-cols-4 lg:px-8">
-        <div className="flex flex-col items-start gap-4">
-          <Link href="/" className="text-3xl font-semibold">
-            feedme.
-          </Link>
-          <p className="text-sm md:text-base">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua.
-          </p>
+    <footer className="bg-feed-black text-feed-lime py-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 items-start">
+        <div className="flex flex-col items-start">
+          <Image src="/bekary.jpg" alt="Bakery Logo" height={100} width={100} className="rounded-t-full max-w-20 mb-4" /> {/* Replace with your actual logo path */}
+          <p className="text-sm">Start your day with the aroma of oven-fresh bread. Our bakers rise early so you can enjoy a crisp crust and fluffy inside every morning.</p>
         </div>
         <div>
           <h6 className="mb-4 font-bold uppercase">Our Store</h6>
