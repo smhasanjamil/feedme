@@ -1,33 +1,26 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { FaEnvelope, FaMapMarkerAlt, FaPhoneAlt } from "react-icons/fa";
 
 const page = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="text-feed-jungle relative overflow-hidden bg-[#f7fbe9] py-24">
-        <div className="container mx-auto px-4 text-center sm:px-6 lg:px-8">
-          <h1 className="mb-4 text-4xl font-bold md:text-5xl">Contact Us</h1>
-          <p className="mx-auto max-w-xl text-lg opacity-75">
-          Start your day with the aroma of oven-fresh bread. Our bakers rise early so you can enjoy.
-          </p>
-        </div>
-        {/* Image Overlay (adjust path as needed) */}
-        <div
-          className="absolute top-0 right-0 h-full w-1/2 bg-cover bg-center opacity-100"
-          style={{ backgroundImage: "url(/building.png)" }}
-        ></div>
+      <section className="flex flex-col items-center bg-gray-100/60 px-4 py-10 text-center md:py-16">
+        <h1 className="mb-4 text-2xl font-semibold md:text-3xl lg:text-5xl">
+          Contact Us
+        </h1>
+        <div className="bg-feed-lime h-1 w-20 rounded-full md:h-2" />
       </section>
 
       {/* Contact Information and Form Section */}
-      <section className="container py-16">
-        <div className="  grid grid-cols-1 gap-12 px-4 sm:px-6 md:grid-cols-5 w-full">
+      <section className="container my-10 md:my-20">
+        <div className="grid w-full grid-cols-1 md:grid-cols-5 gap-7 md:gap-12">
           {/* Map Section (Left) */}
-          <div className=" overflow-hidden rounded-2xl col-span-2">
+          <div className="col-span-1 overflow-hidden rounded-2xl md:col-span-2">
             <iframe
-            
-              className="rounded-2xl w-full h-[200px] lg:h-[500px] "
+              className="h-[200px] w-full rounded-2xl lg:h-[500px]"
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d187566.50169733484!2d34.3886928!3d31.410245850000003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14fd844104b258a9%3A0xfddcb14b194be8e7!2sGaza%20Strip!5e1!3m2!1sen!2sbd!4v1745052832191!5m2!1sen!2sbd"
-              
               style={{ border: 0 }}
               allowFullScreen={true}
               loading="lazy"
@@ -36,13 +29,16 @@ const page = () => {
           </div>
 
           {/* Get in Touch and Form (Right) */}
-          <div className="col-span-3">
-            <div className="mb-10 ">
+          <div className="col-span-1 md:col-span-3">
+            <div className="mb-10">
               <h2 className="text-feed-jungle mb-6 text-2xl font-bold">
                 Get in Touch
               </h2>
               <p className="mb-4 text-gray-600">
-              Start your day with the aroma of oven-fresh bread. Our bakers rise early so you can enjoy a crisp crust and fluffy inside every morning. Start your day with the aroma of oven-fresh bread. Our bakers rise early so you can enjoy a crisp crust and fluffy inside every morning.
+                Have questions or need assistance? Contact us at
+                support@feedme.com. We’re here to help and ensure you have the
+                best experience with our delicious, healthy meals. Reach out
+                today!
               </p>
               <div className="space-y-4">
                 <p className="flex items-center text-gray-700">
@@ -76,10 +72,10 @@ const page = () => {
                   >
                     Your Name
                   </label>
-                  <input
+                  <Input
                     type="text"
                     id="name"
-                    className=" w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
+                    className="w-full appearance-none border px-3 py-2 leading-tight text-gray-700 focus:outline-none"
                   />
                 </div>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -90,10 +86,10 @@ const page = () => {
                     >
                       Email
                     </label>
-                    <input
+                    <Input
                       type="email"
                       id="email"
-                      className="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
+                      className="focus:shadow-outline leading-tightt-gray-700 w-full appearance-none border px-3 py-2 focus:outline-none"
                     />
                   </div>
                   <div>
@@ -103,10 +99,10 @@ const page = () => {
                     >
                       Phone
                     </label>
-                    <input
+                    <Input
                       type="tel"
                       id="phone"
-                      className="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
+                      className="focus:shadow-outline leading-tightt-gray-700 w-full appearance-none border px-3 py-2 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -119,7 +115,7 @@ const page = () => {
                   </label>
                   <select
                     id="service"
-                    className="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
+                    className="focus:shadow-outline w-full appearance-none rounded-lg border px-3 py-2 leading-tight text-gray-700 focus:outline-none"
                   >
                     <option>General Inquiry</option>
                     <option>Architecture</option>
@@ -138,15 +134,15 @@ const page = () => {
                   <textarea
                     id="message"
                     rows={5}
-                    className="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
+                    className="focus:shadow-outline w-full appearance-none rounded-lg border px-3 py-2 leading-tight text-gray-700 focus:outline-none"
                   ></textarea>
                 </div>
-                <button
+                <Button
                   type="submit"
-                  className="mt-4 rounded-full bg-[#2b4717] px-6 py-3 text-white transition hover:bg-[#1f3512]"
+                  className="bg-feed-lime hover:text-feed-lime border-feed-jungle text-feed-jungle hover:bg-feed-black h-11 rounded-full border-[1.5px] text-lg"
                 >
                   Send Message
-                </button>
+                </Button>
               </form>
             </div>
           </div>
