@@ -105,7 +105,7 @@ const MealsPage: React.FC = () => {
                 alt="menu pictures"
                 width={500}
                 height={500}
-                className="w-full h-[230px] object-cover"
+                className="h-[230px] w-full object-cover"
               />
             )}
 

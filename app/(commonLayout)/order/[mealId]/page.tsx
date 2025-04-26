@@ -273,7 +273,7 @@ export default function OrderPage() {
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span className="text-xl">{typedMeal.name}</span>
-              <span className="text-lg font-semibold text-feed-jungle/70">
+              <span className="text-feed-jungle/70 text-lg font-semibold">
                 ৳{typedMeal.price.toFixed(2)}
               </span>
             </CardTitle>
