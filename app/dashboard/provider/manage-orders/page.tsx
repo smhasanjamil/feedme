@@ -168,7 +168,7 @@ export default function ManageOrdersPage() {
       // Try using a direct fetch approach instead of RTK Query
       try {
         // Ensure the URL exactly matches the confirmed format
-        const apiUrl = `https://feedme-backend-zeta.vercel.app/api/orders/${orderId}/tracking`;
+        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/orders/${orderId}/tracking`;
         console.log("Making direct API call to:", apiUrl);
 
         const directResponse = await fetch(apiUrl, {
@@ -411,7 +411,7 @@ export default function ManageOrdersPage() {
       if (!deleteSuccessful) {
         try {
           console.log("Trying direct fetch delete approach");
-          const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || "https://feedme-backend-zeta.vercel.app/api"}/orders/${orderId}`;
+          const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/orders/${orderId}`;
           console.log("Making direct API call to:", apiUrl);
 
           const directResponse = await fetch(apiUrl, {

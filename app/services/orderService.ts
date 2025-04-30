@@ -1,9 +1,7 @@
 import axios from "axios";
 
 // Base API URL
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  "https://feedme-backend-zeta.vercel.app/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Order tracking response interface
 export interface OrderTrackingResponse {

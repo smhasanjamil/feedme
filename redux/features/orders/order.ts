@@ -255,7 +255,7 @@ const orderApi = baseApi.injectEndpoints({
     >({
       query: ({ orderId, data }) => {
         // Ensure exact URL format matches the confirmed API endpoint
-        const url = `https://feedme-backend-zeta.vercel.app/api/orders/${orderId}/tracking`;
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/orders/${orderId}/tracking`;
         console.log("RTK Query making request to:", url);
         console.log("With data:", data);
 

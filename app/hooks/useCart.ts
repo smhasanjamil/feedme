@@ -77,7 +77,6 @@ export const useCart = () => {
     dispatch(removeFromCartLocal(itemId));
 
     try {
-      // Use the specific API endpoint for the format https://feedme-backend-zeta.vercel.app/api/cart/by-email/item/[itemId]?email=[email]
       if (process.env.NEXT_PUBLIC_API_URL?.includes("localhost:5000")) {
         const removePayload = {
           mealId: itemId,
