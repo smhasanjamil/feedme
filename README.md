@@ -86,3 +86,139 @@ FeedMe is a **Meal Planning & Delivery Web Application** that allows users to pe
 - **Profile:** Edit meal provider profile, including available meals.
 - **Post Meal Menu:** Post detailed meal menus for customers to browse.
 - **Order Responses:** Respond to customer orders.
+## Setup & Installation
+
+- **Node.js** (version 16 or higher)
+- **MongoDB** (local setup or Atlas)
+
+### Installation Steps
+
+**Clone the repository:**
+
+   ```bash
+   git clone https://github.com/smhasanjamil/feedme
+   ```
+### Frontend Setup
+
+1. **Navigate to the client directory from the root directory.**
+In the root folder of the project:
+
+   ```bash
+   cd client
+   ```
+
+2. **Install dependencies for frontend:**
+
+   In the client folder of the project:
+
+   ```bash
+   npm install
+   ```
+
+3. **Set up the environment variables:**
+
+   Create a `.env.local` file in the client directory and add your environment variables. Example:
+
+   ```bash
+   NEXT_PUBLIC_API_URL=http://localhost:5000/api || your backend url
+   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=name
+   NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=preset
+   ```
+
+4. **Start the development server:**
+
+   To run the frontend and backend in development mode:
+
+   ```bash
+   npm run dev
+   ```
+
+   ### Backend Setup
+1. **Navigate to the server directory from the root directory.**
+In the root folder of the project:
+
+   ```bash
+   cd server
+   ```
+
+2. **Install dependencies for backend:**
+
+   In the client folder of the project:
+
+   ```bash
+   npm install
+   ```
+3. **Set up the environment variables:**
+
+   Create a `.env` file in the server directory and add your environment variables. Example:
+
+  ```bash
+PORT=
+DATABASE_URL=
+
+JWT_ACCESS_SECRET=
+JWT_REFRESH_SECRET = 
+
+EMAIL_HOST=
+EMAIL_PORT=
+EMAIL_USER=
+EMAIL_PASS=
+CLIENT_URL=
+
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+
+SP_ENDPOINT=https://sandbox.shurjopayment.com
+SP_USERNAME=
+SP_PASSWORD=
+SP_PREFIX=
+#SP_RETURN_URL=
+SP_RETURN_URL=
+   ```
+
+
+**Development**
+
+For development, use the following command to run the server in development mode. This command uses `ts-node-dev` to automatically restart the server on code changes and to transpile TypeScript code.
+
+```bash
+npm run dev
+```
+
+This will start the server using `src/server.ts`.
+
+**Building**
+
+To build the TypeScript files into JavaScript for production, use the following command:
+
+```bash
+npm run build
+```
+
+This will compile the TypeScript code to the `dist` directory.
+
+### Production
+
+To start the server in production mode, follow these steps:
+
+1. **Build the TypeScript files:**
+
+   First, build the TypeScript files into JavaScript using the following command:
+
+   ```bash
+   npm run build
+   ```
+
+This will compile the TypeScript code to the dist directory.
+
+
+2. **Start the server:**
+
+After building, start the server using the following command:
+
+   ```bash
+   npm run start
+   ```
+
+This will run the server using the compiled JavaScript files from the dist directory.
