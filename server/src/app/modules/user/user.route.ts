@@ -11,7 +11,7 @@ router.get('/', auth(USER_ROLE.admin), userController.getUsers);
 // 2. Get a Specific User
 router.get(
   '/:id',
-  auth(USER_ROLE.admin, USER_ROLE.provider),
+  auth(USER_ROLE.admin, USER_ROLE.provider, USER_ROLE.customer),
   userController.getSingleUsers,
 );
 
