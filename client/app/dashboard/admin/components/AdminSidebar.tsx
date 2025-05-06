@@ -49,9 +49,9 @@ export default function AdminSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="flex h-[60px] items-center px-6">
-          <Link href="/" className="flex items-center gap-2 font-semibold">
-            <Package2 className="h-6 w-6" />
+        <div className="flex h-[60px] items-center text-feed-black">
+          <Link href="/dashboard/admin" className="flex items-center gap-2 font-semibold">
+            <Package2 className="h-6 w-6" color="#282b28" />
             <span className="">Feedme - Admin</span>
           </Link>
         </div>

@@ -61,7 +61,7 @@ export default function CustomerSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="flex h-[60px] items-center px-6">
+        <div className="flex h-[60px] items-center">
           <Link href="/" className="flex items-center gap-2 font-semibold">
             <Package2 className="h-6 w-6" />
             <span className="">Feedme - Customer</span>
