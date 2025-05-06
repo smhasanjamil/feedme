@@ -77,7 +77,7 @@ export const useCart = () => {
     dispatch(removeFromCartLocal(itemId));
 
     try {
-      if (process.env.NEXT_PUBLIC_API_URL?.includes("localhost:5000")) {
+      if (process.env.NEXT_PUBLIC_API_URL?.includes("https://feadme-server.vercel.app")) {
         const removePayload = {
           mealId: itemId,
           email: user?.email,

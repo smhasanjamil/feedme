@@ -120,7 +120,7 @@ In the root folder of the project:
    Create a `.env.local` file in the client directory and add your environment variables. Example:
 
    ```bash
-   NEXT_PUBLIC_API_URL=http://localhost:5000/api || your backend url
+   NEXT_PUBLIC_API_URL=https://feadme-server.vercel.app/api || your backend url
    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=name
    NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=preset
    ```

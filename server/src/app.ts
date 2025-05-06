@@ -24,6 +24,7 @@ app.use(
     origin: [
       'http://localhost:3000',
       'http://localhost:3001',
+      'https://feadme-client.vercel.app',
       'https://feedme-meal.vercel.app',
       'https://feedme-jabeds-projects.vercel.app',
     ], // Your frontend URL
