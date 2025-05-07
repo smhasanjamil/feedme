@@ -49,10 +49,10 @@ export default function AdminSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="flex h-[60px] items-center text-feed-black">
+        <div className="flex h-[60px] items-center text-feed-jungle">
           <Link href="/dashboard/admin" className="flex items-center gap-2 font-semibold">
-            <Package2 className="h-6 w-6" color="#282b28" />
-            <span className="">Feedme - Admin</span>
+            <Package2 className="h-6 w-6" color="#2b4717" />
+            <span className="text-feed-jungle">Feedme - Admin</span>
           </Link>
         </div>
       </SidebarHeader>
@@ -64,9 +64,9 @@ export default function AdminSidebar() {
                 <Link
                   href={item.path}
                   key={index}
-                  className="flex items-center gap-2 rounded-md p-2 text-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                  className="flex items-center gap-2 rounded-md p-2 text-lg text-feed-jungle hover:bg-gray-100 hover:text-gray-900"
                 >
-                  <span className="text-gray-500">{item.icon}</span>
+                  <span  color="#2b4717">{item.icon}</span>
                   <span className="font-bold">{item.name}</span>
                 </Link>
               </SidebarMenuButton>
@@ -80,10 +80,10 @@ export default function AdminSidebar() {
             <SidebarMenuButton asChild>
               <button
                 onClick={handleLogout}
-                className="w-full text-left text-red-500 hover:text-red-600"
+                className="w-full text-left text-feed-jungle"
               >
-                <LogOut className="h-4 w-4" />
-                <span className="font-bold">Logout</span>
+                <LogOut className="h-4 w-4 " color="#2b4717"  />
+                <span className="font-bold text-feed-jungle hover:text-shadow-feed-jungle cursor-pointer">Logout</span>
               </button>
             </SidebarMenuButton>
           </SidebarMenuItem>

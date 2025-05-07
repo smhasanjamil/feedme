@@ -44,6 +44,7 @@ import {
 } from "../ui/form";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { passwordSchema } from "./passwordChangeValidation";
+import DashboardLoading from "@/app/dashboard/(dashboardLayout)/loading";
 
 type ErrorResponse = {
   data?: {
@@ -141,12 +142,12 @@ const Profile = () => {
   };
 
   if (isLoading) {
-    return <p className="text-blue-500">Loading profile...</p>;
+    return <DashboardLoading/>
   }
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 ">
       {/* Header info */}
-      <Card className="w-full">
+      <Card className="w-full ">
         <CardContent>
           <div className="flex flex-col items-center gap-6 md:flex-row">
             <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-800 text-3xl font-semibold text-white">
@@ -172,7 +173,7 @@ const Profile = () => {
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="rounded-full bg-red-500 hover:bg-red-600">
+                <Button className="rounded-full border-feed-jungle border-2 text-feed-jungle bg-feed-lime hover:bg-feed-jungle hover:text-feed-lime">
                   <Edit /> Edit
                 </Button>
               </DialogTrigger>
@@ -243,7 +244,7 @@ const Profile = () => {
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button type="submit">Save changes</Button>
+                    <Button type="submit" className="rounded-full border-feed-jungle border-2 text-feed-jungle bg-feed-lime hover:bg-feed-jungle hover:text-feed-lime">Save changes</Button>
                   </DialogFooter>
                 </form>
               </DialogContent>
@@ -397,7 +398,7 @@ const Profile = () => {
 
                 <Button
                   type="submit"
-                  className="w-fit bg-red-500 hover:bg-red-600"
+                  className="w-fit rounded-full border-feed-jungle border-2 text-feed-jungle bg-feed-lime hover:bg-feed-jungle hover:text-feed-lime"
                   disabled={isSubmitting || isUpdatingPassword}
                 >
                   <Lock />

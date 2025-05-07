@@ -95,7 +95,7 @@ export default function CustomerSidebar() {
                 className="w-full text-left text-red-500 hover:text-red-600"
               >
                 <LogOut className="h-4 w-4" />
-                <span className="font-bold">Logout</span>
+                <span className="font-bold text-feed-jungle">Logout</span>
               </button>
             </SidebarMenuButton>
           </SidebarMenuItem>

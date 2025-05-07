@@ -20,6 +20,7 @@ import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import toast from "react-hot-toast";
+import DashboardLoading from "@/app/dashboard/(dashboardLayout)/loading";
 // import { toast } from "sonner";
 
 export default function UserManagementTable() {
@@ -38,7 +39,7 @@ export default function UserManagementTable() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <DashboardLoading />;
   }
 
   const filteredData =
@@ -202,7 +203,7 @@ export default function UserManagementTable() {
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit">Save changes</Button>
+                <Button type="submit" className="rounded-full border-feed-jungle border-2 text-feed-jungle bg-feed-lime hover:bg-feed-jungle hover:text-feed-lime">Save changes</Button>
               </DialogFooter>
             </form>
           )}
