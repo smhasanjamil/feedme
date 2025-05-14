@@ -34,8 +34,24 @@ export default function SignIn() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<SignInFormData>();
+
+  // user credentials start
+  const autofillCredentials = (role: "customer" | "provider" | "admin") => {
+    const creds = {
+      customer: { email: "customer1@gmail.com", password: "123456" },
+      provider: { email: "provider1@gmail.com", password: "123456" },
+      admin: { email: "admin@gmail.com", password: "123456" },
+    };
+
+    const selected = creds[role];
+    setValue("email", selected.email);
+    setValue("password", selected.password);
+  };
+
+  // user credentials end
 
   const onSubmit = async (data: SignInFormData) => {
     setIsLoading(true);
@@ -135,7 +151,30 @@ export default function SignIn() {
               </p>
             </div>
 
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+            <p className="my-4 text-center">Login Credentials Below</p>
+
+            <div className="mt-2 flex flex-row items-center justify-center gap-2 text-sm">
+              <Button
+                onClick={() => autofillCredentials("customer")}
+                className="text bg-feed-jungle hover:bg-feed-black focus:ring-feed-lime h-10 rounded-full px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                Customer
+              </Button>
+              <Button
+                onClick={() => autofillCredentials("provider")}
+                className="text bg-feed-jungle hover:bg-feed-black focus:ring-feed-lime h-10 rounded-full px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                Privider
+              </Button>
+              <Button
+                onClick={() => autofillCredentials("admin")}
+                className="text bg-feed-jungle hover:bg-feed-black focus:ring-feed-lime h-10 rounded-full px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                Admin
+              </Button>
+            </div>
+
+            <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-md">
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div>
                   <label

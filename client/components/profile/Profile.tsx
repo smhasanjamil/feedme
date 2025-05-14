@@ -154,7 +154,7 @@ const Profile = () => {
               {user?.name.substring(0, 2).toUpperCase()}
             </div>
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-2xl font-bold">{user?.name}</h1>
+              <h1 className="text-2xl font-bold text-feed-jungle">{user?.name}</h1>
               <p className="text-muted-foreground">{user?.role}</p>
             </div>
           </div>
@@ -164,7 +164,7 @@ const Profile = () => {
       <Card className="w-full">
         <CardContent>
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-xl font-semibold">User Information</h3>
+            <h3 className="text-xl font-semibold text-feed-jungle">User Information</h3>
             {/* <Button className="rounded-full bg-red-600">
               <Edit /> Edit
             </Button> */}
@@ -314,7 +314,7 @@ const Profile = () => {
       <Card className="w-full">
         <CardContent>
           <div className="mb-4">
-            <h3 className="text-xl font-semibold">Account Status</h3>
+            <h3 className="text-xl font-semibold text-feed-jungle">Account Status</h3>
           </div>
 
           <div className="flex flex-row gap-2 py-4">
@@ -332,7 +332,7 @@ const Profile = () => {
       <Card className="w-full">
         <CardContent>
           <div className="mb-4">
-            <h3 className="text-xl font-semibold">Change Password</h3>
+            <h3 className="text-xl font-semibold text-feed-jungle">Change Password</h3>
           </div>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
